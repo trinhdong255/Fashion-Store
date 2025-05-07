@@ -1,0 +1,50 @@
+.wrappers {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-image: url('@/assets/images/bg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-left: 60px;
+}
+
+.formLabelInput {
+    margin: 12px 0;
+}
+
+.labelInput {
+    padding-bottom: 4px;
+    font-size: 1.2rem;
+}
+
+.forgotPassword,
+.createAccount,
+.backToHome {
+    color: black;
+    text-decoration: none;
+}
+
+.forgotPassword {
+    margin-top: 24px;
+}
+
+.createAccount {
+    margin-left: 8px;
+}
+
+.backToHome {
+    margin-top: 10px;
+}
+
+.forgotPassword:hover,
+.createAccount:hover,
+.backToHome:hover {
+    text-decoration: underline;
+}
+
+.errorMessage {
+    color: red;
+}

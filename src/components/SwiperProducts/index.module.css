@@ -1,0 +1,46 @@
+.topSellingProducts {
+    background-color: var(--footer-background-color);
+    padding: 48px 0;
+    margin: 0 0 32px 0;
+    border-radius: 5px;
+}
+
+.topSellingProducts h3 {
+    margin: 0 0 16px 0;
+    text-align: center;
+    color: white;
+    font-size: 1.8rem;
+}
+
+.navigationTopSellingProducts ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navigationTopSellingProducts li {
+    margin-right: 16px;
+    font-size: 1.1rem;
+}
+
+.navigationTopSellingProducts li a {
+    color: var(--text-color);
+    text-decoration: none;
+    display: inline-block;
+    padding-bottom: 2px;
+    background-image: linear-gradient(white 0 0);
+    background-position: 0 100%;
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    transition:
+        background-size 0.3s,
+        background-position 0s 0.3s;
+}
+
+.navigationTopSellingProducts li a:hover {
+    color: white;
+    background-position: 100% 100%;
+    background-size: 100% 2px;
+}

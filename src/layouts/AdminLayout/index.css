@@ -1,0 +1,14 @@
+/* AdminLayout.css */
+.admin-layout {
+    background-color: #000000;
+  }
+  
+  .sidebar {
+    background-color: #000000 !important;
+    color: #ffffff;
+  }
+  
+  .header {
+    background-color: #000000 !important;
+    color: #ffffff;
+  }

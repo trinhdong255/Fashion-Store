@@ -1,0 +1,22 @@
+.stickyHeader {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.headerTop {
+    background-color: var(--header-background-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.headerRight{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

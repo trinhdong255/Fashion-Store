@@ -1,0 +1,29 @@
+.wrappers {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-image: url('@/assets/images/bg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-left: 60px;
+}
+
+.formLabelInput {
+    margin: 20px 0;
+}
+    
+.labelInput {
+    padding-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.errorMessage {
+    color: red;
+}
+
+.email{
+    margin-left: 10px;
+}
