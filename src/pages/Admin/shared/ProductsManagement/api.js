@@ -98,14 +98,17 @@ export const handleUpload = async (file) => {
 export const createProduct = async (productData) => {
   const token = localStorage.getItem("accessToken");
 
-  const response = await fetch("http://222.255.119.40:8080/adamstore/v1/products", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(productData),
-  });
+  const response = await fetch(
+    "http://222.255.119.40:8080/adamstore/v1/products",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(productData),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Thêm sản phẩm thất bại");
@@ -133,4 +136,101 @@ export const fetchProduct = async () => {
 
   const data = await response.json();
   return data.result.items;
+};
+
+export const fetchProductID = async (productId, token) => {
+  try {
+    const res = await fetch(
+      `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    // ❗ Kiểm tra nếu có lỗi từ server
+    if (!res.ok) {
+      throw new Error(data.message || "Lỗi không xác định từ máy chủ");
+    }
+
+    // ❗ Kiểm tra xem có result không
+    if (!data.result) {
+      throw new Error("Không tìm thấy thông tin sản phẩm.");
+    }
+
+    const item = data.result;
+
+    return {
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      quantity: item.quantity,
+      available: item.isAvailable ? "Còn hàng" : "Hết hàng",
+      averageRating: item.averageRating,
+      sold: item.soldQuantity,
+      totalReviews: item.totalReviews,
+      stock: item.quantity,
+      price: item.price,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      category: item.category,
+      colors: item.colors || [],
+      sizes: item.sizes || [],
+      images: item.images || [],
+      status: item.status === "ACTIVE" ? "Hoạt động" : "Ngưng hoạt động",
+    };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+export const deleteProduct = async (productId, token) => {
+  try {
+    const res = await fetch(
+      `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    // Nếu có lỗi từ server, parse lỗi từ response
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null); // tránh lỗi nếu không phải JSON
+      const message = errorData?.message || "Lỗi không xác định từ máy chủ";
+      throw new Error(message);
+    }
+
+    return true;
+  } catch (err) {
+    throw new Error(err.message || "Lỗi kết nối khi xóa sản phẩm");
+  }
+};
+
+export const restoreProduct = async (productId, token) => {
+  try {
+    const res = await fetch(
+      `http://222.255.119.40:8080/adamstore/v1/products/${productId}/restore`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Lỗi không rõ");
+    }
+    return true;
+  } catch (err) {
+    throw new Error(err.message || "Lỗi kết nối khi khôi phục sản phẩm");
+  }
 };
