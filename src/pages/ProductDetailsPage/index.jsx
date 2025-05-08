@@ -56,7 +56,7 @@ const ProductDetails = () => {
     const token = localStorage.getItem("accessToken");
     try {
       const res = await axios.get(
-        `http://localhost:8080/adamstore/v1/product-variants/${id}/${colorId}/${sizeId}`,
+        `http://222.255.119.40:8080/adamstore/v1/product-variants/${id}/${colorId}/${sizeId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -82,7 +82,7 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/adamstore/v1/products/${id}`,
+          `http://222.255.119.40:8080/adamstore/v1/products/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -107,7 +107,7 @@ const ProductDetails = () => {
     const fetchVariants = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/adamstore/v1/products/${id}/product-variants`,
+          `http://222.255.119.40:8080/adamstore/v1/products/${id}/product-variants`,
           {
             params: { pageNo: 1, pageSize: 10 },
             headers: { Authorization: `Bearer ${token}` },

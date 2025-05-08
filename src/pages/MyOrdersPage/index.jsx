@@ -17,7 +17,7 @@ const MyOrders = () => {
     const token = localStorage.getItem("accessToken");
     const fetchOrders = async (status) => {
       try {
-        const response = await axios.get("http://localhost:8080/v1/orders/search", {
+        const response = await axios.get("http://222.255.119.40:8080/v1/orders/search", {
           headers: { Authorization: `Bearer ${token}` },
           params: { orderStatus: status, pageNo: 1, pageSize: 20 },
         });
@@ -42,7 +42,7 @@ const MyOrders = () => {
   const handleRetryPayment = (orderId) => {
     const token = localStorage.getItem("accessToken");
     axios
-      .get(`http://localhost:8080/adamstore/v1/orders/${orderId}/retry-payment`, {
+      .get(`http://222.255.119.40:8080/adamstore/v1/orders/${orderId}/retry-payment`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

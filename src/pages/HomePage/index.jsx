@@ -39,7 +39,7 @@ const Home = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      "http://localhost:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
+      "http://222.255.119.40:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
       {
         method: "GET",
         headers: {

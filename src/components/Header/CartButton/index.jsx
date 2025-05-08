@@ -40,7 +40,9 @@ const CartButton = () => {
   });
 
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
-  const cartTotalQuantity = useSelector((state) => state.cart?.cartTotalQuantity || 0);
+  const cartTotalQuantity = useSelector(
+    (state) => state.cart?.cartTotalQuantity || 0
+  );
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -68,7 +70,7 @@ const CartButton = () => {
     const token = localStorage.getItem("accessToken");
     axios
       .put(
-        `http://localhost:8080/adamstore/v1/cart-items/${item.id}`,
+        `http://222.255.119.40:8080/adamstore/v1/cart-items/${item.id}`,
         { quantity: newQuantity },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -106,7 +108,7 @@ const CartButton = () => {
         }}
         role="presentation"
       >
-        <Box sx={{ flexShrink: 0 }}>
+        <Box sx={{  }}>
           <IconButton onClick={toggleDrawer(false)}>
             <CloseIcon fontSize="large" />
           </IconButton>
@@ -121,6 +123,19 @@ const CartButton = () => {
           <Typography sx={{ p: 2, textAlign: "center" }}>
             Đang tải giỏ hàng...
           </Typography>
+        ) : !userId ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              flexGrow: 1,
+            }}
+          >
+            <Typography variant="h6">VUI LÒNG ĐĂNG NHẬP!</Typography>
+            <SentimentDissatisfied fontSize="large" />
+          </Box>
         ) : cartItems.length === 0 ? (
           <Box
             sx={{
@@ -193,7 +208,12 @@ const CartButton = () => {
           <Box sx={{ flexShrink: 0, p: 2 }}>
             <Button
               variant="contained"
-              sx={{ width: "100%", backgroundColor: "black", color: "white", mb: 2 }}
+              sx={{
+                width: "100%",
+                backgroundColor: "black",
+                color: "white",
+                mb: 2,
+              }}
               onClick={handleCheckout}
             >
               Thanh toán
@@ -215,7 +235,8 @@ const CartButton = () => {
           <DialogContent>
             <Typography>
               Bạn có chắc chắn muốn xóa sản phẩm{" "}
-              <strong>{itemToRemove?.productVariantBasic.product.name}</strong> khỏi giỏ hàng?
+              <strong>{itemToRemove?.productVariantBasic.product.name}</strong>{" "}
+              khỏi giỏ hàng?
             </Typography>
           </DialogContent>
           <DialogActions>

@@ -44,7 +44,7 @@ const AddressInform = ({ id }) => {
 
     axios
       .get(
-        "http://localhost:8080/adamstore/v1/provinces?pageNo=1&pageSize=63",
+        "http://222.255.119.40:8080/adamstore/v1/provinces?pageNo=1&pageSize=63",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -66,7 +66,7 @@ const AddressInform = ({ id }) => {
 
     axios
       .get(
-        `http://localhost:8080/adamstore/v1/provinces/${selectedCity}/districts?pageNo=1&pageSize=30`,
+        `http://222.255.119.40:8080/adamstore/v1/provinces/${selectedCity}/districts?pageNo=1&pageSize=30`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -88,7 +88,7 @@ const AddressInform = ({ id }) => {
 
     axios
       .get(
-        `http://localhost:8080/adamstore/v1/districts/${selectedDistrict}/wards?pageNo=1&pageSize=100`,
+        `http://222.255.119.40:8080/adamstore/v1/districts/${selectedDistrict}/wards?pageNo=1&pageSize=100`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -110,7 +110,7 @@ const AddressInform = ({ id }) => {
     if (!token || !id) return;
 
     axios
-      .get(`http://localhost:8080/adamstore/v1/addresses/${id}`, {
+      .get(`http://222.255.119.40:8080/adamstore/v1/addresses/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -144,7 +144,7 @@ const AddressInform = ({ id }) => {
     };
 
     axios
-      .post("http://localhost:8080/adamstore/v1/addresses", data, {
+      .post("http://222.255.119.40:8080/adamstore/v1/addresses", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

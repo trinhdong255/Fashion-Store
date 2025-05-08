@@ -14,7 +14,7 @@ const ProductLists = () => {
     const token = localStorage.getItem("accessToken");
     axios
       .get(
-        `http://localhost:8080/adamstore/v1/categories/${categoryId}/products`,
+        `http://222.255.119.40:8080/adamstore/v1/categories/${categoryId}/products`,
         {
           params: { pageNo: 1, pageSize: 10 },
           headers: { Authorization: `Bearer ${token}` },
@@ -60,11 +60,11 @@ const ProductLists = () => {
                 "&:hover": { transform: "scale(1.03)" },
                 maxWidth: "100%",
               }}>
-              {product.images?.[0].imageUrl && (
+              {product.images?.[0]?.imageUrl && (
                 <CardMedia
                   component="img"
                   height="300"
-                  image={product.images[0].imageUrl}
+                  image={product.images[0]?.imageUrl}
                   alt={product.name}
                   sx={{ objectFit: "cover", borderRadius: "12px 12px 0 0" }}
                 />

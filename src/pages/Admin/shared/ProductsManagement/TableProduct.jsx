@@ -16,7 +16,7 @@ export default function TableProduct() {
     const getData = async () => {
       try {
         const res = await fetch(
-          "http://localhost:8080/adamstore/v1/products/admin?pageNo=1&pageSize=10"
+          "http://222.255.119.40:8080/adamstore/v1/products/admin?pageNo=1&pageSize=10"
         );
         const data = await res.json();
         const products = data.result.items.map((item) => ({

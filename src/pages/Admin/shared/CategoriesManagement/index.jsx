@@ -55,7 +55,7 @@ const CategoriesManagement = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      "http://localhost:8080/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
+      "http://222.255.119.40:8080/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
       {
         method: "GET",
         headers: {
@@ -87,7 +87,7 @@ const CategoriesManagement = () => {
 
     const token = localStorage.getItem("accessToken");
 
-    fetch("http://localhost:8080/adamstore/v1/categories", {
+    fetch("http://222.255.119.40:8080/adamstore/v1/categories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -122,7 +122,7 @@ const CategoriesManagement = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      `http://localhost:8080/adamstore/v1/categories/${editingCategoryId}`,
+      `http://222.255.119.40:8080/adamstore/v1/categories/${editingCategoryId}`,
       {
         method: "PUT",
         headers: {
@@ -166,7 +166,7 @@ const CategoriesManagement = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      `http://localhost:8080/adamstore/v1/categories/${selectedCategoryId}`,
+      `http://222.255.119.40:8080/adamstore/v1/categories/${selectedCategoryId}`,
       {
         method: "DELETE",
         headers: {
@@ -191,7 +191,7 @@ const CategoriesManagement = () => {
   const handleToggleStatus = (id) => {
     const token = localStorage.getItem("accessToken");
 
-    fetch(`http://localhost:8080/adamstore/v1/categories/${id}/restore`, {
+    fetch(`http://222.255.119.40:8080/adamstore/v1/categories/${id}/restore`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

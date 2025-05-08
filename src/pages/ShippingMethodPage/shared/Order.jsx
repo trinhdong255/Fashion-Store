@@ -52,7 +52,7 @@ const Order = () => {
     const fetchAddresses = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/adamstore/v1/users/addresses?pageNo=1&pageSize=10",
+          "http://222.255.119.40:8080/adamstore/v1/users/addresses?pageNo=1&pageSize=10",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -100,7 +100,7 @@ const Order = () => {
 
       axios
         .post(
-          "http://localhost:8080/adamstore/v1/shipping/calculate-fee",
+          "http://222.255.119.40:8080/adamstore/v1/shipping/calculate-fee",
           {
             addressId: selectedAddress,
             orderItems: orderItems,
@@ -161,7 +161,7 @@ const Order = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/adamstore/v1/orders",
+        "http://222.255.119.40:8080/adamstore/v1/orders",
         {
           addressId: selectedAddress,
           orderItems: orderItems,
@@ -177,7 +177,7 @@ const Order = () => {
 
       if (selectedPaymentMethod === "VNPAY") {
         const paymentResponse = await axios.get(
-          `http://localhost:8080/adamstore/v1/orders/${orderId}/vn-pay`,
+          `http://222.255.119.40:8080/adamstore/v1/orders/${orderId}/vn-pay`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
