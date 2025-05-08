@@ -1,88 +1,114 @@
+/* eslint-disable import/order */
+import { useEffect, useState } from "react";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
+import TableProduct from "./TableProduct";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
   Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
+  Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import TableProduct from "./TableProduct";
+import { useFilteredProducts, useProductForm, useProducts } from "./hooks";
 import {
   createProduct,
-  fetchCategories,
-  fetchColor,
-  fetchProduct,
-  fetchSize,
+  deleteProduct,
+  fetchProductID,
   handleUpload,
+  restoreProduct,
 } from "./api";
 import { validateProduct } from "./until";
 
+const initialFormState = {
+  name: "",
+  description: "",
+  price: "",
+  quantity: "",
+  images: [],
+};
+
 const ProductsManagement = () => {
-  const [category, setCategory] = React.useState("");
-  const [status, setStatus] = React.useState("");
-  const [filteredProducts, setFilteredProducts] = React.useState([]);
-  const [openModal, setOpenModal] = React.useState(false); // State để điều khiển việc mở modal
-  const [productName, setProductName] = React.useState(""); // Ví dụ state cho tên sản phẩm
-  const [productDes, setProductDes] = React.useState(""); // Ví dụ state cho mo tả sản phẩm
-  const [productPrice, setProductPrice] = React.useState(""); // Ví dụ state cho mo tả sản phẩm
-  const [productQuantity, setProductQuantity] = React.useState(""); // Ví dụ state cho so luong sản phẩm
-  const [productImage, setProductImage] = React.useState([]); // Ví dụ state cho so luong sản phẩm
+  const [openModalAdd, setOpenModalAdd] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
-  const [categories, setCategories] = useState([]); // state để lưu danh sách danh mục
-  const [selectedCategoryId, setSelectedCategoryId] = useState(""); // state cho modal
+  const [status, setStatus] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
-  const [sizes, setSizes] = useState([]); // state để lưu danh sách size
-  const [selectedSizeId, setSelectSizeId] = useState([]); // state cho modal
+  const [productToRestore, setProductToRestore] = useState(null);
+  const [productToRestoreName, setProductToRestoreName] = useState("");
 
-  const [colors, setColors] = useState([]); // state để lưu danh sách color
-  const [selectedColorId, setSelectColorId] = useState([]); // state cho modal
+  const { products, refetch } = useProducts();
+  const filteredProducts = useFilteredProducts(
+    products,
+    selectedCategory,
+    status
+  );
 
+  const [productForm, setProductForm] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  // lấy dữ liệu
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoryData, sizeData, colorData] = await Promise.all([
-          fetchCategories(),
-          fetchSize(),
-          fetchColor(),
-        ]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+  const {
+    categories,
+    selectedCategoryId,
+    setSelectedCategoryId,
+    sizes,
+    selectedSizeId,
+    setSelectedSizeId,
+    colors,
+    selectedColorId,
+    setSelectedColorId,
+  } = useProductForm();
 
-        setCategories(categoryData);
-        setSizes(sizeData);
-        setColors(colorData);
-      } catch (error) {
-        console.error("Lỗi khi load dữ liệu:", error);
-      }
-    };
+  const [newImages, setNewImages] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState({
+    name: "",
+    description: "",
+    price: "",
+    quantity: "",
+    category: null,
+    sizes: [],
+    colors: [],
+    images: [],
+  });
 
-    fetchData();
-  }, []);
+  const handleCloseModalAdd = () => {
+    setOpenModalAdd(false);
+    setProductForm(initialFormState);
+    setSelectedCategoryId("");
+    setSelectedSizeId([]);
+    setSelectedColorId([]);
+    setErrors({});
+  };
+
+  const showDialog = (message) => {
+    setDialogMessage(message);
+    setDialogOpen(true);
+  };
 
   const handleFileChange = async (e) => {
     const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const uploaded = [];
+    if (!files?.length) return;
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const result = await handleUpload(files[i]);
-        uploaded.push(result); // Push object có id và imageUrl
-      }
-
-      setProductImage((prev) => [...prev, ...uploaded]); // Giữ lại ảnh cũ nếu có
+      const uploaded = await Promise.all(
+        [...files].map((file) => handleUpload(file))
+      );
+      setProductForm((prev) => ({
+        ...prev,
+        images: [...prev.images, ...uploaded],
+      }));
       setErrors((prev) => ({ ...prev, productImage: undefined }));
-    } catch (error) {
-      console.error("Lỗi upload ảnh:", error);
+    } catch (err) {
+      console.error("Upload failed:", err);
       setErrors((prev) => ({
         ...prev,
         productImage: "Không thể upload ảnh",
@@ -90,60 +116,89 @@ const ProductsManagement = () => {
     }
   };
 
-  // Mở modal khi nhấn nút "Thêm sản phẩm"
-  const handleAddProduct = () => {
-    setOpenModal(true);
-  };
-
-  // Đóng modal
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedCategoryId("");
-    setSelectSizeId([]);
-    setSelectColorId([]);
-    setProductName("");
-    setProductDes("");
-    setProductPrice("");
-    setProductQuantity("");
-    setProductImage([]);
-    setErrors({});
-  };
-
   const handleSaveProduct = async () => {
     const validationErrors = validateProduct({
-      productName,
-      productDes,
-      productPrice,
-      productQuantity,
+      productName: productForm.name,
+      productDes: productForm.description,
+      productPrice: productForm.price,
+      quantity: productForm.quantity,
       selectedCategoryId,
       selectedSizeId,
       selectedColorId,
-      productImage,
+      productImage: productForm.images,
     });
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
     const payload = {
-      name: productName,
-      description: productDes,
-      price: Number(productPrice),
-      quantity: Number(productQuantity),
+      name: productForm.name,
+      description: productForm.description,
+      price: Number(productForm.price),
+      quantity: Number(productForm.quantity),
       categoryId: Number(selectedCategoryId),
       colorIds: selectedColorId.map(Number),
       sizeIds: selectedSizeId.map(Number),
-      imageIds: productImage.map((img) => img.id),
+      imageIds: productForm.images.map((img) => img.id),
     };
 
     try {
       await createProduct(payload);
-      setOpenModal(false);
-      await fetchProduct();
+      handleCloseModalAdd();
+      // setReloadTable((prev) => !prev);
     } catch (error) {
       console.error(error);
       alert("Lỗi khi thêm sản phẩm");
+    }
+  };
+
+  const handleCloseEdit = () => {
+    setEditOpen(false);
+  };
+
+  const handleEditProduct = async (product) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const productDetail = await fetchProductID(product.id, token);
+
+      setSelectedProduct({
+        ...productDetail,
+        sizes: productDetail.sizes || [],
+        colors: productDetail.colors || [], // Đảm bảo sizes là mảng
+      });
+      setEditOpen(true);
+    } catch (err) {
+      showDialog(err.message);
+    }
+  };
+
+  const handleUpdateProduct = () => {};
+
+  const handleRestoreProduct = async (productId) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const success = await restoreProduct(productId, token);
+      if (success) {
+        showDialog(`Sản phẩm "${productToRestoreName}" đã được khôi phục.`);
+        refetch(); // <- reload lại bảng
+      }
+    } catch (err) {
+      showDialog("Khôi phục thất bại: " + err.message);
+    } finally {
+      setProductToRestore(null);
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      await deleteProduct(productId, token);
+      showDialog("Sản phẩm đã được xóa");
+      refetch(); // <- reload lại bảng
+    } catch (error) {
+      console.error(error);
+      showDialog(error.message);
     }
   };
 
@@ -163,11 +218,11 @@ const ProductsManagement = () => {
           <InputLabel>Danh mục</InputLabel>
           <Select
             label="Danh mục"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}>
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}>
             <MenuItem value="">Tất cả</MenuItem>
             {categories.map((cat) => (
-              <MenuItem key={cat.id} value={cat.id}>
+              <MenuItem key={cat.id} value={cat.name}>
                 {cat.name}
               </MenuItem>
             ))}
@@ -180,8 +235,9 @@ const ProductsManagement = () => {
             label="Trạng thái"
             value={status}
             onChange={(e) => setStatus(e.target.value)}>
-            <MenuItem value="ACTIVE">ACTIVE</MenuItem>
-            <MenuItem value="INACTIVE">INACTIVE</MenuItem>
+            <MenuItem value="">Tất cả</MenuItem>
+            <MenuItem value="ACTIVE">Hoạt động</MenuItem>
+            <MenuItem value="INACTIVE">Ngưng hoạt động</MenuItem>
           </Select>
         </FormControl>
 
@@ -189,63 +245,79 @@ const ProductsManagement = () => {
           variant="contained"
           color="primary"
           sx={{ width: "400px" }}
-          onClick={handleAddProduct}>
+          onClick={() => setOpenModalAdd(true)}>
           Thêm sản phẩm
         </Button>
       </Box>
 
-      {/* Truyền dữ liệu vào TableProduct */}
-      <TableProduct rows={filteredProducts} />
+      <TableProduct
+        data={filteredProducts.map((product) => ({
+          ...product,
+          onEdit: handleEditProduct,
+          onRestoreClick: handleRestoreProduct,
+          onDelete: handleDeleteProduct,
+        }))}
+      />
 
-      {/* Modal để thêm sản phẩm */}
-      <Dialog open={openModal} onClose={handleCloseModal}>
+      <Dialog open={openModalAdd} onClose={handleCloseModalAdd}>
         <DialogTitle>Thêm Sản phẩm</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
-            margin="dense"
             label="Tên sản phẩm"
             fullWidth
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
+            margin="dense"
+            value={productForm.name}
+            onChange={(e) =>
+              setProductForm((prev) => ({ ...prev, name: e.target.value }))
+            }
             error={!!errors.productName}
             helperText={errors.productName}
           />
           <TextField
-            margin="dense"
             label="Mô tả"
             fullWidth
-            value={productDes}
-            onChange={(e) => setProductDes(e.target.value)}
+            margin="dense"
+            value={productForm.description}
+            onChange={(e) =>
+              setProductForm((prev) => ({
+                ...prev,
+                description: e.target.value,
+              }))
+            }
             error={!!errors.productDes}
             helperText={errors.productDes}
           />
           <TextField
-            margin="dense"
             label="Giá"
-            type="number"
             fullWidth
-            value={productPrice}
-            onChange={(e) => setProductPrice(e.target.value)}
+            type="number"
+            margin="dense"
+            value={productForm.price}
+            onChange={(e) =>
+              setProductForm((prev) => ({ ...prev, price: e.target.value }))
+            }
             error={!!errors.productPrice}
             helperText={errors.productPrice}
           />
           <TextField
-            margin="dense"
             label="Số lượng"
-            type="number"
             fullWidth
-            value={productQuantity}
-            onChange={(e) => setProductQuantity(e.target.value)}
-            error={!!errors.productQuantity}
-            helperText={errors.productQuantity}
+            type="number"
+            margin="dense"
+            value={productForm.quantity}
+            onChange={(e) =>
+              setProductForm((prev) => ({ ...prev, quantity: e.target.value }))
+            }
+            error={!!errors.quantity}
+            helperText={errors.quantity}
           />
+
           <FormControl fullWidth margin="dense">
             <InputLabel>Danh mục</InputLabel>
             <Select
-              label="Danh mục"
               value={selectedCategoryId}
-              onChange={(e) => setSelectedCategoryId(e.target.value)}>
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              label="Danh mục">
               {categories.map((cat) => (
                 <MenuItem key={cat.id} value={cat.id}>
                   {cat.name}
@@ -253,18 +325,19 @@ const ProductsManagement = () => {
               ))}
             </Select>
             {errors.selectedCategoryId && (
-              <Typography variant="caption" color="error">
+              <Typography color="error" variant="caption">
                 {errors.selectedCategoryId}
               </Typography>
             )}
           </FormControl>
+
           <FormControl fullWidth margin="dense">
             <InputLabel>Kích thước</InputLabel>
             <Select
-              label="Kích thước"
+              multiple
               value={selectedSizeId}
-              onChange={(e) => setSelectSizeId(e.target.value)}
-              multiple>
+              onChange={(e) => setSelectedSizeId(e.target.value)}
+              label="Kích thước">
               {sizes.map((size) => (
                 <MenuItem key={size.id} value={size.id}>
                   {size.name}
@@ -272,18 +345,19 @@ const ProductsManagement = () => {
               ))}
             </Select>
             {errors.selectedSizeId && (
-              <Typography variant="caption" color="error">
+              <Typography color="error" variant="caption">
                 {errors.selectedSizeId}
               </Typography>
             )}
           </FormControl>
+
           <FormControl fullWidth margin="dense">
             <InputLabel>Màu sắc</InputLabel>
             <Select
-              label="Màu sắc"
+              multiple
               value={selectedColorId}
-              onChange={(e) => setSelectColorId(e.target.value)}
-              multiple>
+              onChange={(e) => setSelectedColorId(e.target.value)}
+              label="Màu sắc">
               {colors.map((color) => (
                 <MenuItem key={color.id} value={color.id}>
                   {color.name}
@@ -291,11 +365,12 @@ const ProductsManagement = () => {
               ))}
             </Select>
             {errors.selectedColorId && (
-              <Typography variant="caption" color="error">
+              <Typography color="error" variant="caption">
                 {errors.selectedColorId}
               </Typography>
             )}
           </FormControl>
+
           <Box mt={2}>
             <input
               type="file"
@@ -303,15 +378,13 @@ const ProductsManagement = () => {
               accept="image/*"
               onChange={handleFileChange}
             />
-
             {errors.productImage && (
               <Typography variant="caption" color="error">
                 {errors.productImage}
               </Typography>
             )}
-
             <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
-              {productImage.map((img) => (
+              {productForm.images.map((img) => (
                 <img
                   key={img.id}
                   src={img.imageUrl}
@@ -327,12 +400,203 @@ const ProductsManagement = () => {
             </Box>
           </Box>
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={handleCloseModal} color="primary">
-            Hủy
-          </Button>
-          <Button onClick={handleSaveProduct} color="primary">
-            Thêm
+          <Button onClick={handleCloseModalAdd}>Hủy</Button>
+          <Button onClick={handleSaveProduct}>Thêm</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editOpen}>
+        <DialogTitle>Cập nhật sản phẩm</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Tên sản phẩm"
+            fullWidth
+            margin="dense"
+            value={selectedProduct?.name}
+            onChange={(e) =>
+              setSelectedProduct((prev) => ({ ...prev, name: e.target.value }))
+            }
+          />
+          <TextField
+            label="Mô tả"
+            fullWidth
+            margin="dense"
+            value={selectedProduct?.description}
+            onChange={(e) =>
+              setSelectedProduct((prev) => ({
+                ...prev,
+                description: e.target.value,
+              }))
+            }
+          />
+          <TextField
+            label="Giá"
+            fullWidth
+            type="number"
+            margin="dense"
+            value={selectedProduct.price}
+            onChange={(e) =>
+              setSelectedProduct((prev) => ({
+                ...prev,
+                price: Number(e.target.value),
+              }))
+            }
+          />
+          <TextField
+            label="Số lượng"
+            fullWidth
+            type="number"
+            margin="dense"
+            value={selectedProduct.quantity}
+            onChange={(e) =>
+              setSelectedProduct((prev) => ({
+                ...prev,
+                quantity: e.target.value,
+              }))
+            }
+          />
+
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Danh mục</InputLabel>
+            <Select
+              value={selectedProduct.category}
+              label="Danh mục"
+              onChange={(e) =>
+                setSelectedProduct((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }))
+              }
+              renderValue={(selected) => selected?.name || "Không có danh mục"}>
+              {categories.map((cat) => (
+                <MenuItem key={cat.id} value={cat}>
+                  {cat.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Kích thước</InputLabel>
+            <Select
+              multiple
+              value={selectedProduct.sizes.map((size) => size?.id)}
+              onChange={(e) =>
+                setSelectedProduct((prev) => ({
+                  ...prev,
+                  sizes: e.target.value.map((id) => {
+                    return sizes.find((size) => size?.id === id);
+                  }),
+                }))
+              }
+              renderValue={(selected) =>
+                selected
+                  .map((id) => {
+                    const size = sizes.find((s) => s?.id === id);
+
+                    return size ? size?.name : "";
+                  })
+                  .join(", ")
+              }>
+              {sizes.map((size) => (
+                <MenuItem key={size.id} value={size.id}>
+                  {size.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Màu sắc</InputLabel>
+            <Select
+              multiple
+              value={selectedProduct.colors.map((c) => c?.id)}
+              onChange={(e) =>
+                setSelectedProduct((prev) => ({
+                  ...prev,
+                  colors: e.target.value.map((id) =>
+                    colors.find((color) => color.id === id)
+                  ),
+                }))
+              }
+              renderValue={(selected) =>
+                selected
+                  .map((id) => colors.find((c) => c.id === id)?.name)
+                  .join(", ")
+              }>
+              {colors.map((color) => (
+                <MenuItem key={color?.id} value={color?.id}>
+                  {color?.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Box mt={2}>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => {
+                const files = Array.from(e.target.files);
+                console.log("Files selected:", files); // ✅ Kiểm tra xem có log không
+                setNewImages(files);
+              }}
+            />
+
+            <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
+              {selectedProduct.images.map((img, index) => (
+                <Box key={img.id} position="relative">
+                  <img
+                    src={img.imageUrl}
+                    alt={`preview-${index}`}
+                    width={100}
+                    height={100}
+                    style={{ objectFit: "cover", borderRadius: 4 }}
+                  />
+                  <Button
+                    style={{
+                      position: "absolute",
+                      top: -10,
+                      right: -20,
+                    }}
+                    onClick={() => {
+                      // Xóa ảnh khỏi selectedProduct
+                      setSelectedProduct((prev) => ({
+                        ...prev,
+                        images: prev.images.filter((i) => i?.id !== img?.id),
+                      }));
+                    }}>
+                    <DeleteIcon
+                      sx={{
+                        backgroundColor: "#fff",
+                        color: "red",
+                        MozBorderRadiusBottomleft: "4px",
+                      }}
+                    />
+                  </Button>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleCloseEdit}>Hủy</Button>
+          <Button onClick={handleUpdateProduct}>Cập nhật</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>Thông báo</DialogTitle>
+        <DialogContent>
+          <Typography>{dialogMessage}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} autoFocus>
+            Đóng
           </Button>
         </DialogActions>
       </Dialog>

@@ -52,8 +52,9 @@ const DashboardLayoutWrapper = ({ children }) => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("accessToken");
     dispatch(resetStore());
-    navigate("/");
+    navigate("/login");
   };
 
   const navigationItems = [
