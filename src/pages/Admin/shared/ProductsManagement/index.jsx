@@ -24,6 +24,7 @@ import {
   fetchProductID,
   handleUpload,
   restoreProduct,
+  updateProduct,
 } from "./api";
 import { validateProduct } from "./until";
 
@@ -173,9 +174,64 @@ const ProductsManagement = () => {
     }
   };
 
-  const handleUpdateProduct = () => {};
+  const handleUpdateProduct = async () => {
+    const token = localStorage.getItem("accessToken");
 
-  const handleRestoreProduct = async (productId) => {
+    try {
+      // 1. Upload ảnh mới nếu có
+      let uploadedImages = [];
+      if (newImages.length > 0) {
+        uploadedImages = await Promise.all(
+          newImages.map((file) => handleUpload(file))
+        );
+      }
+
+      // 2. Chuẩn bị payload
+      const payload = {
+        name: selectedProduct.name,
+        description: selectedProduct.description,
+        price: Number(selectedProduct.price),
+        quantity: Number(selectedProduct.quantity),
+        categoryId: Number(selectedProduct.category?.id),
+        colorIds: selectedProduct.colors?.map((c) => c?.id) || [],
+        sizeIds: selectedProduct.sizes?.map((s) => s?.id) || [],
+        imageIds: [
+          ...selectedProduct.images.map((img) => img.id), // giữ ảnh cũ
+          ...uploadedImages.map((img) => img.id), // thêm ảnh mới
+        ],
+      };
+
+      console.log("selectedProduct:", selectedProduct);
+      console.log("Category ID:", selectedProduct.category?.id);
+      console.log(
+        "Color IDs:",
+        selectedProduct.colors?.map((c) => c?.id)
+      );
+      console.log(
+        "Size IDs:",
+        selectedProduct.sizes?.map((s) => s?.id)
+      );
+      console.log(
+        "Old Image IDs:",
+        selectedProduct.images?.map((img) => img?.id)
+      );
+      console.log("New Image IDs:", newImages); // file objects
+
+      // 3. Gọi API cập nhật
+      await updateProduct(selectedProduct.id, payload, token);
+
+      // 4. Cập nhật UI
+      showDialog("Cập nhật sản phẩm thành công!");
+      setEditOpen(false);
+      setNewImages([]);
+      refetch();
+    } catch (error) {
+      console.error(error);
+      showDialog("Cập nhật thất bại: " + error.message);
+    }
+  };
+
+  const handleRestoreProduct = async (productId, productToRestoreName) => {
     const token = localStorage.getItem("accessToken");
     try {
       const success = await restoreProduct(productId, token);

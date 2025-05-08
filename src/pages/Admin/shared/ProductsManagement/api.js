@@ -234,3 +234,24 @@ export const restoreProduct = async (productId, token) => {
     throw new Error(err.message || "Lỗi kết nối khi khôi phục sản phẩm");
   }
 };
+
+export async function updateProduct(productId, payload, token) {
+  const response = await fetch(
+    `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.message;
+    throw new Error(errorText || "Lỗi khi cập nhật sản phẩm");
+  }
+
+  return await response.json(); // <- Quan trọng! http://222.255.119.40:8080
+}
