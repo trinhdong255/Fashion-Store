@@ -271,6 +271,7 @@ const ProductDetails = () => {
             quantity={quantity}
             handleIncreaseQuantity={handleIncreaseQuantity}
             handleDecreaseQuantity={handleDecreaseQuantity}
+            selectedVariant={selectedVariant} // Truyền selectedVariant xuống ProductQuantitySelection
           />
 
           <ProductActions
@@ -279,7 +280,7 @@ const ProductDetails = () => {
             selectedQuantity={quantity}
             selectedColor={selectedColor}
             selectedSize={selectedSize}
-            selectedVariant={selectedVariant} // Truyền selectedVariant vào ProductActions
+            selectedVariant={selectedVariant}
           />
         </Box>
       </Container>
