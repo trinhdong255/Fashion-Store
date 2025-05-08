@@ -257,7 +257,7 @@ const Order = () => {
             sx={{ mt: 2, px: 2 }}
           >
             <Stack direction={"row"} alignItems={"center"} sx={{ flex: 3 }}>
-              <img src={item.image} alt={item.name} width={90} height={90} style={{ objectFit: "cover" }} />
+              <img src={item.image.imageUrl} alt={item.name} width={90} height={90} style={{ objectFit: "cover" }} />
               <Stack sx={{ ml: 2 }}>
                 <Typography sx={{ color: "var(--text-color)" }}>
                   {item.name}
