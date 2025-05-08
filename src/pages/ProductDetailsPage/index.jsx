@@ -137,14 +137,6 @@ const ProductDetails = () => {
 
         const variantList = Object.values(grouped);
         setVariants(variantList);
-
-        // Đặt biến thể mặc định khi tải lần đầu
-        if (variantList.length > 0 && !selectedColor && !selectedSize) {
-          const defaultVariant = variantList[0];
-          setSelectedColor(defaultVariant.color.name);
-          setSelectedSize(defaultVariant.sizes[0]?.size.name || "");
-          fetchVariant(defaultVariant.color.id, defaultVariant.sizes[0]?.size.id);
-        }
       } catch (err) {
         console.error("Lỗi khi lấy product variants:", err);
         setSnackbar({
@@ -156,7 +148,7 @@ const ProductDetails = () => {
     };
 
     Promise.all([fetchProduct(), fetchVariants()]).finally(() => setLoading(false));
-  }, [id, imageUrl, fetchVariant]);
+  }, [id, imageUrl]);
 
   // Khi chọn màu và kích thước, lấy thông tin biến thể cụ thể
   useEffect(() => {
@@ -176,8 +168,7 @@ const ProductDetails = () => {
 
   const handleSelectColor = (color) => {
     setSelectedColor(color);
-    const defaultSize = variants.find((group) => group.color.name === color)?.sizes[0]?.size.name || "";
-    setSelectedSize(defaultSize);
+    setSelectedSize(""); // Reset kích thước khi đổi màu
   };
 
   const handleSelectSize = (size) => {
@@ -208,14 +199,14 @@ const ProductDetails = () => {
         tags: product.category?.name || "Không xác định",
         stock: selectedVariant ? selectedVariant.quantity : (variants[0]?.sizes[0]?.quantity || 0),
         description: product.description || "Sản phẩm chất lượng cao, phong cách hiện đại, phù hợp với mọi lứa tuổi.",
-        productVariantId: selectedVariant?.id, // Thêm productVariantId vào productData
+        productVariantId: selectedVariant?.id,
       }
     : null;
 
   const buttonOptionColors = variants.map((group) => group.color.name) || ["Trắng", "Đen"];
   const buttonOptionSizes = variants
     .find((group) => group.color.name === selectedColor)
-    ?.sizes.map((s) => s.size.name) || ["S", "M", "L", "XL"];
+    ?.sizes.map((s) => s.size.name) || [];
 
   return (
     <>
@@ -255,15 +246,13 @@ const ProductDetails = () => {
             availableColors={buttonOptionColors}
           />
 
-          {selectedColor && (
-            <ProductSizeSelection
-              products={productData}
-              loading={loading}
-              sizes={selectedSize}
-              buttonOptionSizes={buttonOptionSizes}
-              handleSelectSize={handleSelectSize}
-            />
-          )}
+          <ProductSizeSelection
+            products={productData}
+            loading={loading}
+            sizes={selectedSize}
+            buttonOptionSizes={buttonOptionSizes}
+            handleSelectSize={handleSelectSize}
+          />
 
           <ProductQuantitySelection
             products={productData}
@@ -271,7 +260,7 @@ const ProductDetails = () => {
             quantity={quantity}
             handleIncreaseQuantity={handleIncreaseQuantity}
             handleDecreaseQuantity={handleDecreaseQuantity}
-            selectedVariant={selectedVariant} // Truyền selectedVariant xuống ProductQuantitySelection
+            selectedVariant={selectedVariant}
           />
 
           <ProductActions

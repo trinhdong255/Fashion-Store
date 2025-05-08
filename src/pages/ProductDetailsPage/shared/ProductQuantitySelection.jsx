@@ -7,7 +7,7 @@ const ProductQuantitySelection = ({
   quantity,
   handleIncreaseQuantity,
   handleDecreaseQuantity,
-  selectedVariant, // Thêm prop selectedVariant để lấy số lượng tồn kho
+  selectedVariant,
 }) => {
   return (
     <>
@@ -39,11 +39,10 @@ const ProductQuantitySelection = ({
           >
             +
           </Button>
-          {/* Hiển thị số lượng tồn kho từ selectedVariant */}
           <Typography variant="body2" sx={{ ml: 2 }}>
             {selectedVariant?.quantity !== undefined
               ? `Còn lại: ${selectedVariant.quantity}`
-              : "Không có thông tin tồn kho"}
+              : "Vui lòng chọn màu sắc và kích thước"}
           </Typography>
         </Stack>
       ) : null}
@@ -57,7 +56,7 @@ ProductQuantitySelection.propTypes = {
   quantity: PropTypes.number,
   handleIncreaseQuantity: PropTypes.func,
   handleDecreaseQuantity: PropTypes.func,
-  selectedVariant: PropTypes.object, // Thêm propTypes cho selectedVariant
+  selectedVariant: PropTypes.object,
 };
 
 export default ProductQuantitySelection;

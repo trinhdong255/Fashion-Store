@@ -15,21 +15,27 @@ const ProductSizeSelection = ({
       ) : products ? (
         <Stack direction={"row"} alignItems={"center"} sx={{ m: "30px 0" }}>
           <Typography variant="h6">Size: </Typography>
-          {buttonOptionSizes.map((buttonOptionSize, index) => (
-            <Button
-              key={index}
-              sx={{
-                ml: 2,
-                borderColor: "black",
-                color: sizes === buttonOptionSize ? "white" : "black",
-                backgroundColor: sizes === buttonOptionSize ? "black" : "white",
-              }}
-              variant="outlined"
-              onClick={() => handleSelectSize(buttonOptionSize)}
-            >
-              {buttonOptionSize}
-            </Button>
-          ))}
+          {buttonOptionSizes.length > 0 ? (
+            buttonOptionSizes.map((buttonOptionSize, index) => (
+              <Button
+                key={index}
+                sx={{
+                  ml: 2,
+                  borderColor: "black",
+                  color: sizes === buttonOptionSize ? "white" : "black",
+                  backgroundColor: sizes === buttonOptionSize ? "black" : "white",
+                }}
+                variant="outlined"
+                onClick={() => handleSelectSize(buttonOptionSize)}
+              >
+                {buttonOptionSize}
+              </Button>
+            ))
+          ) : (
+            <Typography variant="body2" sx={{ ml: 2, color: "text.secondary" }}>
+              Vui lòng chọn màu sắc trước
+            </Typography>
+          )}
         </Stack>
       ) : null}
     </>
