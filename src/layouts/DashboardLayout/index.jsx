@@ -89,26 +89,26 @@ const DashboardLayoutWrapper = ({ children }) => {
       title: "Danh mục",
       icon: <CategoryIcon />,
     },
-    // {
-    //   path: "/admin/usersManagement",
-    //   title: "Người dùng",
-    //   icon: <People />,
-    // },
-    // {
-    //   path: "/admin/wardsManagement",
-    //   title: "Phường / xã",
-    //   icon: <Place />,
-    // },
-    // {
-    //   path: "/admin/districtsManagement",
-    //   title: "Quận / huyện",
-    //   icon: <Place />,
-    // },
-    // {
-    //   path: "/admin/provincesManagement",
-    //   title: "Tỉnh / thành phố",
-    //   icon: <Place />,
-    // },
+    {
+      path: "/admin/usersManagement",
+      title: "Người dùng",
+      icon: <People />,
+    },
+    {
+      path: "/admin/wardsManagement",
+      title: "Phường / xã",
+      icon: <Place />,
+    },
+    {
+      path: "/admin/districtsManagement",
+      title: "Quận / huyện",
+      icon: <Place />,
+    },
+    {
+      path: "/admin/provincesManagement",
+      title: "Tỉnh / thành phố",
+      icon: <Place />,
+    },
     {
       path: "/admin/ordersManagement",
       title: "Đơn hàng",

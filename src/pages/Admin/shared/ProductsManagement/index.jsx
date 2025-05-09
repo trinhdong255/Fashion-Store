@@ -4,6 +4,7 @@ import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
 import TableProduct from "./TableProduct";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -14,6 +15,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -27,6 +29,7 @@ import {
   updateProduct,
 } from "./api";
 import { validateProduct } from "./until";
+import axios from "axios";
 
 const initialFormState = {
   name: "",
@@ -57,6 +60,7 @@ const ProductsManagement = () => {
   const [errors, setErrors] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
+  const [removedImages, setRemovedImages] = useState([]);
   const {
     categories,
     selectedCategoryId,
@@ -80,6 +84,16 @@ const ProductsManagement = () => {
     colors: [],
     images: [],
   });
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   const handleCloseModalAdd = () => {
     setOpenModalAdd(false);
@@ -108,12 +122,14 @@ const ProductsManagement = () => {
         images: [...prev.images, ...uploaded],
       }));
       setErrors((prev) => ({ ...prev, productImage: undefined }));
+      showSnackbar("Tải ảnh thành công", "success");
     } catch (err) {
-      console.error("Upload failed:", err);
+      console.error("Tải hình:", err.message);
       setErrors((prev) => ({
         ...prev,
         productImage: "Không thể upload ảnh",
       }));
+      showSnackbar("Tải ảnh thất bại", "error");
     }
   };
 
@@ -147,10 +163,10 @@ const ProductsManagement = () => {
     try {
       await createProduct(payload);
       handleCloseModalAdd();
-      // setReloadTable((prev) => !prev);
+      showSnackbar("Thêm sản phẩm thành công", "success");
+      refetch();
     } catch (error) {
-      console.error(error);
-      alert("Lỗi khi thêm sản phẩm");
+      showSnackbar(error.message, "error");
     }
   };
 
@@ -170,7 +186,38 @@ const ProductsManagement = () => {
       });
       setEditOpen(true);
     } catch (err) {
-      showDialog(err.message);
+      showSnackbar(err.message, "error");
+    }
+  };
+
+  // Khi người dùng xóa ảnh trong giao diện:
+  const handleRemoveImage = async (imageId) => {
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      // Gọi API xóa ảnh
+      const response = await axios.delete(
+        `http://222.255.119.40:8080/adamstore/v1/file/delete/${imageId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      showSnackbar("Xóa ảnh thành công", "success");
+      // Cập nhật lại danh sách ảnh trong selectedProduct
+      const updatedImages = selectedProduct.images.filter(
+        (img) => img.id !== imageId
+      );
+      setSelectedProduct({
+        ...selectedProduct,
+        images: updatedImages,
+      });
+
+      // Cập nhật lại danh sách ảnh đã xóa
+      setRemovedImages((prev) => [...prev, imageId]);
+    } catch (error) {
+      showSnackbar("xóa ảnh thất bại", "error");
     }
   };
 
@@ -186,7 +233,7 @@ const ProductsManagement = () => {
         );
       }
 
-      // 2. Chuẩn bị payload
+      // 2. Chuẩn bị payload (không còn phần gọi API xóa ảnh)
       const payload = {
         name: selectedProduct.name,
         description: selectedProduct.description,
@@ -196,38 +243,22 @@ const ProductsManagement = () => {
         colorIds: selectedProduct.colors?.map((c) => c?.id) || [],
         sizeIds: selectedProduct.sizes?.map((s) => s?.id) || [],
         imageIds: [
-          ...selectedProduct.images.map((img) => img.id), // giữ ảnh cũ
-          ...uploadedImages.map((img) => img.id), // thêm ảnh mới
+          ...selectedProduct.images
+            .filter((img) => !removedImages.includes(img.id)) // giữ ảnh chưa bị xóa
+            .map((img) => img.id),
+          ...uploadedImages.map((img) => img.id),
         ],
       };
 
-      console.log("selectedProduct:", selectedProduct);
-      console.log("Category ID:", selectedProduct.category?.id);
-      console.log(
-        "Color IDs:",
-        selectedProduct.colors?.map((c) => c?.id)
-      );
-      console.log(
-        "Size IDs:",
-        selectedProduct.sizes?.map((s) => s?.id)
-      );
-      console.log(
-        "Old Image IDs:",
-        selectedProduct.images?.map((img) => img?.id)
-      );
-      console.log("New Image IDs:", newImages); // file objects
-
       // 3. Gọi API cập nhật
       await updateProduct(selectedProduct.id, payload, token);
-
-      // 4. Cập nhật UI
-      showDialog("Cập nhật sản phẩm thành công!");
+      showSnackbar("Cập nhật sản phẩm thành công", "success");
       setEditOpen(false);
-      setNewImages([]);
-      refetch();
+      setNewImages([]); // Reset ảnh mới
+      setRemovedImages([]); // Reset ảnh đã xóa
+      refetch(); // Refetch dữ liệu sau khi cập nhật
     } catch (error) {
-      console.error(error);
-      showDialog("Cập nhật thất bại: " + error.message);
+      showSnackbar("Cập nhật thất bại:", "error");
     }
   };
 
@@ -236,11 +267,14 @@ const ProductsManagement = () => {
     try {
       const success = await restoreProduct(productId, token);
       if (success) {
-        showDialog(`Sản phẩm "${productToRestoreName}" đã được khôi phục.`);
-        refetch(); // <- reload lại bảng
+        showSnackbar(
+          `Sản phẩm "${productToRestoreName}" đã được khôi phục.`,
+          "Success"
+        );
+        refetch();
       }
     } catch (err) {
-      showDialog("Khôi phục thất bại: " + err.message);
+      showSnackbar("Khôi phục thất bại: ", "error");
     } finally {
       setProductToRestore(null);
     }
@@ -250,11 +284,11 @@ const ProductsManagement = () => {
     const token = localStorage.getItem("accessToken");
     try {
       await deleteProduct(productId, token);
-      showDialog("Sản phẩm đã được xóa");
+      showSnackbar("Sản phẩm đã được xóa", "success");
       refetch(); // <- reload lại bảng
     } catch (error) {
       console.error(error);
-      showDialog(error.message);
+      showSnackbar(error.message, "error");
     }
   };
 
@@ -617,13 +651,6 @@ const ProductsManagement = () => {
                       position: "absolute",
                       top: -10,
                       right: -20,
-                    }}
-                    onClick={() => {
-                      // Xóa ảnh khỏi selectedProduct
-                      setSelectedProduct((prev) => ({
-                        ...prev,
-                        images: prev.images.filter((i) => i?.id !== img?.id),
-                      }));
                     }}>
                     <DeleteIcon
                       sx={{
@@ -631,6 +658,7 @@ const ProductsManagement = () => {
                         color: "red",
                         MozBorderRadiusBottomleft: "4px",
                       }}
+                      onClick={() => handleRemoveImage(img?.id)}
                     />
                   </Button>
                 </Box>
@@ -645,17 +673,15 @@ const ProductsManagement = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Thông báo</DialogTitle>
-        <DialogContent>
-          <Typography>{dialogMessage}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} autoFocus>
-            Đóng
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert severity={snackbar.severity} variant="filled">
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </DashboardLayoutWrapper>
   );
 };
