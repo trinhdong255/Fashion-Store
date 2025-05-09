@@ -21,7 +21,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 const CategoriesManagement = () => {
   const [categorys, setCategory] = useState([]);
@@ -178,8 +178,11 @@ const CategoriesManagement = () => {
         if (!res.ok) {
           throw new Error("Xóa không thành công");
         }
+        // Thay vì xóa hoàn toàn, chỉ cập nhật trạng thái
         setCategory((prev) =>
-          prev.filter((color) => color.id !== selectedCategoryId)
+          prev.map((cat) =>
+            cat.id === selectedCategoryId ? { ...cat, status: "INACTIVE" } : cat
+          )
         );
         handleCloseDeleteModal();
       })
@@ -188,6 +191,7 @@ const CategoriesManagement = () => {
         showSnackbar("Xảy ra lỗi khi xóa màu!", "error");
       });
   };
+
   const handleToggleStatus = (id) => {
     const token = localStorage.getItem("accessToken");
 
@@ -249,28 +253,28 @@ const CategoriesManagement = () => {
                 <TableCell>{category.name}</TableCell>
                 <TableCell>{category.description}</TableCell>
                 <TableCell>
-                  <Switch
+                  {/* <Switch
                     checked={category.status === "ACTIVE"}
                     onChange={() => handleToggleStatus(category.id)}
-                  />
+                  /> */}
+                  {category.status === "ACTIVE"
+                    ? "Hoạt động"
+                    : "Ngừng hoạt động"}
                 </TableCell>
                 <TableCell>
-                  <IconButton
-                    onClick={() =>
-                      handleEdit(
-                        category.id,
-                        category.name,
-                        category.description
-                      )
-                    }
-                    color="primary">
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleOpenDeleteModal(category.id)}
-                    color="error">
-                    <DeleteIcon />
-                  </IconButton>
+                  {category.status === "ACTIVE" ? (
+                    <IconButton
+                      color="error"
+                      onClick={() => handleOpenDeleteModal(category.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  ) : (
+                    <IconButton
+                      color="success"
+                      onClick={() => handleToggleStatus(category.id)}>
+                      <RestartAltIcon />
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

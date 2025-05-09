@@ -27,10 +27,11 @@ const colorMap = {
   đen: "#000000", // black
   trắng: "#FFFFFF", // white
   đỏ: "#d63031",
-  "xanh biển": "#0984e3",
-  "xanh lá": "#00b894",
+  xanh: "#0984e3",
   nâu: "#e17055",
   hồng: "#e84393",
+  tím: "#6c5ce7",
+  lục: "#00b894",
 };
 
 const ColorsManagement = () => {
@@ -62,13 +63,16 @@ const ColorsManagement = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
-    fetch("http://222.255.119.40:8080/adamstore/v1/colors?pageNo=1&pageSize=10", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Gửi token ở đây
-      },
-    })
+    fetch(
+      "http://222.255.119.40:8080/adamstore/v1/colors?pageNo=1&pageSize=10",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Gửi token ở đây
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         setColors(data.result.items);
@@ -152,9 +156,10 @@ const ColorsManagement = () => {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => {
+      .then(async (res) => {
         if (!res.ok) {
-          throw new Error("Xóa không thành công");
+          const data = await res.json();
+          throw new Error(data.message || "Xóa không thành công");
         }
         setColors((prev) =>
           prev.filter((color) => color.id !== selectedColorId)
@@ -162,8 +167,7 @@ const ColorsManagement = () => {
         handleCloseDeleteModal();
       })
       .catch((err) => {
-        console.error("Lỗi khi xóa màu:", err);
-        showSnackbar("Xảy ra lỗi khi xóa màu!", "error");
+        showSnackbar(err.message, "error");
       });
   };
 
