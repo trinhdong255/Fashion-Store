@@ -30,6 +30,7 @@ import ProductColorSection from "./shared/ProductColorSection";
 import ProductSizeSelection from "./shared/ProductSizeSelection";
 import ProductQuantitySelection from "./shared/ProductQuantitySelection";
 import ProductActions from "./shared/ProductActions";
+import ProductReviews from "./shared/ProductReviews";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -193,7 +194,9 @@ const ProductDetails = () => {
         title: product.name,
         images: imageUrl,
         price: selectedVariant ? selectedVariant.price : (variants[0]?.sizes[0]?.price || 0),
-        minimumOrderQuantity: product.soldQuantity || 0,
+        minimumOrderQuantity: product.soldQuantity || 0, // Số lượng đã bán: 0
+        totalReviews: product.totalReviews || 0, // Tổng số đánh giá: 0
+        averageRating: product.averageRating || 0, // Điểm đánh giá trung bình: mặc định 0 vì API không cung cấp
         brand: product.brand || "Không xác định",
         sku: product.sku || "N/A",
         tags: product.category?.name || "Không xác định",
@@ -202,6 +205,7 @@ const ProductDetails = () => {
         productVariantId: selectedVariant?.id,
       }
     : null;
+  console.log("productData:", productData);
 
   const buttonOptionColors = variants.map((group) => group.color.name) || ["Trắng", "Đen"];
   const buttonOptionSizes = variants
@@ -234,6 +238,7 @@ const ProductDetails = () => {
 
         <Box sx={{ flex: 1 }}>
           <ProductTitle products={productData} loading={loading} />
+          <ProductReviews products={productData} loading={loading} />
           <ProductPrice products={productData} loading={loading} />
           <ProductBrand products={productData} loading={loading} />
           <ProductStockKeepingUnit products={productData} loading={loading} />
