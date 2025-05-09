@@ -17,12 +17,12 @@ const slides = [
 
 // Ánh xạ ID danh mục sang đường dẫn ảnh tương ứng
 const categoryImages = {
-  1: "/src/assets/images/categories/quantay.webp", // Quần tây
+  1: "/src/assets/images/categories/Shirt.jpg", // Quần tây
   2: "/src/assets/images/categories/T-shirt.jpg", // Áo thun
-  3: "/src/assets/images/categories/Shirt.jpg", // Áo sơ mi
-  4: "/src/assets/images/categories/Accessories.jpg",
-  5: "/src/assets/images/categories/polo.jpeg",
-  6: "/src/assets/images/categories/vest.webp",
+  5: "/src/assets/images/categories/Jacket.jpg", // Áo sơ mi
+  6: "/src/assets/images/categories/Shorts.jpg",
+  7: "/src/assets/images/categories/quantay.webp",
+  8: "/src/assets/images/categories/Accessories.jpg",
 };
 
 const Home = () => {

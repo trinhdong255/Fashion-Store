@@ -1,3 +1,4 @@
+// CartButton.jsx
 import { SentimentDissatisfied } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import LocalMallIcon from "@mui/icons-material/LocalMall";
@@ -5,7 +6,6 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Badge,
-  badgeClasses,
   Box,
   Divider,
   Drawer,
@@ -18,31 +18,54 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  CircularProgress,
+  badgeClasses,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useGetCartByUserQuery } from "@/services/api/cart";
-import { selectUserId } from "@/store/redux/user/reducer";
-import { removeFromCart, updateQuantity } from "@/store/redux/cart/reducer";
+import { selectUserId, selectUser } from "@/store/redux/user/reducer";
+import { removeFromCart, updateQuantity, fetchCartItems } from "@/store/redux/cart/reducer";
 
 const CartButton = () => {
   const [open, setOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [itemToRemove, setItemToRemove] = useState(null);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userId = useSelector(selectUserId);
-  const { data: cartData, isLoading } = useGetCartByUserQuery(userId, {
-    skip: !userId,
-  });
+  const user = useSelector(selectUser); // Thêm để debug
 
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const cartTotalQuantity = useSelector(
     (state) => state.cart?.cartTotalQuantity || 0
   );
+
+  // Tải giỏ hàng khi mở Drawer
+  useEffect(() => {
+    if (open && userId) {
+      setLoading(true);
+      const token = localStorage.getItem("accessToken");
+      console.log("Check token on cart:", token);
+      console.log("User in CartButton:", user); // Debug
+      console.log("UserId in CartButton:", userId); // Debug
+
+      axios
+        .get("http://222.255.119.40:8080/adamstore/v1/cart-items", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          dispatch(fetchCartItems(response.data.data));
+        })
+        .catch((err) => {
+          console.error("Lỗi khi tải giỏ hàng:", err);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [open, userId, dispatch, user]);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -61,6 +84,12 @@ const CartButton = () => {
   const handleConfirmRemove = () => {
     if (itemToRemove) {
       dispatch(removeFromCart({ id: itemToRemove.id }));
+      const token = localStorage.getItem("accessToken");
+      axios
+        .delete(`http://222.255.119.40:8080/adamstore/v1/cart-items/${itemToRemove.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .catch((err) => console.error("Lỗi khi xóa sản phẩm:", err));
     }
     handleCloseDialog();
   };
@@ -108,21 +137,22 @@ const CartButton = () => {
         }}
         role="presentation"
       >
-        <Box sx={{  }}>
+        <Box sx={{ p: 2 }}>
           <IconButton onClick={toggleDrawer(false)}>
             <CloseIcon fontSize="large" />
           </IconButton>
-          <Stack direction={"row"} alignItems={"center"}>
+          <Stack direction={"row"} alignItems={"center"} sx={{ mt: 1 }}>
             <LocalMallIcon />
             <Typography variant="h5">GIỎ HÀNG CỦA BẠN</Typography>
           </Stack>
           <Divider />
         </Box>
 
-        {isLoading ? (
-          <Typography sx={{ p: 2, textAlign: "center" }}>
-            Đang tải giỏ hàng...
-          </Typography>
+        {loading ? (
+          <Box sx={{ p: 2, textAlign: "center" }}>
+            <CircularProgress />
+            <Typography sx={{ mt: 1 }}>Đang tải giỏ hàng...</Typography>
+          </Box>
         ) : !userId ? (
           <Box
             sx={{
