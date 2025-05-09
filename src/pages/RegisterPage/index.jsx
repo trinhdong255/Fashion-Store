@@ -78,7 +78,7 @@ const Register = () => {
       const response = await signUp({
         name: data?.name,
         email: data?.email,
-        phone: data?.phone,
+        // phone: data?.phone,
         password: data?.password,
         confirmPassword: data?.password,
       }).unwrap();
@@ -171,7 +171,7 @@ const Register = () => {
               </ThemeProvider>
             </Stack>
 
-            <Stack className={styles.formLabelInput}>
+            {/* <Stack className={styles.formLabelInput}>
               <ThemeProvider theme={customTheme(outerTheme)}>
                 <TextField
                   id="phone"
@@ -192,7 +192,7 @@ const Register = () => {
                   <p className={styles.errorMessage}>{errors.phone.message}</p>
                 )}
               </ThemeProvider>
-            </Stack>
+            </Stack> */}
 
             <Stack className={styles.formLabelInput}>
               <ThemeProvider theme={customTheme(outerTheme)}>
