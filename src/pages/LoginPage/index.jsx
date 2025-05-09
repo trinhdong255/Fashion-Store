@@ -12,21 +12,20 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
-import { useLoginMutation, useGetMyInfoQuery } from "@/services/api/auth";
-import { setUser } from "@/store/redux/user/reducer";
 import customTheme from "@/components/CustemTheme";
 import axios from "axios";
+import { fetchUserInfo, setUser } from "@/store/redux/user/reducer";
+import { fetchCartItemsFromApi } from "@/store/redux/cart/reducer";
 
 const Login = () => {
   const outerTheme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const location = useLocation();
@@ -35,7 +34,6 @@ const Login = () => {
     message: "",
     severity: "success",
   });
-  const [userData, setUserData] = useState(null);
 
   const {
     register,
@@ -66,13 +64,19 @@ const Login = () => {
 
       const result = response.data.result;
       const { accessToken, refreshToken, roles, email } = result;
+      console.log("result:", result);
+      
 
       // Lưu token
       localStorage.setItem("accessToken", accessToken);
+      console.log("accessToken:", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      // Cập nhật Redux store
-      dispatch(setUser({ email, roles }));
+      // Lấy thông tin người dùng từ API myInfo
+      await dispatch(fetchUserInfo());
+
+      // Đồng bộ giỏ hàng
+      await dispatch(fetchCartItemsFromApi());
 
       // Hiển thị thông báo thành công
       setSnackbar({
@@ -104,12 +108,14 @@ const Login = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "right", horizontal: "right" }}>
+        anchorOrigin={{ vertical: "right", horizontal: "right" }}
+      >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: "100%", p: "10px 20px" }}>
+          sx={{ width: "100%", p: "10px 20px" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -122,21 +128,24 @@ const Login = () => {
             height: 500,
             borderRadius: 4,
             boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
-          }}>
+          }}
+        >
           <div>
             <h2
               style={{
                 textAlign: "center",
                 margin: "46px 0 20px 0",
                 fontWeight: "inherit",
-              }}>
+              }}
+            >
               ĐĂNG NHẬP
             </h2>
 
             <Stack
               sx={{ padding: "0px 36px" }}
               component={"form"}
-              onSubmit={handleSubmit(handleLogin)}>
+              onSubmit={handleSubmit(handleLogin)}
+            >
               {error && <p style={{ color: "red" }}>{error}</p>}
               <Stack className={styles.formLabelInput}>
                 <ThemeProvider theme={customTheme(outerTheme)}>
@@ -184,7 +193,8 @@ const Login = () => {
                             onClick={handleClickShowPassword}
                             onMouseDown={handleMouseDownPassword}
                             onMouseUp={handleMouseUpPassword}
-                            edge="end">
+                            edge="end"
+                          >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
@@ -193,9 +203,7 @@ const Login = () => {
                   />
                 </ThemeProvider>
                 {errors.password && (
-                  <p className={styles.errorMessage}>
-                    {errors.password.message}
-                  </p>
+                  <p className={styles.errorMessage}>{errors.password.message}</p>
                 )}
               </Stack>
 
@@ -212,7 +220,8 @@ const Login = () => {
                     backgroundColor: "#333",
                   },
                 }}
-                type="submit">
+                type="submit"
+              >
                 ĐĂNG NHẬP
               </Button>
             </Stack>
