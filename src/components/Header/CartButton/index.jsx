@@ -1,4 +1,3 @@
-// CartButton.jsx
 import { SentimentDissatisfied } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import LocalMallIcon from "@mui/icons-material/LocalMall";
@@ -17,7 +16,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   CircularProgress,
   badgeClasses,
 } from "@mui/material";
@@ -27,7 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { selectUserId, selectUser } from "@/store/redux/user/reducer";
-import { removeFromCart, updateQuantity, fetchCartItems } from "@/store/redux/cart/reducer";
+import { removeFromCart, fetchCartItemsFromApi, clearCartItemsFromApi } from "@/store/redux/cart/reducer";
 
 const CartButton = () => {
   const [open, setOpen] = useState(false);
@@ -37,35 +35,25 @@ const CartButton = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userId = useSelector(selectUserId);
-  const user = useSelector(selectUser); // Thêm để debug
+  const user = useSelector(selectUser);
 
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const cartTotalQuantity = useSelector(
     (state) => state.cart?.cartTotalQuantity || 0
   );
 
-  // Tải giỏ hàng khi mở Drawer
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchCartItemsFromApi());
+    }
+  }, [userId, dispatch]);
+
   useEffect(() => {
     if (open && userId) {
       setLoading(true);
-      const token = localStorage.getItem("accessToken");
-      console.log("Check token on cart:", token);
-      console.log("User in CartButton:", user); // Debug
-      console.log("UserId in CartButton:", userId); // Debug
-
-      axios
-        .get("http://222.255.119.40:8080/adamstore/v1/cart-items", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          dispatch(fetchCartItems(response.data.data));
-        })
-        .catch((err) => {
-          console.error("Lỗi khi tải giỏ hàng:", err);
-        })
-        .finally(() => setLoading(false));
+      dispatch(fetchCartItemsFromApi()).finally(() => setLoading(false));
     }
-  }, [open, userId, dispatch, user]);
+  }, [open, userId, dispatch]);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -81,48 +69,28 @@ const CartButton = () => {
     setItemToRemove(null);
   };
 
-  const handleConfirmRemove = () => {
+  const handleConfirmRemove = async () => {
     if (itemToRemove) {
-      dispatch(removeFromCart({ id: itemToRemove.id }));
       const token = localStorage.getItem("accessToken");
-      axios
-        .delete(`http://222.255.119.40:8080/adamstore/v1/cart-items/${itemToRemove.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .catch((err) => console.error("Lỗi khi xóa sản phẩm:", err));
+      try {
+        await axios.delete(
+          `http://222.255.119.40:8080/adamstore/v1/cart-items/${itemToRemove.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        dispatch(removeFromCart({ id: itemToRemove.id }));
+        await dispatch(fetchCartItemsFromApi());
+        console.log("Xóa sản phẩm thành công, ID:", itemToRemove.id);
+      } catch (error) {
+        console.error("Lỗi khi xóa sản phẩm:", error.response?.data || error.message);
+      }
     }
     handleCloseDialog();
   };
 
-  const handleUpdateQuantity = (item, newQuantity) => {
-    dispatch(updateQuantity({ id: item.id, quantity: newQuantity }));
-    const token = localStorage.getItem("accessToken");
-    axios
-      .put(
-        `http://222.255.119.40:8080/adamstore/v1/cart-items/${item.id}`,
-        { quantity: newQuantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      .catch((err) => {
-        console.error("Lỗi khi cập nhật số lượng:", err);
-      });
-  };
-
-  const handleCheckout = () => {
-    if (cartItems.length === 0) return;
-
-    navigate("/shipping-method", {
-      state: {
-        orderData: cartItems.map((item) => ({
-          productId: item.productVariantBasic.product.id,
-          productVariantId: item.productVariantBasic.id,
-          name: item.productVariantBasic.product.name,
-          image: "/default.jpg", // Cần cập nhật logic lấy image từ API
-          price: item.price,
-          quantity: item.quantity,
-        })),
-      },
-    });
+  const handleViewCart = () => {
+    navigate("/cart");
     setOpen(false);
   };
 
@@ -189,47 +157,53 @@ const CartButton = () => {
             }}
           >
             <Stack spacing={2}>
-              {cartItems.map((item, index) => (
-                <Stack
-                  key={index}
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{ borderBottom: "1px solid #ddd", pb: 1 }}
-                >
-                  <img
-                    src="/default.jpg" // Cần cập nhật logic lấy image từ API
-                    alt={item.productVariantBasic.product.name}
-                    style={{ width: 60, height: 60, objectFit: "cover" }}
-                  />
-                  <Stack spacing={1} sx={{ flex: 1 }}>
-                    <Typography variant="body1">
-                      {item.productVariantBasic.product.name}
-                    </Typography>
-                    <Typography variant="body2">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item.price)}
-                    </Typography>
-                    <TextField
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleUpdateQuantity(item, Math.max(1, e.target.value))
-                      }
-                      inputProps={{ min: 1 }}
-                      sx={{ width: "80px" }}
-                    />
-                  </Stack>
-                  <IconButton
-                    onClick={() => handleOpenDialog(item)}
-                    sx={{ color: "black" }}
+              {cartItems.map((item, index) => {
+                if (!item.productVariantBasic?.product) {
+                  console.error("Invalid item structure:", item);
+                  return null;
+                }
+                return (
+                  <Stack
+                    key={index}
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
+                    sx={{ borderBottom: "1px solid #ddd", pb: 1 }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              ))}
+                    <img
+                      src={item.image || "/default.jpg"} // Sử dụng item.image, nếu không có thì dùng ảnh mặc định
+                      alt={item.productVariantBasic.product.name}
+                      style={{ width: 60, height: 60, objectFit: "cover" }}
+                    />
+                    <Stack spacing={0.5} sx={{ flex: 1 }}>
+                      <Typography variant="body1">
+                        {item.productVariantBasic.product.name}
+                      </Typography>
+                      <Typography variant="body2">
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.price)}
+                      </Typography>
+                      <Typography variant="body2">
+                        Màu sắc: {item.productVariantBasic.color?.name || "N/A"}
+                      </Typography>
+                      <Typography variant="body2">
+                        Kích thước: {item.productVariantBasic.size?.name || "N/A"}
+                      </Typography>
+                      <Typography variant="body2">
+                        Số lượng: {item.quantity}
+                      </Typography>
+                    </Stack>
+                    <IconButton
+                      onClick={() => handleOpenDialog(item)}
+                      sx={{ color: "black" }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                );
+              })}
             </Stack>
           </Box>
         )}
@@ -237,23 +211,9 @@ const CartButton = () => {
         {cartItems.length > 0 && (
           <Box sx={{ flexShrink: 0, p: 2 }}>
             <Button
-              variant="contained"
-              sx={{
-                width: "100%",
-                backgroundColor: "black",
-                color: "white",
-                mb: 2,
-              }}
-              onClick={handleCheckout}
-            >
-              Thanh toán
-            </Button>
-            <Button
               variant="outlined"
               sx={{ width: "100%" }}
-              onClick={() => {
-                toggleDrawer(false)();
-              }}
+              onClick={handleViewCart}
             >
               Xem giỏ hàng
             </Button>
@@ -265,7 +225,7 @@ const CartButton = () => {
           <DialogContent>
             <Typography>
               Bạn có chắc chắn muốn xóa sản phẩm{" "}
-              <strong>{itemToRemove?.productVariantBasic.product.name}</strong>{" "}
+              <strong>{itemToRemove?.productVariantBasic?.product?.name || "N/A"}</strong>{" "}
               khỏi giỏ hàng?
             </Typography>
           </DialogContent>

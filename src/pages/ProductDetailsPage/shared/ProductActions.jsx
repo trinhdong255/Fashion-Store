@@ -2,11 +2,11 @@ import { Alert, alpha, Button, Skeleton, Snackbar, Stack } from "@mui/material";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useAddToCartMutation, useGetCartByUserQuery, useUpdateCartMutation } from "@/services/api/cart";
-import { addToCart as addToCartAction } from "@/store/redux/cart/reducer";
+import { fetchCartItemsFromApi } from "@/store/redux/cart/reducer";
 import { setOrderData } from "@/store/redux/order/reducer";
 import { selectUserId } from "@/store/redux/user/reducer";
 import { useState } from "react";
+import axios from "axios";
 
 const ProductActions = ({
   products,
@@ -14,17 +14,12 @@ const ProductActions = ({
   selectedQuantity,
   selectedColor,
   selectedSize,
-  selectedVariant, // Thêm prop để nhận selectedVariant
+  selectedVariant,
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
-  const { data: cartData, isLoading: isCartLoading, refetch } = useGetCartByUserQuery(userId, {
-    skip: !userId,
-  });
-  const [addToCartApi] = useAddToCartMutation();
-  const [updateCartApi] = useUpdateCartMutation();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -81,6 +76,15 @@ const ProductActions = ({
       return false;
     }
 
+    if (!selectedVariant?.id) {
+      setSnackbar({
+        open: true,
+        message: "Không tìm thấy biến thể sản phẩm!",
+        severity: "error",
+      });
+      return false;
+    }
+
     return true;
   };
 
@@ -101,60 +105,61 @@ const ProductActions = ({
       image: products.images || products.thumbnail,
       name: products.title || products.name,
       price: products.price,
-      color: selectedColor || "TRẮNG",
-      size: selectedSize || "S",
-      productVariantId: selectedVariant?.id, // Thêm productVariantId
+      color: selectedColor,
+      size: selectedSize,
+      productVariantId: selectedVariant.id,
+      quantity: selectedQuantity,
+      productVariantBasic: {
+        id: selectedVariant.id,
+        color: { name: selectedColor },
+        size: { name: selectedSize },
+        product: { id: products.id, name: products.title || products.name },
+      },
     };
 
     const existingItem = cartItems.find(
-      (item) =>
-        item.productId === cartItem.productId &&
-        item.color === cartItem.color &&
-        item.size === cartItem.size
+      (item) => item.productVariantId === cartItem.productVariantId
     );
 
-    if (existingItem) {
-      setSnackbar({
-        open: true,
-        message: "Sản phẩm đã có trong giỏ hàng!",
-        severity: "info",
-      });
-      return;
-    }
-
     try {
-      if (cartData && cartData.carts && cartData.carts.length > 0) {
-        const currentCart = cartData.carts[0];
-        const updatedProducts = [
-          ...currentCart.products,
-          { id: cartItem.productId },
-        ];
-
-        await updateCartApi({
-          id: currentCart.id,
-          cartData: {
-            userId,
-            products: updatedProducts,
-          },
-        }).unwrap();
+      const token = localStorage.getItem("accessToken");
+      if (existingItem) {
+        // Cập nhật số lượng nếu sản phẩm đã tồn tại
+        const newQuantity = existingItem.quantity + selectedQuantity;
+        await axios.put(
+          `http://222.255.119.40:8080/adamstore/v1/cart-items/${existingItem.id}`,
+          { quantity: newQuantity },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setSnackbar({
+          open: true,
+          message: "Đã cập nhật số lượng sản phẩm!",
+          severity: "success",
+        });
       } else {
-        await addToCartApi({
-          userId,
-          products: [{ id: cartItem.productId }],
-        }).unwrap();
+        // Thêm mới nếu sản phẩm chưa tồn tại
+        await axios.post(
+          "http://222.255.119.40:8080/adamstore/v1/cart-items",
+          {
+            productVariantId: cartItem.productVariantId,
+            quantity: cartItem.quantity,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setSnackbar({
+          open: true,
+          message: "Đã thêm sản phẩm vào giỏ hàng!",
+          severity: "success",
+        });
       }
 
-      dispatch(addToCartAction(cartItem));
-
-      setSnackbar({
-        open: true,
-        message: "Đã thêm sản phẩm vào giỏ hàng!",
-        severity: "success",
-      });
+      // Đồng bộ dữ liệu từ API
+      await dispatch(fetchCartItemsFromApi());
     } catch (error) {
+      console.error("Lỗi khi thêm/cập nhật giỏ hàng:", error.response?.data || error.message);
       setSnackbar({
         open: true,
-        message: "Lỗi khi thêm vào giỏ hàng!",
+        message: `Lỗi khi thêm vào giỏ hàng: ${error.response?.data?.message || "Kiểm tra lại thông tin"}`,
         severity: "error",
       });
     }
@@ -164,13 +169,13 @@ const ProductActions = ({
     if (!validateInputs()) return;
 
     const orderItem = {
-      productVariantId: selectedVariant?.id, // Sử dụng productVariantId từ selectedVariant
+      productVariantId: selectedVariant.id,
       image: products.images,
       name: products.title || products.name,
       price: products.price,
-      quantity: selectedQuantity || 1,
-      color: selectedColor || "TRẮNG",
-      size: selectedSize || "S",
+      quantity: selectedQuantity,
+      color: selectedColor,
+      size: selectedSize,
     };
 
     const orderData = [orderItem];
@@ -178,13 +183,11 @@ const ProductActions = ({
     navigate("/shipping-method", { state: { orderData } });
   };
 
-  if (isCartLoading) return <Skeleton variant="rectangular" width={"100%"} height={30} />;
+  if (loading) return <Skeleton variant="rectangular" width={"100%"} height={30} />;
 
   return (
     <>
-      {loading ? (
-        <Skeleton variant="rectangular" width={"100%"} height={30} />
-      ) : products ? (
+      {products ? (
         <Stack direction={"row"} alignItems={"center"} sx={{ m: "30px 0" }}>
           <Button
             variant="outlined"
@@ -241,7 +244,7 @@ ProductActions.propTypes = {
   selectedQuantity: PropTypes.number,
   selectedColor: PropTypes.string,
   selectedSize: PropTypes.string,
-  selectedVariant: PropTypes.object, // Thêm propTypes cho selectedVariant
+  selectedVariant: PropTypes.object,
 };
 
 export default ProductActions;
