@@ -41,28 +41,6 @@ export const fetchUser = async () => {
   return data.result.items;
 };
 
-export const createUser = async (userData) => {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/users",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(userData),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Tạo user thất bại");
-  }
-
-  return response.json();
-};
-
 export const updateUser = async (id, userData) => {
   const token = localStorage.getItem("accessToken");
 
