@@ -5,11 +5,21 @@ import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
 import { useListSizesQuery } from "@/services/api/size";
 
 const SizesManagement = () => {
-  const { data, isLoading, error } = useListSizesQuery({ pageNo: 1, pageSize: 10 });
+  const { data, isLoading, error } = useListSizesQuery({
+    pageNo: 1,
+    pageSize: 10,
+  });
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
-    { field: "name", headerName: "Tên kích thước", width: 150 },
+    { field: "id", headerName: "ID", width: 90, flex: 1 },
+    {
+      field: "name",
+      headerName: "Tên kích thước",
+      width: 150,
+      flex: 1,
+      disableColumnMenu: true,
+      sortable: false,
+    },
   ];
 
   const rows = data?.items || [];
@@ -21,7 +31,8 @@ const SizesManagement = () => {
       </Typography>
       {error && (
         <Typography color="error" gutterBottom>
-          Lỗi khi tải dữ liệu: {error.data?.message || "Không thể kết nối đến server"}
+          Lỗi khi tải dữ liệu:{" "}
+          {error.data?.message || "Không thể kết nối đến server"}
         </Typography>
       )}
       <div style={{ height: 400, width: "100%" }}>

@@ -1,3 +1,25 @@
+export const createUser = async (userData) => {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await fetch(
+    "http://222.255.119.40:8080/adamstore/v1/users",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Tạo user thất bại");
+  }
+
+  return response.json();
+};
+
 export const fetchUser = async () => {
   const token = localStorage.getItem("accessToken");
 
@@ -66,4 +88,26 @@ export const deleteUser = async (userId, token) => {
   }
 
   return response.json(); // hoặc return void
+};
+
+export const restoreUser = async (userId, token) => {
+  try {
+    const res = await fetch(
+      `http://222.255.119.40:8080/adamstore/v1/users/${userId}/restore`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Lỗi không rõ");
+    }
+    return true;
+  } catch (err) {
+    throw new Error(err.message || "Lỗi kết nối khi khôi phục sản phẩm");
+  }
 };

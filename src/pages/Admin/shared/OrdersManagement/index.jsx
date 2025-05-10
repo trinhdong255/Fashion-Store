@@ -1,248 +1,162 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Typography,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Grid,
-  TextField,
-} from "@mui/material";
-import axios from "axios";
+import { Typography } from "@mui/material";
+
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
+import { fetchOrder } from "./api";
 
 const OrdersManagement = () => {
   const [orders, setOrders] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [newOrder, setNewOrder] = useState({
-    user: "",
-    totalPrice: "",
-    orderStatus: "PENDING",
-  });
-  const [editOrder, setEditOrder] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [orderToDelete, setOrderToDelete] = useState(null);
-
-  // Lấy dữ liệu
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const ordersRes = await axios.get("http://localhost:3000/orders");
-        setOrders(ordersRes.data);
-
-        const usersRes = await axios.get("http://localhost:3000/users");
-        setUsers(usersRes.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
+    { field: "id", headerName: "ID", width: 80 },
     {
-      field: "user",
-      headerName: "Người dùng",
+      field: "customerName",
+      headerName: "Khách hàng",
       width: 150,
-      valueGetter: (params) => params.row.user?.name || "",
+      disableColumnMenu: true,
+      sortable: false,
     },
-    { field: "totalPrice", headerName: "Tổng tiền", width: 120 },
-    { field: "orderStatus", headerName: "Trạng thái", width: 150 },
     {
-      field: "actions",
-      headerName: "Hành động",
-      width: 150,
-      renderCell: (params) => (
-        <>
-          <Button onClick={() => handleEditOrder(params.row)}>Sửa</Button>
-          <Button
-            onClick={() => handleOpenDeleteDialog(params.row.id)}
-            color="error"
-          >
-            Xóa
-          </Button>
-        </>
-      ),
+      field: "phone",
+      headerName: "SĐT",
+      width: 130,
+      disableColumnMenu: true,
+      sortable: false,
     },
+    {
+      field: "address",
+      headerName: "Địa chỉ",
+      width: 300,
+      disableColumnMenu: true,
+      sortable: false,
+    },
+    {
+      field: "productName",
+      headerName: "Sản phẩm",
+      width: 200,
+      disableColumnMenu: true,
+      sortable: false,
+    },
+    {
+      field: "productOrder",
+      headerName: "Ngày đặt",
+      width: 200,
+      disableColumnMenu: true,
+      sortable: false,
+    },
+    {
+      field: "totalPrice",
+      headerName: "Tổng tiền",
+      width: 130,
+      disableColumnMenu: true,
+      sortable: false,
+    },
+    {
+      field: "orderStatus",
+      headerName: "Trạng thái",
+      width: 160,
+      disableColumnMenu: true,
+      sortable: false,
+      valueFormatter: (params) => {
+        console.log("formatting status", params.row?.orderStatus);
+
+        const statusMap = {
+          PENDING: "Đang chờ",
+          PROCESSING: "Đang xử lý",
+          SHIPPED: "Đã giao hàng",
+          DELIVERED: "Đã giao thành công",
+          CANCELLED: "Đã hủy",
+        };
+
+        const formattedValue =
+          statusMap[params.row?.orderStatus] || params.row?.orderStatus;
+        console.log("Formatted status", formattedValue); // Kiểm tra giá trị đã chuyển đổi
+        return formattedValue;
+      },
+    },
+
+    // {
+    //   field: "actions",
+    //   headerName: "Hành động",
+    //   width: 160,
+    //   renderCell: (params) => (
+    //     <>
+    //       <IconButton
+    //         color="primary"
+    //         onClick={() => params.row.onEdit(params.row)}
+    //         title="Chỉnh sửa">
+    //         <EditIcon />
+    //       </IconButton>
+    //       <IconButton
+    //         color="error"
+    //         onClick={() => row.onDelete(row.id)}
+    //         title="Xóa">
+    //         <DeleteIcon />
+    //       </IconButton>
+    //     </>
+    //   ),
+    // },
   ];
 
-  const handleAddOrder = async () => {
-    try {
-      const orderData = {
-        userId: newOrder.user,
-        totalPrice: parseFloat(newOrder.totalPrice),
-        orderStatus: newOrder.orderStatus,
-      };
-      await axios.post("http://localhost:3000/orders", orderData);
-      const response = await axios.get("http://localhost:3000/orders");
-      setOrders(response.data);
-      setNewOrder({ user: "", totalPrice: "", orderStatus: "PENDING" });
-      setOpenDialog(false);
-    } catch (error) {
-      console.error("Error adding order:", error);
-    }
-  };
+  useEffect(() => {
+    const loadOrders = async () => {
+      setLoading(true);
+      try {
+        const items = await fetchOrder();
 
-  const handleEditOrder = (order) => {
-    setEditOrder(order);
-    setNewOrder({
-      user: order.user?.id || "",
-      totalPrice: order.totalPrice,
-      orderStatus: order.orderStatus,
-    });
-    setOpenDialog(true);
-  };
+        const mapped = items.map((order) => {
+          const firstProduct =
+            order.orderItems?.[0]?.productVariant?.product?.name || "N/A";
+          const fullAddress = [
+            order.address?.streetDetail,
+            order.address?.ward?.name,
+            order.address?.district?.name,
+            order.address?.province?.name,
+          ]
+            .filter(Boolean)
+            .join(", ");
 
-  const handleUpdateOrder = async () => {
-    try {
-      const orderData = {
-        userId: newOrder.user,
-        totalPrice: parseFloat(newOrder.totalPrice),
-        orderStatus: newOrder.orderStatus,
-      };
-      await axios.put(`http://localhost:3000/orders/${editOrder.id}`, orderData);
-      const response = await axios.get("http://localhost:3000/orders");
-      setOrders(response.data);
-      setEditOrder(null);
-      setNewOrder({ user: "", totalPrice: "", orderStatus: "PENDING" });
-      setOpenDialog(false);
-    } catch (error) {
-      console.error("Error updating order:", error);
-    }
-  };
+          return {
+            id: order.id,
+            customerName: order.customerName,
+            phone: order.address.phone,
+            address: fullAddress,
+            productName: firstProduct,
+            productOrder: order.orderDate,
+            totalPrice: order.totalPrice.toLocaleString("vi-VN") + "₫",
+            orderStatus: order.orderStatus,
+          };
+        });
 
-  const handleOpenDeleteDialog = (id) => {
-    setOrderToDelete(id);
-    setOpenDeleteDialog(true);
-  };
+        setOrders(mapped);
+      } catch (error) {
+        console.error("Lỗi khi lấy đơn hàng:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleDeleteOrder = async () => {
-    try {
-      await axios.delete(`http://localhost:3000/orders/${orderToDelete}`);
-      const response = await axios.get("http://localhost:3000/orders");
-      setOrders(response.data);
-      setOpenDeleteDialog(false);
-      setOrderToDelete(null);
-    } catch (error) {
-      console.error("Error deleting order:", error);
-    }
-  };
+    loadOrders();
+  }, []);
 
   return (
     <DashboardLayoutWrapper>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" sx={{ marginBottom: 4 }} gutterBottom>
         Quản lý Đơn hàng
       </Typography>
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={9}></Grid>
-        <Grid item xs={12} sm={3}>
-          <Button
-            variant="contained"
-            onClick={() => setOpenDialog(true)}
-            fullWidth
-          >
-            Thêm đơn hàng
-          </Button>
-        </Grid>
-      </Grid>
-      <div style={{ height: 400, width: "100%" }}>
+
+      <div style={{ height: 600, width: "100%" }}>
         <DataGrid
           rows={orders}
           columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
+          pageSize={10}
+          rowsPerPageOptions={[5, 10]}
+          loading={loading}
           disableSelectionOnClick
         />
       </div>
-
-      {/* Dialog thêm/sửa đơn hàng */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>
-          {editOrder ? "Sửa đơn hàng" : "Thêm đơn hàng"}
-        </DialogTitle>
-        <DialogContent>
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Người dùng</InputLabel>
-            <Select
-              value={newOrder.user}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, user: e.target.value })
-              }
-              label="Người dùng"
-            >
-              {users.map((user) => (
-                <MenuItem key={user.id} value={user.id}>
-                  {user.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Tổng tiền"
-            type="number"
-            value={newOrder.totalPrice}
-            onChange={(e) =>
-              setNewOrder({ ...newOrder, totalPrice: e.target.value })
-            }
-            fullWidth
-            sx={{ mt: 2 }}
-          />
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Trạng thái</InputLabel>
-            <Select
-              value={newOrder.orderStatus}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, orderStatus: e.target.value })
-              }
-              label="Trạng thái"
-            >
-              <MenuItem value="PENDING">PENDING</MenuItem>
-              <MenuItem value="PROCESSING">PROCESSING</MenuItem>
-              <MenuItem value="SHIPPED">SHIPPED</MenuItem>
-              <MenuItem value="DELIVERED">DELIVERED</MenuItem>
-              <MenuItem value="CANCELLED">CANCELLED</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
-          <Button
-            onClick={editOrder ? handleUpdateOrder : handleAddOrder}
-            variant="contained"
-          >
-            {editOrder ? "Cập nhật" : "Thêm"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Dialog xác nhận xóa */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
-        <DialogTitle>Xác nhận xóa</DialogTitle>
-        <DialogContent>
-          <Typography>Bạn có chắc chắn muốn xóa đơn hàng này không?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)}>Hủy</Button>
-          <Button
-            onClick={handleDeleteOrder}
-            color="error"
-            variant="contained"
-          >
-            Xóa
-          </Button>
-        </DialogActions>
-      </Dialog>
     </DashboardLayoutWrapper>
   );
 };

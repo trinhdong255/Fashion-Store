@@ -22,6 +22,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { DataGrid } from "@mui/x-data-grid";
 
 const CategoriesManagement = () => {
   const [categorys, setCategory] = useState([]);
@@ -219,6 +220,56 @@ const CategoriesManagement = () => {
       });
   };
 
+  const columns = [
+    { field: "id", headerName: "ID", width: 70 },
+    {
+      field: "name",
+      headerName: "Tên",
+      flex: 1,
+      disableColumnMenu: true,
+      sortable: false,
+    },
+    {
+      field: "description",
+      headerName: "Mô tả",
+      flex: 2,
+      disableColumnMenu: true,
+      sortable: false,
+    },
+    {
+      field: "status",
+      headerName: "Trạng thái",
+      disableColumnMenu: true,
+      sortable: false,
+      flex: 1,
+      renderCell: (params) =>
+        params.row.status === "ACTIVE" ? "Hoạt động" : "Ngừng hoạt động",
+    },
+    {
+      field: "actions",
+      headerName: "Hành động",
+      disableColumnMenu: true,
+      flex: 1,
+      sortable: false,
+      renderCell: (params) => {
+        const category = params.row;
+        return category.status === "ACTIVE" ? (
+          <IconButton
+            color="error"
+            onClick={() => handleOpenDeleteModal(category.id)}>
+            <DeleteIcon />
+          </IconButton>
+        ) : (
+          <IconButton
+            color="success"
+            onClick={() => handleToggleStatus(category.id)}>
+            <RestartAltIcon />
+          </IconButton>
+        );
+      },
+    },
+  ];
+
   return (
     <DashboardLayoutWrapper>
       <Box
@@ -238,48 +289,15 @@ const CategoriesManagement = () => {
         </Button>
       </Box>
       <Box>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Tên</TableCell>
-              <TableCell>Mô tả</TableCell>
-              <TableCell>Trạng thái</TableCell>
-              <TableCell>Hành động</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {categorys.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell>{category.name}</TableCell>
-                <TableCell>{category.description}</TableCell>
-                <TableCell>
-                  {/* <Switch
-                    checked={category.status === "ACTIVE"}
-                    onChange={() => handleToggleStatus(category.id)}
-                  /> */}
-                  {category.status === "ACTIVE"
-                    ? "Hoạt động"
-                    : "Ngừng hoạt động"}
-                </TableCell>
-                <TableCell>
-                  {category.status === "ACTIVE" ? (
-                    <IconButton
-                      color="error"
-                      onClick={() => handleOpenDeleteModal(category.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  ) : (
-                    <IconButton
-                      color="success"
-                      onClick={() => handleToggleStatus(category.id)}>
-                      <RestartAltIcon />
-                    </IconButton>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataGrid
+          rows={categorys}
+          columns={columns}
+          autoHeight
+          pageSize={5}
+          rowsPerPageOptions={[5, 10]}
+          getRowId={(row) => row.id}
+          disableRowSelectionOnClick
+        />
 
         {openModal && (
           <Box

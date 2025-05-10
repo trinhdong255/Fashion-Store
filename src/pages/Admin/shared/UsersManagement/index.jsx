@@ -11,20 +11,55 @@ import {
   TextField,
   MenuItem,
   DialogActions,
+  Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
-import { deleteUser, fetchUser, updateUser } from "./api";
+import {
+  createUser,
+  deleteUser,
+  fetchUser,
+  restoreUser,
+  updateUser,
+} from "./api";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { IconButton } from "@mui/material";
 
+const paginationModel = { page: 0, pageSize: 5 };
 const UsersManagement = () => {
   const [users, setUsers] = useState([]);
+  const [openModalAdd, setOpenModalAdd] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "",
+  });
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
-    { field: "name", headerName: "Tên", width: 250 },
+    {
+      field: "name",
+      headerName: "Tên",
+      width: 250,
+      disableColumnMenu: true,
+      sortable: false,
+    },
     {
       field: "email",
       headerName: "Email",
@@ -38,6 +73,7 @@ const UsersManagement = () => {
       width: 150,
       disableColumnMenu: true,
       sortable: false,
+
       renderCell: (params) => {
         const dob = params.value;
         if (!dob) return "Không có dữ liệu";
@@ -61,10 +97,12 @@ const UsersManagement = () => {
     {
       field: "actions",
       headerName: "Hành động",
+      disableColumnMenu: true,
+      sortable: false,
       width: 150,
       renderCell: (params) => {
         const { row } = params;
-        const isDisabled = row.status === "Ngưng hoạt động";
+        const isDisabled = row.status === "INACTIVE";
         return (
           <>
             <IconButton
@@ -102,7 +140,7 @@ const UsersManagement = () => {
           ...u,
           onEdit: handleEditClick,
           onDelete: handleDelete, // bạn cần thêm hàm này
-          onRestoreClick: handleRestore, // bạn cần thêm hàm này
+          onRestoreClick: handleRestore,
         }));
         setUsers(usersWithHandlers);
       } catch (error) {
@@ -113,8 +151,39 @@ const UsersManagement = () => {
     loadUsers();
   }, []);
 
-  const [openEdit, setOpenEdit] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const handleOpenModalAdd = () => setOpenModalAdd(true);
+  const handleCloseModalAdd = () => {
+    setOpenModalAdd(false);
+    setNewUser({ name: "", email: "", password: "", role: "" });
+    setErrors({});
+  };
+
+  const handleAddUser = async () => {
+    try {
+      // Validate
+      const err = {};
+      if (!newUser.name) err.name = "Tên không được để trống";
+      if (!newUser.email) err.email = "Email không được để trống";
+      if (!newUser.password) err.password = "Mật khẩu không được để trống";
+      if (!newUser.role) err.role = "Vai trò không được để trống";
+      setErrors(err);
+      if (Object.keys(err).length > 0) return;
+
+      await createUser(newUser);
+      const updatedUsers = await fetchUser();
+      const usersWithHandlers = updatedUsers.map((u) => ({
+        ...u,
+        onEdit: handleEditClick,
+        onDelete: handleDelete,
+        onRestoreClick: handleRestore,
+      }));
+      setUsers(usersWithHandlers);
+      handleCloseModalAdd();
+    } catch (error) {
+      // console.error("Lỗi khi tạo user:", error);
+      showSnackbar("Lỗi khi tạo user", "error");
+    }
+  };
 
   const handleEditClick = (user) => {
     setSelectedUser(user);
@@ -142,13 +211,31 @@ const UsersManagement = () => {
       }));
 
       setUsers(usersWithHandlers);
+      showSnackbar("Xóa thành công", "success");
     } catch (error) {
-      console.error("Lỗi khi xóa user:", error);
+      // console.error("Lỗi khi xóa user:", error);
+      showSnackbar("Lỗi khi xóa user:", "error");
     }
   };
 
-  const handleRestore = (id, name) => {
-    console.log("Restore user with id:", id, "name:", name);
+  const handleRestore = async (id, name) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      await restoreUser(id, token);
+      showSnackbar(`Đã khôi phục người dùng "${name}"`, "success");
+
+      const updatedUsers = await fetchUser();
+      const usersWithHandlers = updatedUsers.map((u) => ({
+        ...u,
+        onEdit: handleEditClick,
+        onDelete: handleDelete,
+        onRestoreClick: handleRestore,
+      }));
+      setUsers(usersWithHandlers);
+    } catch (error) {
+      console.error("Lỗi khi khôi phục người dùng:", error);
+      showSnackbar("Lỗi khi khôi phục người dùng", "error");
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -156,21 +243,48 @@ const UsersManagement = () => {
       await updateUser(selectedUser.id, {
         name: selectedUser.name,
         gender: selectedUser.gender,
-        dob: selectedUser.dob, // truyền lại ngày sinh cũ
+        dob: selectedUser.dob,
+        role: selectedUser.role,
       });
+
       const userList = await fetchUser();
-      setUsers(userList);
+
+      const usersWithHandlers = userList.map((u) => ({
+        ...u,
+        onEdit: handleEditClick,
+        onDelete: handleDelete,
+        // onRestoreClick: handleRestore,
+      }));
+
+      setUsers(usersWithHandlers);
+      showSnackbar("Cập nhật thành công", "success");
       handleCloseEdit();
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
+      showSnackbar("Lỗi cập nhật:", "error");
     }
   };
 
   return (
     <DashboardLayoutWrapper>
-      <Typography variant="h5" gutterBottom>
-        Quản lý Người dùng
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}>
+        <Typography variant="h5" gutterBottom>
+          Quản lý Người dùng
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ width: "200px" }}
+          onClick={handleOpenModalAdd}>
+          Thêm người dùng
+        </Button>
+      </Box>
 
       <div style={{ height: 500, width: "100%" }}>
         <DataGrid
@@ -178,10 +292,64 @@ const UsersManagement = () => {
           columns={columns}
           pageSize={5}
           getRowId={(row) => row.id}
-          rowsPerPageOptions={[5]}
+          initialState={{ pagination: { paginationModel } }}
+          rowsPerPageOptions={[5, 10]}
           disableSelectionOnClick
         />
       </div>
+      <Dialog open={openModalAdd} onClose={handleCloseModalAdd}>
+        <DialogTitle>Thêm người dùng</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Tên"
+            fullWidth
+            margin="dense"
+            value={newUser.name}
+            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+            error={!!errors.name}
+            helperText={errors.name}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="dense"
+            value={newUser.email}
+            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            error={!!errors.email}
+            helperText={errors.email}
+          />
+          <TextField
+            label="Mật khẩu"
+            fullWidth
+            type="password"
+            margin="dense"
+            value={newUser.password}
+            onChange={(e) =>
+              setNewUser({ ...newUser, password: e.target.value })
+            }
+            error={!!errors.password}
+            helperText={errors.password}
+          />
+          <TextField
+            label="Vai trò"
+            fullWidth
+            select
+            margin="dense"
+            value={newUser.role}
+            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+            error={!!errors.role}
+            helperText={errors.role}>
+            <MenuItem value="USER">Người dùng</MenuItem>
+            <MenuItem value="ADMIN">Quản lý</MenuItem>
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModalAdd}>Hủy</Button>
+          <Button onClick={handleAddUser} variant="contained">
+            Thêm
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={openEdit} onClose={handleCloseEdit}>
         <DialogTitle>Chỉnh sửa người dùng</DialogTitle>
@@ -228,6 +396,16 @@ const UsersManagement = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert severity={snackbar.severity} variant="filled">
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </DashboardLayoutWrapper>
   );
 };

@@ -11,8 +11,15 @@ const ProvincesManagement = () => {
   });
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
-    { field: "name", headerName: "Tên tỉnh / thành phố", width: 200 },
+    { field: "id", headerName: "ID", width: 90, flex: 1 },
+    {
+      field: "name",
+      flex: 1,
+      headerName: "Tên tỉnh / thành phố",
+      width: 200,
+      disableColumnMenu: true,
+      sortable: false,
+    },
   ];
 
   const rows = data?.items || [];
@@ -24,7 +31,8 @@ const ProvincesManagement = () => {
       </Typography>
       {error && (
         <Typography color="error" gutterBottom>
-          Lỗi khi tải dữ liệu: {error.data?.message || "Không thể kết nối đến server"}
+          Lỗi khi tải dữ liệu:{" "}
+          {error.data?.message || "Không thể kết nối đến server"}
         </Typography>
       )}
       <div style={{ height: 400, width: "100%" }}>

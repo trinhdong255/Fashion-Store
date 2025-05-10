@@ -20,7 +20,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
+import { DataGrid } from "@mui/x-data-grid";
 
+const paginationModel = { page: 0, pageSize: 5 };
 const colorMap = {
   cam: "#FFA500", // orange
   vàng: "#FFFF00", // yellow
@@ -171,6 +173,59 @@ const ColorsManagement = () => {
       });
   };
 
+  const columns = [
+    { field: "id", headerName: "ID", width: 70 },
+    {
+      field: "name",
+      headerName: "Tên",
+      flex: 1,
+      disableColumnMenu: true,
+      sortable: false,
+    },
+    {
+      field: "colorBox",
+      headerName: "Màu sắc",
+      disableColumnMenu: true,
+      flex: 1,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            width: 30,
+            height: 30,
+            backgroundColor:
+              colorMap[params.row.name.toLowerCase().trim()] || "#ccc",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+          }}
+        />
+      ),
+      sortable: false,
+      filterable: false,
+    },
+    {
+      field: "actions",
+      headerName: "Hành động",
+      disableColumnMenu: true,
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <IconButton
+            onClick={() => handleEdit(params.row.id, params.row.name)}
+            color="primary">
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => handleOpenDeleteModal(params.row.id)}
+            color="error">
+            <DeleteIcon />
+          </IconButton>
+        </>
+      ),
+      sortable: false,
+      filterable: false,
+    },
+  ];
+
   return (
     <DashboardLayoutWrapper>
       <Box
@@ -190,46 +245,19 @@ const ColorsManagement = () => {
         </Button>
       </Box>
       <Box sx={{ padding: "0 20px" }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Tên</TableCell>
-              <TableCell>Màu sắc</TableCell>
-              <TableCell>Hành động</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {colors.map((color) => (
-              <TableRow key={color.id}>
-                <TableCell>{color.name}</TableCell>
-                <TableCell>
-                  <Box
-                    sx={{
-                      width: 30,
-                      height: 30,
-                      backgroundColor:
-                        colorMap[color.name.toLowerCase().trim()] || "#ccc",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => handleEdit(color.id, color.name)}
-                    color="primary">
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleOpenDeleteModal(color.id)}
-                    color="error">
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Box sx={{ height: 400, width: "100%", padding: "0 20px" }}>
+          <DataGrid
+            rows={colors}
+            columns={columns}
+            pageSize={5}
+            initialState={{ pagination: { paginationModel } }}
+            rowsPerPageOptions={[5, 10]}
+            getRowId={(row) => row.id}
+            disableSelectionOnClick
+            autoHeight
+          />
+        </Box>
+
         {openModal && (
           <Box
             sx={{
