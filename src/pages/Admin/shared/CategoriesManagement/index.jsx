@@ -252,19 +252,33 @@ const CategoriesManagement = () => {
       flex: 1,
       sortable: false,
       renderCell: (params) => {
-        const category = params.row;
-        return category.status === "ACTIVE" ? (
-          <IconButton
-            color="error"
-            onClick={() => handleOpenDeleteModal(category.id)}>
-            <DeleteIcon />
-          </IconButton>
-        ) : (
-          <IconButton
-            color="success"
-            onClick={() => handleToggleStatus(category.id)}>
-            <RestartAltIcon />
-          </IconButton>
+        const { row } = params;
+
+        const isDisabled = row.status === "INACTIVE";
+        return (
+          <>
+            <IconButton
+              color="primary"
+              onClick={() => params.row.onEdit(params.row)}
+              title="Chỉnh sửa">
+              <EditIcon />
+            </IconButton>
+            {isDisabled ? (
+              <IconButton
+                color="success"
+                onClick={() => row.onRestoreClick(row.id, row.name)} // Gọi function khôi phục
+                title="Khôi phục">
+                <RestartAltIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                color="error"
+                onClick={() => row.onDelete(row.id)}
+                title="Xóa">
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </>
         );
       },
     },
@@ -290,7 +304,12 @@ const CategoriesManagement = () => {
       </Box>
       <Box>
         <DataGrid
-          rows={categorys}
+          rows={categorys.map((cat) => ({
+            ...cat,
+            onEdit: () => handleEdit(cat.id, cat.name, cat.description),
+            onDelete: () => handleOpenDeleteModal(cat.id),
+            onRestoreClick: () => handleToggleStatus(cat.id),
+          }))}
           columns={columns}
           autoHeight
           pageSize={5}
