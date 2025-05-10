@@ -303,6 +303,7 @@ const ProductsManagement = () => {
           justifyContent: "space-between",
           alignItems: "center",
           gap: "20px",
+          marginBottom: 4,
         }}>
         <FormControl fullWidth>
           <InputLabel>Danh mục</InputLabel>

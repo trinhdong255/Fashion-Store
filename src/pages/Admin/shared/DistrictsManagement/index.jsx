@@ -1,15 +1,28 @@
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
 import { useListProvincesQuery } from "@/services/api/province";
-import { useListDistrictsByProvinceQuery, useListDistrictsQuery } from "@/services/api/district";
+import {
+  useListDistrictsByProvinceQuery,
+  useListDistrictsQuery,
+} from "@/services/api/district";
 
 const DistrictsManagement = () => {
   const [selectedProvince, setSelectedProvince] = useState("");
 
   // Lấy danh sách tỉnh/thành phố
-  const { data: provincesData, isLoading: provincesLoading, error: provincesError } = useListProvincesQuery({
+  const {
+    data: provincesData,
+    isLoading: provincesLoading,
+    error: provincesError,
+  } = useListProvincesQuery({
     pageNo: 1,
     pageSize: 60,
   });
@@ -44,14 +57,27 @@ const DistrictsManagement = () => {
   );
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
-    { field: "name", headerName: "Tên quận / huyện", width: 200 },
+    { field: "id", headerName: "ID", width: 90, flex: 1 },
+    {
+      field: "name",
+      flex: 1,
+      headerName: "Tên quận / huyện",
+      width: 200,
+      disableColumnMenu: true,
+      sortable: false,
+    },
   ];
 
   // Dữ liệu hiển thị: Nếu có tỉnh/thành phố được chọn, dùng districtsByProvinceData, ngược lại dùng allDistrictsData
-  const districtsData = selectedProvince ? districtsByProvinceData : allDistrictsData;
-  const districtsLoading = selectedProvince ? districtsByProvinceLoading : allDistrictsLoading;
-  const districtsError = selectedProvince ? districtsByProvinceError : allDistrictsError;
+  const districtsData = selectedProvince
+    ? districtsByProvinceData
+    : allDistrictsData;
+  const districtsLoading = selectedProvince
+    ? districtsByProvinceLoading
+    : allDistrictsLoading;
+  const districtsError = selectedProvince
+    ? districtsByProvinceError
+    : allDistrictsError;
 
   const rows = districtsData?.items || [];
   const provinces = provincesData?.items || [];
@@ -71,8 +97,7 @@ const DistrictsManagement = () => {
           labelId="province-select-label"
           value={selectedProvince}
           label="Chọn tỉnh/thành phố"
-          onChange={handleProvinceChange}
-        >
+          onChange={handleProvinceChange}>
           <MenuItem value="">Tất cả</MenuItem>
           {provinces.map((province) => (
             <MenuItem key={province.id} value={province.id}>
@@ -83,12 +108,14 @@ const DistrictsManagement = () => {
       </FormControl>
       {provincesError && (
         <Typography color="error" gutterBottom>
-          Lỗi khi tải danh sách tỉnh/thành phố: {provincesError.data?.message || "Không thể kết nối đến server"}
+          Lỗi khi tải danh sách tỉnh/thành phố:{" "}
+          {provincesError.data?.message || "Không thể kết nối đến server"}
         </Typography>
       )}
       {districtsError && (
         <Typography color="error" gutterBottom>
-          Lỗi khi tải danh sách quận/huyện: {districtsError.data?.message || "Không thể kết nối đến server"}
+          Lỗi khi tải danh sách quận/huyện:{" "}
+          {districtsError.data?.message || "Không thể kết nối đến server"}
         </Typography>
       )}
       <div style={{ height: 400, width: "100%" }}>
