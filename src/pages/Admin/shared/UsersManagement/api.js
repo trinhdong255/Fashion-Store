@@ -16,12 +16,29 @@ export const fetchUser = async () => {
   }
 
   const data = await response.json();
-  const users = data.result.items;
+  return data.result.items;
+};
 
-  // lọc user có vai trò "USER"
-  return users.filter((user) =>
-    user.roles.some((role) => role.name === "USER")
+export const createUser = async (userData) => {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await fetch(
+    "http://222.255.119.40:8080/adamstore/v1/users",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData),
+    }
   );
+
+  if (!response.ok) {
+    throw new Error("Tạo user thất bại");
+  }
+
+  return response.json();
 };
 
 export const updateUser = async (id, userData) => {

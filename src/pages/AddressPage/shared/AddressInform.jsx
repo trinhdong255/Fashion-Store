@@ -21,7 +21,7 @@ const AddressInform = ({ id }) => {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [streetDetail, setStreetDetail] = useState("");
-
+  const [phone, setPhone] = useState("");
   const token = localStorage.getItem("accessToken");
 
   const handleCityChange = (event) => {
@@ -123,6 +123,7 @@ const AddressInform = ({ id }) => {
         setSelectedDistrict(result.district.id.toString());
         setWard(result.ward.code);
         setStreetDetail(result.streetDetail); // cần tạo thêm state này
+        setPhone(result.phone);
       })
       .catch((err) => {
         console.error("Lỗi khi lấy địa chỉ:", err);
@@ -130,7 +131,13 @@ const AddressInform = ({ id }) => {
   }, [token, id]);
 
   const handleSubmit = () => {
-    if (!selectedCity || !selectedDistrict || !ward || !streetDetail) {
+    if (
+      !selectedCity ||
+      !selectedDistrict ||
+      !ward ||
+      !streetDetail ||
+      !phone
+    ) {
       alert("Vui lòng điền đầy đủ thông tin địa chỉ.");
       return;
     }
@@ -141,6 +148,7 @@ const AddressInform = ({ id }) => {
       wardCode: ward,
       districtId: selectedDistrict,
       provinceId: selectedCity,
+      phone: phone,
     };
 
     axios
@@ -236,7 +244,7 @@ const AddressInform = ({ id }) => {
         <Stack
           direction="row"
           alignItems="center"
-          spacing={23}
+          spacing={24}
           sx={{ m: "40px 0" }}>
           <Typography variant="h6">Địa chỉ: </Typography>
           <TextField
@@ -246,6 +254,22 @@ const AddressInform = ({ id }) => {
             sx={{ width: "300px" }}
             value={streetDetail}
             onChange={(e) => setStreetDetail(e.target.value)}
+          />
+        </Stack>
+
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={17}
+          sx={{ m: "40px 0" }}>
+          <Typography variant="h6">Số điện thoại:</Typography>
+          <TextField
+            variant="outlined"
+            label="Nhập số điện thoại"
+            size="small"
+            sx={{ width: "300px" }}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
         </Stack>
       </Box>

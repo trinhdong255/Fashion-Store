@@ -65,7 +65,6 @@ const Login = () => {
       const result = response.data.result;
       const { accessToken, refreshToken, roles, email } = result;
       console.log("result:", result);
-      
 
       // Lưu token
       localStorage.setItem("accessToken", accessToken);
@@ -108,14 +107,12 @@ const Login = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "right", horizontal: "right" }}
-      >
+        anchorOrigin={{ vertical: "right", horizontal: "right" }}>
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: "100%", p: "10px 20px" }}
-        >
+          sx={{ width: "100%", p: "10px 20px" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -128,24 +125,21 @@ const Login = () => {
             height: 500,
             borderRadius: 4,
             boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
-          }}
-        >
+          }}>
           <div>
             <h2
               style={{
                 textAlign: "center",
                 margin: "46px 0 20px 0",
                 fontWeight: "inherit",
-              }}
-            >
+              }}>
               ĐĂNG NHẬP
             </h2>
 
             <Stack
               sx={{ padding: "0px 36px" }}
               component={"form"}
-              onSubmit={handleSubmit(handleLogin)}
-            >
+              onSubmit={handleSubmit(handleLogin)}>
               {error && <p style={{ color: "red" }}>{error}</p>}
               <Stack className={styles.formLabelInput}>
                 <ThemeProvider theme={customTheme(outerTheme)}>
@@ -193,8 +187,7 @@ const Login = () => {
                             onClick={handleClickShowPassword}
                             onMouseDown={handleMouseDownPassword}
                             onMouseUp={handleMouseUpPassword}
-                            edge="end"
-                          >
+                            edge="end">
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
@@ -203,7 +196,9 @@ const Login = () => {
                   />
                 </ThemeProvider>
                 {errors.password && (
-                  <p className={styles.errorMessage}>{errors.password.message}</p>
+                  <p className={styles.errorMessage}>
+                    {errors.password.message}
+                  </p>
                 )}
               </Stack>
 
@@ -220,8 +215,7 @@ const Login = () => {
                     backgroundColor: "#333",
                   },
                 }}
-                type="submit"
-              >
+                type="submit">
                 ĐĂNG NHẬP
               </Button>
             </Stack>
