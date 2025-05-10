@@ -139,11 +139,11 @@ const DashboardLayoutWrapper = ({ children }) => {
     //   title: "Chi nhánh",
     //   icon: <Store />,
     // },
-    // {
-    //   path: "/admin/promotionsManagement",
-    //   title: "Khuyến mãi",
-    //   icon: <LocalOffer />,
-    // },
+    {
+      path: "/admin/promotionsManagement",
+      title: "Khuyến mãi",
+      icon: <LocalOffer />,
+    },
     // {
     //   path: "/admin/chatbotManagement",
     //   title: "Chatbot",
