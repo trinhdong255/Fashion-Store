@@ -65,7 +65,7 @@ const ProfileInform = () => {
         setGender(result.gender || "male");
         setDob(result.dob?.slice(0, 10) || "2000-01-01");
         setEmail(result.email || "");
-        setPhone(result.phone || "");
+        // setPhone(result.phone || "");
         setSelectedDistrict(result.address);
         setLoading(false);
       })
@@ -263,17 +263,6 @@ const ProfileInform = () => {
           inputProps={{ ...ariaLabel, readOnly: true }}
         />
       </Box>
-
-      {/* SĐT */}
-      <Box sx={rowStyle}>
-        <Typography sx={labelStyle}>Số điện thoại:</Typography>
-        <Input
-          sx={{ flex: 7 }}
-          value={phone}
-          inputProps={{ ...ariaLabel, readOnly: true }}
-        />
-      </Box>
-
       <Box
         sx={{
           width: "100%",
@@ -300,8 +289,8 @@ const ProfileInform = () => {
         message={snackbarMessage}
         severity={snackbarSeverity}
         anchorOrigin={{
-          vertical: "top", // Chỉnh vị trí theo chiều dọc (dưới cùng)
-          horizontal: "right", // Chỉnh vị trí theo chiều ngang (bên phải)
+          vertical: "top",
+          horizontal: "right",
         }}
         sx={{
           position: "fixed", // Đặt vị trí cố định để luôn ở góc phải

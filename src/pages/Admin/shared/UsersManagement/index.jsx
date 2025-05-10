@@ -32,14 +32,16 @@ const paginationModel = { page: 0, pageSize: 5 };
 const UsersManagement = () => {
   const [users, setUsers] = useState([]);
   const [openModalAdd, setOpenModalAdd] = useState(false);
+
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
     password: "",
     role: "",
   });
-  const [openEdit, setOpenEdit] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [errors, setErrors] = useState({});
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -50,16 +52,9 @@ const UsersManagement = () => {
   const showSnackbar = (message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
   };
-
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
-    {
-      field: "name",
-      headerName: "Tên",
-      width: 250,
-      disableColumnMenu: true,
-      sortable: false,
-    },
+    { field: "name", headerName: "Tên", width: 200 },
     {
       field: "email",
       headerName: "Email",
@@ -91,6 +86,20 @@ const UsersManagement = () => {
         const gender = params.value;
         if (gender === "MALE") return "Nam";
         if (gender === "FEMALE") return "Nữ";
+        return "Không có dữ liệu";
+      },
+    },
+    {
+      field: "role",
+      headerName: "Vai trò",
+      width: 200,
+      disableColumnMenu: true,
+      sortable: false,
+      renderCell: (params) => {
+        const roles = params.row.roles;
+        const roleName = roles?.[0]?.name;
+        if (roleName === "ADMIN") return "Quản lý";
+        if (roleName === "USER") return "Người dùng";
         return "Không có dữ liệu";
       },
     },
@@ -139,7 +148,7 @@ const UsersManagement = () => {
         const usersWithHandlers = userList.map((u) => ({
           ...u,
           onEdit: handleEditClick,
-          onDelete: handleDelete, // bạn cần thêm hàm này
+          onDelete: handleDelete,
           onRestoreClick: handleRestore,
         }));
         setUsers(usersWithHandlers);
@@ -180,8 +189,7 @@ const UsersManagement = () => {
       setUsers(usersWithHandlers);
       handleCloseModalAdd();
     } catch (error) {
-      // console.error("Lỗi khi tạo user:", error);
-      showSnackbar("Lỗi khi tạo user", "error");
+      console.error("Lỗi khi tạo user:", error);
     }
   };
 
@@ -253,11 +261,10 @@ const UsersManagement = () => {
         ...u,
         onEdit: handleEditClick,
         onDelete: handleDelete,
-        // onRestoreClick: handleRestore,
+        onRestoreClick: handleRestore,
       }));
 
       setUsers(usersWithHandlers);
-      showSnackbar("Cập nhật thành công", "success");
       handleCloseEdit();
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
@@ -272,7 +279,7 @@ const UsersManagement = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "20px",
+          marginBottom: "40px",
         }}>
         <Typography variant="h5" gutterBottom>
           Quản lý Người dùng
@@ -285,7 +292,6 @@ const UsersManagement = () => {
           Thêm người dùng
         </Button>
       </Box>
-
       <div style={{ height: 500, width: "100%" }}>
         <DataGrid
           rows={users}
@@ -297,6 +303,60 @@ const UsersManagement = () => {
           disableSelectionOnClick
         />
       </div>
+      <Dialog open={openModalAdd} onClose={handleCloseModalAdd}>
+        <DialogTitle>Thêm người dùng</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Tên"
+            fullWidth
+            margin="dense"
+            value={newUser.name}
+            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+            error={!!errors.name}
+            helperText={errors.name}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="dense"
+            value={newUser.email}
+            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            error={!!errors.email}
+            helperText={errors.email}
+          />
+          <TextField
+            label="Mật khẩu"
+            fullWidth
+            type="password"
+            margin="dense"
+            value={newUser.password}
+            onChange={(e) =>
+              setNewUser({ ...newUser, password: e.target.value })
+            }
+            error={!!errors.password}
+            helperText={errors.password}
+          />
+          <TextField
+            label="Vai trò"
+            fullWidth
+            select
+            margin="dense"
+            value={newUser.role}
+            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+            error={!!errors.role}
+            helperText={errors.role}>
+            <MenuItem value="USER">Người dùng</MenuItem>
+            <MenuItem value="ADMIN">Quản lý</MenuItem>
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModalAdd}>Hủy</Button>
+          <Button onClick={handleAddUser} variant="contained">
+            Thêm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Dialog open={openModalAdd} onClose={handleCloseModalAdd}>
         <DialogTitle>Thêm người dùng</DialogTitle>
         <DialogContent>

@@ -12,21 +12,20 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
-import { useLoginMutation, useGetMyInfoQuery } from "@/services/api/auth";
-import { setUser } from "@/store/redux/user/reducer";
 import customTheme from "@/components/CustemTheme";
 import axios from "axios";
+import { fetchUserInfo, setUser } from "@/store/redux/user/reducer";
+import { fetchCartItemsFromApi } from "@/store/redux/cart/reducer";
 
 const Login = () => {
   const outerTheme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const location = useLocation();
@@ -35,7 +34,6 @@ const Login = () => {
     message: "",
     severity: "success",
   });
-  const [userData, setUserData] = useState(null);
 
   const {
     register,
@@ -66,13 +64,18 @@ const Login = () => {
 
       const result = response.data.result;
       const { accessToken, refreshToken, roles, email } = result;
+      console.log("result:", result);
 
       // Lưu token
       localStorage.setItem("accessToken", accessToken);
+      console.log("accessToken:", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      // Cập nhật Redux store
-      dispatch(setUser({ email, roles }));
+      // Lấy thông tin người dùng từ API myInfo
+      await dispatch(fetchUserInfo());
+
+      // Đồng bộ giỏ hàng
+      await dispatch(fetchCartItemsFromApi());
 
       // Hiển thị thông báo thành công
       setSnackbar({

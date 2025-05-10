@@ -1,5 +1,6 @@
+// user/reducer.js
 import { createSlice } from "@reduxjs/toolkit";
-import { authApi } from "@/services/api/auth";
+import axios from "axios";
 
 const userSlice = createSlice({
   name: "user",
@@ -11,44 +12,41 @@ const userSlice = createSlice({
       state.user = action.payload;
     },
     updateUser: (state, action) => {
-      state.user = action.payload;
+      state.user = { ...state.user, ...action.payload };
     },
     clearUser: (state) => {
       state.user = null;
+      localStorage.removeItem("accessToken");
     },
-  },
-  extraReducers: (builder) => {
-    // Đồng bộ khi đăng nhập thành công
-    builder.addMatcher(
-      authApi.endpoints.login.matchFulfilled,
-      (state, action) => {
-        console.log("Login fulfilled, user data:", action.payload);
-        state.user = action.payload;
-      }
-    );
-
-    // Đồng bộ khi lấy thông tin người dùng hiện tại
-    builder.addMatcher(
-      authApi.endpoints.getMyInfo.matchFulfilled,
-      (state, action) => {
-        console.log("getMyInfo fulfilled, user data:", action.payload);
-        state.user = action.payload.result; // Đảm bảo lấy đúng result từ response
-      }
-    );
-
-    // Đồng bộ khi cập nhật thông tin người dùng
-    builder.addMatcher(
-      authApi.endpoints.updateUser.matchFulfilled,
-      (state, action) => {
-        console.log("updateUser fulfilled, user data:", action.payload);
-        state.user = action.payload;
-      }
-    );
   },
 });
 
 export const { setUser, updateUser, clearUser } = userSlice.actions;
 export const selectUser = (state) => state.user.user;
-export const selectUserId = (state) => state.user.user?.id || null; // Thêm fallback null
+export const selectUserId = (state) => state.user.user?.id || null;
+
+// Action để tải thông tin người dùng từ API
+export const fetchUserInfo = () => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      dispatch(clearUser());
+      return;
+    }
+
+    const response = await axios.get(
+      "http://222.255.119.40:8080/adamstore/v1/auth/myInfo",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    // Sửa từ response.data.data thành response.data.result
+    dispatch(setUser(response.data.result));
+    console.log("User info set to Redux:", response.data.result); // Debug
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin người dùng:", error);
+    dispatch(clearUser());
+  }
+};
 
 export default userSlice.reducer;

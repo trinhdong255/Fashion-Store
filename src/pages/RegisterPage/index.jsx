@@ -78,7 +78,6 @@ const Register = () => {
       const response = await signUp({
         name: data?.name,
         email: data?.email,
-        // phone: data?.phone,
         password: data?.password,
         confirmPassword: data?.password,
       }).unwrap();
@@ -113,20 +112,23 @@ const Register = () => {
           height: "100%",
           borderRadius: 4,
           boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
-        }}>
+        }}
+      >
         <div>
           <h2
             style={{
               textAlign: "center",
               margin: "20px 0",
               fontWeight: "inherit",
-            }}>
+            }}
+          >
             Đăng ký
           </h2>
           <Stack
             sx={{ padding: "0px 36px", display: "flex" }}
             component={"form"}
-            onSubmit={handleSubmit(onSubmit)}>
+            onSubmit={handleSubmit(onSubmit)}
+          >
             <Stack className={styles.formLabelInput}>
               <ThemeProvider theme={customTheme(outerTheme)}>
                 <TextField
@@ -171,29 +173,6 @@ const Register = () => {
               </ThemeProvider>
             </Stack>
 
-            {/* <Stack className={styles.formLabelInput}>
-              <ThemeProvider theme={customTheme(outerTheme)}>
-                <TextField
-                  id="phone"
-                  label="Số điện thoại"
-                  variant="outlined"
-                  sx={{ mb: 1 }}
-                  disabled={isLoading}
-                  {...register("phone", {
-                    required: "Số điện thoại không được để trống",
-                    pattern: {
-                      value:
-                        /^0(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-9]|9[0-9])[0-9]{7}$/,
-                      message: "Số điện thoại phải có 10 số và bắt đầu bằng 0",
-                    },
-                  })}
-                />
-                {errors.phone && (
-                  <p className={styles.errorMessage}>{errors.phone.message}</p>
-                )}
-              </ThemeProvider>
-            </Stack> */}
-
             <Stack className={styles.formLabelInput}>
               <ThemeProvider theme={customTheme(outerTheme)}>
                 <TextField
@@ -223,7 +202,8 @@ const Register = () => {
                           onMouseDown={handleMouseDownPassword}
                           onMouseUp={handleMouseUpPassword}
                           edge="end"
-                          disabled={isLoading}>
+                          disabled={isLoading}
+                        >
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
@@ -264,7 +244,8 @@ const Register = () => {
                           onMouseDown={handleMouseDownConfirmPassword}
                           onMouseUp={handleMouseUpConfirmPassword}
                           edge="end"
-                          disabled={isLoading}>
+                          disabled={isLoading}
+                        >
                           {showConfirmPassword ? (
                             <VisibilityOff />
                           ) : (
@@ -297,7 +278,8 @@ const Register = () => {
                 },
               }}
               type="submit"
-              disabled={isLoading}>
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <CircularProgress size={34} color="inherit" />
               ) : (
@@ -309,12 +291,14 @@ const Register = () => {
               open={snackbar.open}
               autoHideDuration={3000}
               onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: "right", horizontal: "right" }}>
+              anchorOrigin={{ vertical: "right", horizontal: "right" }}
+            >
               <Alert
                 onClose={handleCloseSnackbar}
                 severity={snackbar.severity}
                 variant="filled"
-                sx={{ width: "100%", p: "10px 20px" }}>
+                sx={{ width: "100%", p: "10px 20px" }}
+              >
                 {snackbar.message}
               </Alert>
             </Snackbar>

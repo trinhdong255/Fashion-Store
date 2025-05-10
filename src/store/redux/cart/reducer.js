@@ -1,5 +1,7 @@
+// cart/reducer.js
 import { createSlice } from "@reduxjs/toolkit";
-import { cartApi } from "@/services/api/cart";
+import axios from "axios";
+import { selectUserId } from "../user/reducer";
 
 const cartSlice = createSlice({
   name: "cart",
@@ -12,8 +14,7 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const newItem = action.payload;
       const existingItem = state.cartItems.find(
-        (item) =>
-          item.productVariantBasic.id === newItem.productVariantBasic.id
+        (item) => item.productVariantBasic.id === newItem.productVariantBasic.id
       );
 
       if (existingItem) {
@@ -67,74 +68,45 @@ const cartSlice = createSlice({
         );
       }
     },
-  },
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      cartApi.endpoints.getCartByUser.matchFulfilled,
-      (state, action) => {
-        const cartData = action.payload.result;
-        if (cartData && cartData.items && cartData.items.length > 0) {
-          state.cartItems = cartData.items.map((item) => ({
-            id: item.id,
-            price: item.price,
-            quantity: item.quantity,
-            productVariantBasic: {
-              id: item.productVariantBasic.id,
-              color: {
-                id: item.productVariantBasic.color.id,
-                name: item.productVariantBasic.color.name,
-              },
-              size: {
-                id: item.productVariantBasic.size.id,
-                name: item.productVariantBasic.size.name,
-              },
-              product: {
-                id: item.productVariantBasic.product.id,
-                name: item.productVariantBasic.product.name,
-              },
-            },
-          }));
-
-          state.cartTotalQuantity = state.cartItems.reduce(
-            (total, item) => total + item.quantity,
-            0
-          );
-          state.cartTotalAmount = state.cartItems.reduce(
-            (total, item) => total + item.price * item.quantity,
-            0
-          );
-        } else {
-          state.cartItems = [];
-          state.cartTotalQuantity = 0;
-          state.cartTotalAmount = 0;
-        }
-      }
-    );
-
-    builder.addMatcher(
-      cartApi.endpoints.addToCart.matchFulfilled,
-      (state, action) => {
-        // Không làm gì, vì addToCart đã được xử lý qua action
-      }
-    );
-
-    builder.addMatcher(
-      cartApi.endpoints.updateCart.matchFulfilled,
-      (state, action) => {
-        // Không làm gì, vì updateQuantity đã được xử lý qua action
-      }
-    );
-
-    builder.addMatcher(
-      cartApi.endpoints.deleteCart.matchFulfilled,
-      (state) => {
-        state.cartItems = [];
-        state.cartTotalQuantity = 0;
-        state.cartTotalAmount = 0;
-      }
-    );
+    fetchCartItems: (state, action) => {
+      const items = action.payload;
+      state.cartItems = items.map((item) => ({
+        ...item,
+        quantity: item.quantity || 1,
+      }));
+      state.cartTotalQuantity = items.reduce(
+        (total, item) => total + (item.quantity || 1),
+        0
+      );
+      state.cartTotalAmount = items.reduce(
+        (total, item) => total + item.price * (item.quantity || 1),
+        0
+      );
+    },
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, updateQuantity } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart, updateQuantity, fetchCartItems } =
+  cartSlice.actions;
 export default cartSlice.reducer;
+
+// Action để tải giỏ hàng từ API
+export const fetchCartItemsFromApi = () => async (dispatch, getState) => {
+  const token = localStorage.getItem("accessToken");
+  const userId = selectUserId(getState());
+  if (!token || !userId) return;
+
+  try {
+    const response = await axios.get(
+      "http://222.255.119.40:8080/adamstore/v1/cart-items",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    dispatch(fetchCartItems(response.data.data));
+    console.log("Giỏ hàng:", response.data.data);
+    
+  } catch (error) {
+    console.error("Lỗi khi tải giỏ hàng:", error);
+  }
+};
