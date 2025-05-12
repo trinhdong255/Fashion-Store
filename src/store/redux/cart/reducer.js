@@ -6,7 +6,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState: {
     cartItems: [],
-    cartTotalQuantity: 0, // Sẽ đếm số lượng mục khác biệt (cartItems.length)
+    cartTotalQuantity: 0,
     cartTotalAmount: 0,
   },
   reducers: {
@@ -25,9 +25,12 @@ const cartSlice = createSlice({
         });
       }
 
-      state.cartTotalQuantity = state.cartItems.length;
+      state.cartTotalQuantity = state.cartItems.reduce(
+        (total, item) => total + (item.quantity || 1),
+        0
+      );
       state.cartTotalAmount = state.cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
+        (total, item) => total + item.price * (item.quantity || 1),
         0
       );
     },
@@ -35,9 +38,12 @@ const cartSlice = createSlice({
       const { id } = action.payload;
       state.cartItems = state.cartItems.filter((item) => item.id !== id);
 
-      state.cartTotalQuantity = state.cartItems.length;
+      state.cartTotalQuantity = state.cartItems.reduce(
+        (total, item) => total + (item.quantity || 1),
+        0
+      );
       state.cartTotalAmount = state.cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
+        (total, item) => total + item.price * (item.quantity || 1),
         0
       );
     },
@@ -51,8 +57,12 @@ const cartSlice = createSlice({
       const item = state.cartItems.find((item) => item.id === id);
       if (item) {
         item.quantity = Math.max(1, quantity);
+        state.cartTotalQuantity = state.cartItems.reduce(
+          (total, item) => total + (item.quantity || 1),
+          0
+        );
         state.cartTotalAmount = state.cartItems.reduce(
-          (total, item) => total + item.price * item.quantity,
+          (total, item) => total + item.price * (item.quantity || 1),
           0
         );
       }
@@ -64,22 +74,35 @@ const cartSlice = createSlice({
           ...item,
           quantity: item.quantity || 1,
         }));
-        state.cartTotalQuantity = state.cartItems.length;
+        state.cartTotalQuantity = state.cartItems.reduce(
+          (total, item) => total + (item.quantity || 1),
+          0
+        );
         state.cartTotalAmount = state.cartItems.reduce(
           (total, item) => total + item.price * (item.quantity || 1),
           0
         );
       } else {
-        // Nếu không có dữ liệu từ API, reset state
         state.cartItems = [];
         state.cartTotalQuantity = 0;
         state.cartTotalAmount = 0;
       }
     },
+    setCartItems: (state, action) => {
+      state.cartItems = action.payload;
+      state.cartTotalQuantity = state.cartItems.reduce(
+        (total, item) => total + (item.quantity || 1),
+        0
+      );
+      state.cartTotalAmount = state.cartItems.reduce(
+        (total, item) => total + item.price * (item.quantity || 1),
+        0
+      );
+    },
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, updateQuantity, fetchCartItems } =
+export const { addToCart, removeFromCart, clearCart, updateQuantity, fetchCartItems, setCartItems } =
   cartSlice.actions;
 export default cartSlice.reducer;
 
@@ -90,7 +113,7 @@ export const fetchCartItemsFromApi = () => async (dispatch, getState) => {
 
   if (!token || !userId) {
     console.warn("Không có token hoặc userId:", { token, userId });
-    dispatch(clearCart()); // Reset state nếu không có token/userId
+    dispatch(clearCart());
     return;
   }
 
@@ -104,14 +127,14 @@ export const fetchCartItemsFromApi = () => async (dispatch, getState) => {
     );
     const cartItems = response.data.result.items || [];
     dispatch(fetchCartItems(cartItems));
-    console.log("Cart items from API:", cartItems);
+    // console.log("Cart items from API:", cartItems);
   } catch (error) {
     console.error("Lỗi khi tải giỏ hàng:", {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
     });
-    dispatch(clearCart()); // Reset state nếu có lỗi
+    dispatch(clearCart());
   }
 };
 
@@ -127,10 +150,25 @@ export const clearCartItemsFromApi = () => async (dispatch, getState) => {
   }
 
   try {
-    // Giả sử API có endpoint để xóa toàn bộ giỏ hàng
-    await axios.delete("http://222.255.119.40:8080/adamstore/v1/cart-items", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // Lấy danh sách giỏ hàng
+    const response = await axios.get(
+      "http://222.255.119.40:8080/adamstore/v1/cart-items",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { pageNo: 1, pageSize: 10 },
+      }
+    );
+    const cartItems = response.data.result.items || [];
+
+    // Xóa từng mục
+    for (const item of cartItems) {
+      await axios.delete(
+        `http://222.255.119.40:8080/adamstore/v1/cart-items/${item.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    }
+
+    // Cập nhật state sau khi xóa
     dispatch(clearCart());
     console.log("Đã xóa toàn bộ giỏ hàng");
   } catch (error) {
@@ -140,5 +178,33 @@ export const clearCartItemsFromApi = () => async (dispatch, getState) => {
       status: error.response?.status,
     });
     dispatch(clearCart());
+  }
+};
+
+// Action để cập nhật số lượng sản phẩm qua API
+export const updateCartItemQuantity = (id, newQuantity) => async (dispatch, getState) => {
+  const token = localStorage.getItem("accessToken");
+  const userId = selectUserId(getState());
+
+  if (!token || !userId) {
+    console.warn("Không có token hoặc userId:", { token, userId });
+    return;
+  }
+
+  try {
+    await axios.put(
+      `http://222.255.119.40:8080/adamstore/v1/cart-items/${id}`,
+      { quantity: newQuantity },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    dispatch(updateQuantity({ id, quantity: newQuantity }));
+    await dispatch(fetchCartItemsFromApi());
+    console.log(`Đã cập nhật số lượng sản phẩm ID: ${id} thành ${newQuantity}`);
+  } catch (error) {
+    console.error("Lỗi khi cập nhật số lượng:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
   }
 };

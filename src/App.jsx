@@ -47,6 +47,7 @@ import ProvincesManagement from "./pages/Admin/shared/ProvincesManagement";
 import ProductImagesManagement from "./pages/Admin/shared/ProductImagesManagement";
 import ProductVariantsManagement from "./pages/Admin/shared/ProductVariantsManagement";
 import VNPayCallback from "./pages/ShippingMethodPage/shared/VNPayCallback";
+import MyCart from "./pages/MyCartPage";
 
 const App = () => {
   return (
@@ -60,6 +61,8 @@ const App = () => {
           <Route path="contact" element={<Contact />} />
           <Route path="about" element={<About />} />
         </Route>
+
+
         {/* Route Login */}
         <Route path="/login" element={<LoginLayout />}>
           <Route index element={<Login />} />
@@ -70,9 +73,13 @@ const App = () => {
           />
           <Route path="resetPassword" element={<ResetPassword />} />
         </Route>
+
+
         {/* Route SignUp and VerifyAccount */}
         <Route path="/register" element={<Register />} />
         <Route path="/verifyAccount" element={<VerifyAccount />} />
+
+
         {/* Route List Products */}
         <Route path="/listProducts" element={<ProductListsLayout />}>
           <Route index element={<ProductLists />} />
@@ -81,21 +88,23 @@ const App = () => {
         <Route path="/shipping-method" element={<ShippingMethod />} />
         <Route path="/vn-pay-callback" element={<VNPayCallback />} />
         <Route path="/orderConfirmation" element={<OrderConfirmation />} />
+
+        {/* Route cart */}
+        <Route path="/my-cart" element={<MyCart />} />
+
+
         {/* Route user */}
         <Route path="/accountInform" element={<AccountInform />}>
           <Route path="profile/:id" element={<Profile />} />
           <Route path="address/:id" element={<Address />} />
         </Route>
         <Route path="/my-orders" element={<MyOrders />} />
-        categoriesManagement
+
+
         {/* Route admin */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Admin />} />
           <Route path="productsManagement" element={<ProductsManagement />} />
-          {/* <Route
-            path="productImagesManagement"
-            element={<ProductImagesManagement />}
-          /> */}
           <Route
             path="productVariantsManagement"
             element={<ProductVariantsManagement />}

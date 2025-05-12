@@ -36,11 +36,8 @@ const CartButton = () => {
   const navigate = useNavigate();
   const userId = useSelector(selectUserId);
   const user = useSelector(selectUser);
-
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
-  const cartTotalQuantity = useSelector(
-    (state) => state.cart?.cartTotalQuantity || 0
-  );
+  const cartTotalQuantity = useSelector((state) => state.cart?.cartTotalQuantity || 0);
 
   useEffect(() => {
     if (userId) {
@@ -75,9 +72,7 @@ const CartButton = () => {
       try {
         await axios.delete(
           `http://222.255.119.40:8080/adamstore/v1/cart-items/${itemToRemove.id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         dispatch(removeFromCart({ id: itemToRemove.id }));
         await dispatch(fetchCartItemsFromApi());
@@ -90,7 +85,7 @@ const CartButton = () => {
   };
 
   const handleViewCart = () => {
-    navigate("/cart");
+    navigate("/my-cart");
     setOpen(false);
   };
 
@@ -109,7 +104,7 @@ const CartButton = () => {
           <IconButton onClick={toggleDrawer(false)}>
             <CloseIcon fontSize="large" />
           </IconButton>
-          <Stack direction={"row"} alignItems={"center"} sx={{ mt: 1 }}>
+          <Stack direction="row" alignItems="center" sx={{ mt: 1 }}>
             <LocalMallIcon />
             <Typography variant="h5">GIỎ HÀNG CỦA BẠN</Typography>
           </Stack>
@@ -122,40 +117,17 @@ const CartButton = () => {
             <Typography sx={{ mt: 1 }}>Đang tải giỏ hàng...</Typography>
           </Box>
         ) : !userId ? (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              flexGrow: 1,
-            }}
-          >
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>
             <Typography variant="h6">VUI LÒNG ĐĂNG NHẬP!</Typography>
             <SentimentDissatisfied fontSize="large" />
           </Box>
         ) : cartItems.length === 0 ? (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              flexGrow: 1,
-            }}
-          >
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>
             <Typography variant="h6">CHƯA CÓ SẢN PHẨM NÀO!</Typography>
             <SentimentDissatisfied fontSize="large" />
           </Box>
         ) : (
-          <Box
-            sx={{
-              flexGrow: 1,
-              overflowY: "auto",
-              maxHeight: "calc(100vh - 200px)",
-              p: 2,
-            }}
-          >
+          <Box sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "calc(100vh - 200px)", p: 2 }}>
             <Stack spacing={2}>
               {cartItems.map((item, index) => {
                 if (!item.productVariantBasic?.product) {
@@ -171,7 +143,7 @@ const CartButton = () => {
                     sx={{ borderBottom: "1px solid #ddd", pb: 1 }}
                   >
                     <img
-                      src={item.image || "/default.jpg"} // Sử dụng item.image, nếu không có thì dùng ảnh mặc định
+                      src={item.image || "/default.jpg"}
                       alt={item.productVariantBasic.product.name}
                       style={{ width: 60, height: 60, objectFit: "cover" }}
                     />
@@ -180,10 +152,7 @@ const CartButton = () => {
                         {item.productVariantBasic.product.name}
                       </Typography>
                       <Typography variant="body2">
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(item.price)}
+                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price)}
                       </Typography>
                       <Typography variant="body2">
                         Màu sắc: {item.productVariantBasic.color?.name || "N/A"}
@@ -195,10 +164,7 @@ const CartButton = () => {
                         Số lượng: {item.quantity}
                       </Typography>
                     </Stack>
-                    <IconButton
-                      onClick={() => handleOpenDialog(item)}
-                      sx={{ color: "black" }}
-                    >
+                    <IconButton onClick={() => handleOpenDialog(item)} sx={{ color: "black" }}>
                       <DeleteIcon />
                     </IconButton>
                   </Stack>
@@ -210,11 +176,7 @@ const CartButton = () => {
 
         {cartItems.length > 0 && (
           <Box sx={{ flexShrink: 0, p: 2 }}>
-            <Button
-              variant="outlined"
-              sx={{ width: "100%" }}
-              onClick={handleViewCart}
-            >
+            <Button variant="outlined" sx={{ width: "100%" }} onClick={handleViewCart}>
               Xem giỏ hàng
             </Button>
           </Box>
@@ -246,13 +208,8 @@ const CartButton = () => {
     <>
       <IconButton aria-label="shopping-cart" onClick={toggleDrawer(true)}>
         <ShoppingCartOutlinedIcon fontSize="large" />
-        <CartBadge
-          badgeContent={cartTotalQuantity}
-          color="primary"
-          overlap="circular"
-        />
+        <CartBadge badgeContent={cartTotalQuantity} color="primary" overlap="circular" />
       </IconButton>
-
       <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
         {DrawerList()}
       </Drawer>
