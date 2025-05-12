@@ -1,4 +1,4 @@
-import { Container, Typography, Button, Card, CardContent, Box, Stack, Table, TableBody, TableCell, TableHead, TableRow, Alert } from "@mui/material";
+import { Container, Typography, Button, Card, CardContent, Box, Stack, Table, TableHead, TableBody, TableCell, TableRow, Alert } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -10,6 +10,9 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const orderId = location.state?.orderId;
+  const appliedPromotion = location.state?.appliedPromotion;
+  const discountAmount = location.state?.discountAmount || 0;
+  const totalPrice = location.state?.totalPrice || 0;
   const error = location.state?.error;
   const [order, setOrder] = useState(null);
 
@@ -25,7 +28,9 @@ const OrderConfirmation = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setOrder(res.data.result);
+        const orderData = res.data.result;
+        setOrder(orderData);
+        console.log("Order data from API in OrderConfirmation:", orderData); // Log để kiểm tra
       })
       .catch((err) => {
         console.error("Lỗi khi lấy thông tin đơn hàng:", err);
@@ -36,6 +41,8 @@ const OrderConfirmation = () => {
   if (!order && !error) {
     return <Typography>Đang tải...</Typography>;
   }
+
+  const displayedTotalPrice = order ? order.totalPrice || 0 : (totalPrice || 0);
 
   return (
     <>
@@ -75,7 +82,7 @@ const OrderConfirmation = () => {
                       <TableCell>
                         {order.address?.streetDetail}, {order.address?.ward?.name}, {order.address?.district?.name}, {order.address?.province?.name}
                       </TableCell>
-                      <TableCell>{order.totalPrice?.toLocaleString()}đ</TableCell>
+                      <TableCell>{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(displayedTotalPrice)}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -97,16 +104,29 @@ const OrderConfirmation = () => {
                   <TableBody>
                     {order.orderItems?.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell>{item.productVariant?.product?.name}</TableCell>
-                        <TableCell>{item.productVariant?.color?.name}</TableCell>
-                        <TableCell>{item.productVariant?.size?.name}</TableCell>
+                        <TableCell>{item.productVariant?.product?.name || "Không xác định"}</TableCell>
+                        <TableCell>{item.productVariant?.color?.name || "Không xác định"}</TableCell>
+                        <TableCell>{item.productVariant?.size?.name || "Không xác định"}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{item.unitPrice?.toLocaleString()}đ</TableCell>
-                        <TableCell>{(item.unitPrice * item.quantity).toLocaleString()}đ</TableCell>
+                        <TableCell>{item.unitPrice?.toLocaleString() || 0}đ</TableCell>
+                        <TableCell>{((item.unitPrice || 0) * item.quantity).toLocaleString()}đ</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
+
+                {appliedPromotion && (
+                  <Typography sx={{ mt: 2, color: "green" }}>
+                    Đã áp dụng mã {appliedPromotion.code} - Giảm {appliedPromotion.discountPercent}%
+                  </Typography>
+                )}
+
+                <Typography variant="body1" sx={{ mt: 2 }}>
+                  Giá gốc: {(order.totalPrice || totalPrice).toLocaleString()}đ
+                </Typography>
+                <Typography variant="body1" sx={{ mt: 1 }}>
+                  Giảm giá: {discountAmount.toLocaleString()}đ ({appliedPromotion?.discountPercent || 0}%)
+                </Typography>
 
                 <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
                   Cập nhật lần cuối: {order.updatedAt}

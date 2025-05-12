@@ -181,6 +181,8 @@ const ProductActions = ({
     const orderData = [orderItem];
     dispatch(setOrderData(orderData));
     navigate("/shipping-method", { state: { orderData } });
+    console.log("ProductActions - orderData:", orderData);
+    
   };
 
   if (loading) return <Skeleton variant="rectangular" width={"100%"} height={30} />;

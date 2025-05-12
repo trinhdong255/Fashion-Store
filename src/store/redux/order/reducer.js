@@ -9,6 +9,8 @@ const orderSlice = createSlice({
     orderStatus: "idle",
     error: null,
     confirmedOrder: null,
+    appliedPromotion: null,
+    discountAmount: 0,
   },
   reducers: {
     setOrderData: (state, action) => {
@@ -29,6 +31,12 @@ const orderSlice = createSlice({
     setConfirmedOrder: (state, action) => {
       state.confirmedOrder = action.payload;
     },
+    setAppliedPromotion: (state, action) => {
+      state.appliedPromotion = action.payload;
+    },
+    setDiscountAmount: (state, action) => {
+      state.discountAmount = action.payload;
+    },
     clearOrderData: (state) => {
       state.orderData = null;
       state.error = null;
@@ -39,6 +47,8 @@ const orderSlice = createSlice({
     updateOrderFromCallback: (state, action) => {
       state.confirmedOrder = action.payload;
       state.orderStatus = "succeeded";
+      state.appliedPromotion = action.payload.promotion || null;
+      state.discountAmount = action.payload.discountAmount || 0;
     },
   },
 });
@@ -50,6 +60,8 @@ export const {
   setOrderStatus,
   setError,
   setConfirmedOrder,
+  setAppliedPromotion,
+  setDiscountAmount,
   clearOrderData,
   clearConfirmedOrder,
   updateOrderFromCallback,
