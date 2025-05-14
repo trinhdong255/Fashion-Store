@@ -71,7 +71,7 @@ const NavMenu = () => {
             key={category.id}
             onClick={handleMenuClose}
             component={Link}
-            to={`/listProducts?category=${category.id}`}
+            to={`/product-lists?category=${category.id}`}
             sx={{
               px: 3,
               py: 1.5,

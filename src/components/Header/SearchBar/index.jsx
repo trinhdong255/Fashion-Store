@@ -48,7 +48,7 @@ const SearchBar = () => {
         onChange={handleSearchChange}
         onKeyDown={handleKeyDown}
         sx={{
-          width: 250,
+          width: 350,
           "& .MuiOutlinedInput-root": {
             borderRadius: 100,
           },

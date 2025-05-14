@@ -7,6 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import styles from "./index.module.css";
+import SwiperProducts from "@/components/SwiperProducts";
 
 const slides = [
   "/src/assets/images/backgroundFashions/backgroundHomePage.jpg",
@@ -73,6 +74,7 @@ const Home = () => {
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+  
 
   return (
     <>
@@ -121,7 +123,7 @@ const Home = () => {
       <Container className={styles.wrapperCategory}>
         {categories.map((item, index) => (
           <div key={index}>
-            <Link to={`/listProducts?category=${item.id}`}>
+            <Link to={`/product-lists?category=${item.id}`}>
               <Stack className={styles.wrapperImg}>
                 <img
                   className={styles.mediaImg}
@@ -138,6 +140,12 @@ const Home = () => {
           </div>
         ))}
       </Container>
+
+      <Container maxWidth="lg">
+
+      <SwiperProducts />
+      </Container>
+
     </>
   );
 };
