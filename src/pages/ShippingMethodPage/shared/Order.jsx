@@ -15,6 +15,7 @@ import {
   Snackbar,
   Alert,
   TextField,
+  Box,
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -30,7 +31,15 @@ const Order = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const [orderData, setOrderData] = useState(location.state?.orderData || []);
-  const [isFromBuyNow, setIsFromBuyNow] = useState(!!location.state?.orderData); // Kiểm tra nếu đến từ "Mua ngay"
+
+  const [isFromBuyNow, setIsFromBuyNow] = useState(() => {
+    const initialOrderData = location.state?.orderData || [];
+    if (initialOrderData.length > 0) {
+      return initialOrderData.some(item => 'productVariantId' in item && item.productVariantId !== undefined);
+    }
+    return false;
+  });
+
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
@@ -48,19 +57,14 @@ const Order = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
-    // Nếu đến từ "Mua ngay", không đồng bộ với cartItems
-    if (isFromBuyNow) {
-      setOrderData(location.state?.orderData || []);
-    } else {
-      // Nếu đến từ giỏ hàng, đồng bộ với cartItems
-      if (cartItems.length === 0) {
-        dispatch(fetchCartItemsFromApi()).then(() => {
-          setOrderData(cartItems.length > 0 ? cartItems : []);
-        });
+    const syncOrderData = async () => {
+      if (isFromBuyNow) {
+        setOrderData(location.state?.orderData || []);
       } else {
-        setOrderData(cartItems);
+        await dispatch(fetchCartItemsFromApi());
+        setOrderData(cartItems.length > 0 ? cartItems : []);
       }
-    }
+    };
 
     const fetchAddresses = async () => {
       try {
@@ -79,7 +83,7 @@ const Order = () => {
         const defaultAddress = detailedAddresses.find((addr) => addr.isDefault);
         setSelectedAddress(defaultAddress?.id || detailedAddresses[0]?.id || "");
       } catch (err) {
-        console.error("Lỗi khi lấy địa chỉ:", err);
+        console.error("Error fetching addresses:", err);
         setSnackbar({
           open: true,
           message: "Lỗi khi lấy địa chỉ!",
@@ -97,7 +101,7 @@ const Order = () => {
         const promotionList = res.data.result.items;
         setPromotions(promotionList);
       } catch (err) {
-        console.error("Lỗi khi lấy danh sách mã giảm giá:", err);
+        console.error("Error fetching promotions:", err);
         setSnackbar({
           open: true,
           message: "Lỗi khi lấy danh sách mã giảm giá!",
@@ -106,33 +110,16 @@ const Order = () => {
       }
     };
 
+    syncOrderData();
     fetchAddresses();
     fetchPromotions();
-  }, [cartItems, dispatch, location.state?.orderData, isFromBuyNow]);
+  }, [dispatch, location.state?.orderData, location.pathname, isFromBuyNow]);
 
   useEffect(() => {
-    if (selectedAddress) {
-      const token = localStorage.getItem("accessToken");
-      const orderItems = orderData.map((item) => ({
-        productVariantId: item.productVariantId || item.id,
-        quantity: item.quantity,
-      }));
-
-      axios
-        .post(
-          "http://222.255.119.40:8080/adamstore/v1/shipping/calculate-fee",
-          { addressId: selectedAddress, orderItems },
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .then((res) => {
-          setShippingFee(res.data.result.shippingFee || 0);
-        })
-        .catch((err) => {
-          console.error("Lỗi khi tính phí vận chuyển:", err);
-          setShippingFee(0);
-        });
+    if (!isFromBuyNow) {
+      setOrderData(cartItems);
     }
-  }, [selectedAddress, orderData]);
+  }, [cartItems, isFromBuyNow]);
 
   const applyPromotionId = () => {
     if (!promotionId) {
@@ -211,7 +198,6 @@ const Order = () => {
       return;
     }
 
-    // Nếu đến từ "Mua ngay", không cần đồng bộ với cartItems
     if (!isFromBuyNow) {
       await dispatch(fetchCartItemsFromApi());
       setOrderData(cartItems);
@@ -227,10 +213,19 @@ const Order = () => {
     }
 
     const token = localStorage.getItem("accessToken");
-    const orderItems = orderData.map((item) => ({
-      productVariantId: item.productVariantId || item.id,
+    const orderItems = orderData.map(item => ({
+      productVariantId: isFromBuyNow ? item.productVariantId : item.productVariantBasic?.id || item.id,
       quantity: item.quantity,
-    }));
+    })).filter(item => item.productVariantId && item.quantity > 0);
+
+    if (orderItems.length === 0) {
+      setSnackbar({
+        open: true,
+        message: "Không có sản phẩm hợp lệ để đặt hàng! Vui lòng kiểm tra lại.",
+        severity: "error",
+      });
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -239,12 +234,11 @@ const Order = () => {
           addressId: selectedAddress,
           orderItems,
           promotionId: appliedPromotion?.id || null,
-          shippingFee,
+          shippingFee: 0,
           paymentMethod: selectedPaymentMethod,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       const orderId = response.data.result.id;
 
       if (selectedPaymentMethod === "VNPAY") {
@@ -261,16 +255,21 @@ const Order = () => {
             severity: "error",
           });
       } else {
-        // Xóa giỏ hàng sau khi đặt hàng thành công, nhưng chỉ nếu mua từ giỏ hàng
         if (!isFromBuyNow) {
           await dispatch(clearCartItemsFromApi());
         }
         navigate("/orderConfirmation", {
-          state: { orderId, appliedPromotion, discountAmount, totalPrice: finalPrice, orderData: orderData },
+          state: {
+            orderId,
+            appliedPromotion,
+            discountAmount,
+            totalPrice: orderData.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0) - discountAmount,
+            orderData: orderData,
+          },
         });
       }
     } catch (error) {
-      console.error("Lỗi khi tạo đơn hàng:", error.response?.data || error.message);
+      console.error("Error creating order:", error.response?.data || error.message);
       setSnackbar({
         open: true,
         message: `Lỗi khi tạo đơn hàng: ${error.response?.data?.message || "Kiểm tra lại dữ liệu"}`,
@@ -304,34 +303,36 @@ const Order = () => {
         ))}
       </Stack>
 
-      {orderData.map((item, index) => (
-        <Stack
-          key={index}
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mt: 2, px: 2 }}
-        >
-          <Stack direction="row" alignItems="center" sx={{ flex: 3 }}>
-            <img src={item.image || "/default.jpg"} alt={item.name} width={90} height={90} style={{ objectFit: "cover" }} />
-            <Stack sx={{ ml: 2 }}>
-              <Typography sx={{ color: "var(--text-color)" }}>{item.name || item.productVariantBasic?.product?.name}</Typography>
-              <Typography variant="body2" sx={{ color: "var(--text-color-secondary)" }}>
-                Màu: {item.color || item.productVariantBasic?.color?.name || "N/A"} | Size: {item.size || item.productVariantBasic?.size?.name || "N/A"}
-              </Typography>
+      <Box sx={{ maxHeight: "500px", overflowY: orderData.length > 5 ? "auto" : "hidden", px: 2 }}>
+        {orderData.map((item, index) => (
+          <Stack
+            key={index}
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ mt: 2 }}
+          >
+            <Stack direction="row" alignItems="center" sx={{ flex: 3 }}>
+              <img src={item.image?.imageUrl || "/default.jpg"} alt={item.name} width={90} height={90} style={{ objectFit: "cover" }} />
+              <Stack sx={{ ml: 2 }}>
+                <Typography sx={{ color: "var(--text-color)" }}>{item.name || item.productVariantBasic?.product?.name}</Typography>
+                <Typography variant="body2" sx={{ color: "var(--text-color-secondary)" }}>
+                  Màu: {item.color || item.productVariantBasic?.color?.name || "N/A"} | Size: {item.size || item.productVariantBasic?.size?.name || "N/A"}
+                </Typography>
+              </Stack>
             </Stack>
+            <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
+              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price)}
+            </Typography>
+            <Typography variant="body1" sx={{ flex: 1, textAlign: "center" }}>
+              {item.quantity}
+            </Typography>
+            <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
+              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price * item.quantity)}
+            </Typography>
           </Stack>
-          <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
-            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price)}
-          </Typography>
-          <Typography variant="body1" sx={{ flex: 1, textAlign: "center" }}>
-            {item.quantity}
-          </Typography>
-          <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
-            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price * item.quantity)}
-          </Typography>
-        </Stack>
-      ))}
+        ))}
+      </Box>
 
       <Stack direction="column" sx={{ m: "30px 0 30px 50px" }}>
         <Stack direction="row" alignItems="center">
