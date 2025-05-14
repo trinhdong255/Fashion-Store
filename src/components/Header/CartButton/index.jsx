@@ -20,7 +20,7 @@ import {
   badgeClasses,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -176,7 +176,7 @@ const CartButton = () => {
 
         {cartItems.length > 0 && (
           <Box sx={{ flexShrink: 0, p: 2 }}>
-            <Button variant="outlined" sx={{ width: "100%" }} onClick={handleViewCart}>
+            <Button variant="contained" sx={{ width: "100%", color: "white", backgroundColor: "black" }} onClick={handleViewCart}>
               Xem giỏ hàng
             </Button>
           </Box>
@@ -205,15 +205,15 @@ const CartButton = () => {
   };
 
   return (
-    <>
-      <IconButton aria-label="shopping-cart" onClick={toggleDrawer(true)}>
+    <Fragment>
+      <IconButton sx={{ mr: 2 }} aria-label="shopping-cart" onClick={toggleDrawer(true)}>
         <ShoppingCartOutlinedIcon fontSize="large" />
         <CartBadge badgeContent={cartTotalQuantity} color="primary" overlap="circular" />
       </IconButton>
       <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
         {DrawerList()}
       </Drawer>
-    </>
+    </Fragment>
   );
 };
 
