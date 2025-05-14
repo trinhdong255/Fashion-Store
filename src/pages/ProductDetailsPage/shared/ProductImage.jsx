@@ -7,7 +7,7 @@ const ProductImage = ({ products, loading }) => {
       {loading ? (
         <Skeleton variant="rectangular" width={"100%"} height={400} />
       ) : products ? (
-        <img src={products.images.imageUrl} alt={products.title} width="80%" />
+        <img src={products.images?.imageUrl} alt={products.title} width="80%" />
       ) : null}
     </>
   );
