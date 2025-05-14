@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { updateOrderFromCallback } from "@/store/redux/order/reducer";
-import { clearCart } from "@/store/redux/cart/reducer";
+import { clearCartItemsFromApi, clearCart } from "@/store/redux/cart/reducer";
 
 const VNPayCallback = () => {
   const dispatch = useDispatch();
@@ -34,10 +34,14 @@ const VNPayCallback = () => {
       .then((res) => {
         if (res.data.code === 0) {
           dispatch(updateOrderFromCallback(res.data.result));
-          dispatch(clearCart()); // Xóa giỏ hàng sau khi thanh toán thành công
-          navigate("/orderConfirmation", {
-            state: { orderId: orderId, appliedPromotion: null, discountAmount: 0, totalPrice: res.data.result.totalPrice },
-          });
+          dispatch(clearCartItemsFromApi()); // Xóa giỏ hàng trên server
+          dispatch(clearCart()); // Xóa state giỏ hàng trên client ngay lập tức
+          navigate("/", {
+            state: {
+              message: "Thanh toán thành công! Giỏ hàng đã được xóa.",
+              severity: "success",
+            },
+          }); // Truyền thông báo qua state
         } else {
           navigate("/my-orders", {
             state: { error: "Thanh toán không thành công!" },

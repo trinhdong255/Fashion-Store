@@ -6,7 +6,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState: {
     cartItems: [],
-    cartTotalQuantity: 0,
+    cartTotalQuantity: 0, // Đây sẽ là số lượng mặt hàng (số phần tử trong cartItems)
     cartTotalAmount: 0,
   },
   reducers: {
@@ -25,10 +25,8 @@ const cartSlice = createSlice({
         });
       }
 
-      state.cartTotalQuantity = state.cartItems.reduce(
-        (total, item) => total + (item.quantity || 1),
-        0
-      );
+      // Cập nhật cartTotalQuantity dựa trên số lượng mặt hàng (length của cartItems)
+      state.cartTotalQuantity = state.cartItems.length;
       state.cartTotalAmount = state.cartItems.reduce(
         (total, item) => total + item.price * (item.quantity || 1),
         0
@@ -38,10 +36,8 @@ const cartSlice = createSlice({
       const { id } = action.payload;
       state.cartItems = state.cartItems.filter((item) => item.id !== id);
 
-      state.cartTotalQuantity = state.cartItems.reduce(
-        (total, item) => total + (item.quantity || 1),
-        0
-      );
+      // Cập nhật cartTotalQuantity dựa trên số lượng mặt hàng
+      state.cartTotalQuantity = state.cartItems.length;
       state.cartTotalAmount = state.cartItems.reduce(
         (total, item) => total + item.price * (item.quantity || 1),
         0
@@ -57,10 +53,7 @@ const cartSlice = createSlice({
       const item = state.cartItems.find((item) => item.id === id);
       if (item) {
         item.quantity = Math.max(1, quantity);
-        state.cartTotalQuantity = state.cartItems.reduce(
-          (total, item) => total + (item.quantity || 1),
-          0
-        );
+        // Không cập nhật cartTotalQuantity ở đây vì chỉ thay đổi số lượng, không thay đổi số mặt hàng
         state.cartTotalAmount = state.cartItems.reduce(
           (total, item) => total + item.price * (item.quantity || 1),
           0
@@ -74,10 +67,8 @@ const cartSlice = createSlice({
           ...item,
           quantity: item.quantity || 1,
         }));
-        state.cartTotalQuantity = state.cartItems.reduce(
-          (total, item) => total + (item.quantity || 1),
-          0
-        );
+        // Cập nhật cartTotalQuantity dựa trên số lượng mặt hàng
+        state.cartTotalQuantity = state.cartItems.length;
         state.cartTotalAmount = state.cartItems.reduce(
           (total, item) => total + item.price * (item.quantity || 1),
           0
@@ -90,10 +81,8 @@ const cartSlice = createSlice({
     },
     setCartItems: (state, action) => {
       state.cartItems = action.payload;
-      state.cartTotalQuantity = state.cartItems.reduce(
-        (total, item) => total + (item.quantity || 1),
-        0
-      );
+      // Cập nhật cartTotalQuantity dựa trên số lượng mặt hàng
+      state.cartTotalQuantity = state.cartItems.length;
       state.cartTotalAmount = state.cartItems.reduce(
         (total, item) => total + item.price * (item.quantity || 1),
         0
@@ -198,7 +187,6 @@ export const updateCartItemQuantity = (id, newQuantity) => async (dispatch, getS
       { headers: { Authorization: `Bearer ${token}` } }
     );
     dispatch(updateQuantity({ id, quantity: newQuantity }));
-    await dispatch(fetchCartItemsFromApi());
     console.log(`Đã cập nhật số lượng sản phẩm ID: ${id} thành ${newQuantity}`);
   } catch (error) {
     console.error("Lỗi khi cập nhật số lượng:", {
