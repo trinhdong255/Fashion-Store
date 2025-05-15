@@ -47,7 +47,7 @@ const Admin = () => {
         ),
       ]);
 
-      const formattedDaily = dailyRes.data.result.reduce((acc, item) => {
+      const formattedDaily = dailyRes.data.result.items.reduce((acc, item) => {
         const date = dayjs(item.orderDate).format("DD/MM/YYYY"); // 🔄 Định dạng lại
         const existing = acc.find((d) => d.date === date);
         if (existing) {
