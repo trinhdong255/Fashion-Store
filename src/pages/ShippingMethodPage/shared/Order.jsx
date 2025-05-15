@@ -21,9 +21,26 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchCartItemsFromApi, clearCartItemsFromApi } from "@/store/redux/cart/reducer";
+import {
+  fetchCartItemsFromApi,
+  clearCartItemsFromApi,
+} from "@/store/redux/cart/reducer";
 
 const headerInfos = ["Sản phẩm", "Đơn giá", "Số lượng", "Thành tiền"];
+
+// Hàm định dạng số lớn
+const formatLargeNumber = (number) => {
+  if (number < 1000) {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(number);
+  } else if (number >= 1000 && number < 1000000) {
+    return `${(number / 1000).toFixed(2)}K đ`;
+  } else {
+    return `${(number / 1000000).toFixed(2)}M đ`;
+  }
+};
 
 const Order = () => {
   const navigate = useNavigate();
@@ -35,7 +52,10 @@ const Order = () => {
   const [isFromBuyNow, setIsFromBuyNow] = useState(() => {
     const initialOrderData = location.state?.orderData || [];
     if (initialOrderData.length > 0) {
-      return initialOrderData.some(item => 'productVariantId' in item && item.productVariantId !== undefined);
+      return initialOrderData.some(
+        (item) =>
+          "productVariantId" in item && item.productVariantId !== undefined
+      );
     }
     return false;
   });
@@ -81,7 +101,9 @@ const Order = () => {
         }));
         setAddresses(detailedAddresses);
         const defaultAddress = detailedAddresses.find((addr) => addr.isDefault);
-        setSelectedAddress(defaultAddress?.id || detailedAddresses[0]?.id || "");
+        setSelectedAddress(
+          defaultAddress?.id || detailedAddresses[0]?.id || ""
+        );
       } catch (err) {
         console.error("Error fetching addresses:", err);
         setSnackbar({
@@ -116,6 +138,75 @@ const Order = () => {
   }, [dispatch, location.state?.orderData, location.pathname, isFromBuyNow]);
 
   useEffect(() => {
+    if (selectedAddress) {
+      const token = localStorage.getItem("accessToken");
+      console.log(
+        "selectedAddress changed, calculating shipping fee - orderData:",
+        orderData
+      );
+
+      let itemsForShipping = orderData;
+      if (!isFromBuyNow && cartItems.length > 1) {
+        itemsForShipping = cartItems;
+      }
+
+      const orderItems = itemsForShipping
+        .filter((item) => {
+          if (isFromBuyNow || itemsForShipping.length === 1) {
+            return item.productVariantId;
+          }
+          return item.productVariantBasic?.id;
+        })
+        .map((item) => ({
+          productVariantId:
+            isFromBuyNow || itemsForShipping.length === 1
+              ? item.productVariantId
+              : item.productVariantBasic.id,
+          quantity: item.quantity,
+        }));
+
+      console.log("Generated orderItems for shipping fee:", orderItems);
+
+      if (orderItems.length === 0) {
+        console.log("No valid orderItems found.");
+        setSnackbar({
+          open: true,
+          message:
+            "Không có sản phẩm hợp lệ để tính phí vận chuyển! Vui lòng kiểm tra lại giỏ hàng.",
+          severity: "error",
+        });
+        setShippingFee(0);
+        return;
+      }
+
+      axios
+        .post(
+          "http://222.255.119.40:8080/adamstore/v1/shipping/calculate-fee",
+          { addressId: selectedAddress, orderItems },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((res) => {
+          console.log("Shipping fee response:", res.data);
+          setShippingFee(res.data.result.total || 0);
+        })
+        .catch((err) => {
+          console.error(
+            "Error calculating shipping fee:",
+            err.response?.data || err.message
+          );
+          setSnackbar({
+            open: true,
+            message: `Lỗi khi tính phí vận chuyển: ${
+              err.response?.data?.message || "Vui lòng kiểm tra lại dữ liệu."
+            }`,
+            severity: "error",
+          });
+          setShippingFee(0);
+        });
+    }
+  }, [selectedAddress, orderData, cartItems, isFromBuyNow]);
+
+  useEffect(() => {
     if (!isFromBuyNow) {
       setOrderData(cartItems);
     }
@@ -131,7 +222,9 @@ const Order = () => {
       return;
     }
 
-    const matchedPromotion = promotions.find((promo) => promo.id === parseInt(promotionId));
+    const matchedPromotion = promotions.find(
+      (promo) => promo.id === parseInt(promotionId)
+    );
     if (matchedPromotion) {
       setAppliedPromotion(matchedPromotion);
       calculateDiscount(matchedPromotion);
@@ -166,7 +259,8 @@ const Order = () => {
     if (total === 0) {
       setSnackbar({
         open: true,
-        message: "Dữ liệu đơn hàng không hợp lệ, vui lòng kiểm tra lại giỏ hàng!",
+        message:
+          "Dữ liệu đơn hàng không hợp lệ, vui lòng kiểm tra lại giỏ hàng!",
         severity: "error",
       });
       setDiscountAmount(0);
@@ -213,10 +307,14 @@ const Order = () => {
     }
 
     const token = localStorage.getItem("accessToken");
-    const orderItems = orderData.map(item => ({
-      productVariantId: isFromBuyNow ? item.productVariantId : item.productVariantBasic?.id || item.id,
-      quantity: item.quantity,
-    })).filter(item => item.productVariantId && item.quantity > 0);
+    const orderItems = orderData
+      .map((item) => ({
+        productVariantId: isFromBuyNow
+          ? item.productVariantId
+          : item.productVariantBasic?.id || item.id,
+        quantity: item.quantity,
+      }))
+      .filter((item) => item.productVariantId && item.quantity > 0);
 
     if (orderItems.length === 0) {
       setSnackbar({
@@ -234,7 +332,7 @@ const Order = () => {
           addressId: selectedAddress,
           orderItems,
           promotionId: appliedPromotion?.id || null,
-          shippingFee: 0,
+          shippingFee: shippingFee,
           paymentMethod: selectedPaymentMethod,
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -263,16 +361,27 @@ const Order = () => {
             orderId,
             appliedPromotion,
             discountAmount,
-            totalPrice: orderData.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0) - discountAmount,
+            totalPrice:
+              orderData.reduce(
+                (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
+                0
+              ) -
+              discountAmount +
+              shippingFee,
             orderData: orderData,
           },
         });
       }
     } catch (error) {
-      console.error("Error creating order:", error.response?.data || error.message);
+      console.error(
+        "Error creating order:",
+        error.response?.data || error.message
+      );
       setSnackbar({
         open: true,
-        message: `Lỗi khi tạo đơn hàng: ${error.response?.data?.message || "Kiểm tra lại dữ liệu"}`,
+        message: `Lỗi khi tạo đơn hàng: ${
+          error.response?.data?.message || "Kiểm tra lại dữ liệu"
+        }`,
         severity: "error",
       });
     }
@@ -291,19 +400,43 @@ const Order = () => {
   const finalPrice = totalPrice - discountAmount + shippingFee;
 
   return (
-    <div style={{ width: "100%", border: "1px solid var(--border-color)", borderRadius: 3, marginTop: "50px" }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-around" sx={{ borderBottom: "1px solid var(--border-color)" }}>
+    <div
+      style={{
+        width: "100%",
+        border: "1px solid var(--border-color)",
+        borderRadius: 3,
+        marginTop: "50px",
+      }}
+    >
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-around"
+        sx={{ borderBottom: "1px solid var(--border-color)" }}
+      >
         {headerInfos.map((headerInfo, index) => (
           <Typography
             key={index}
-            sx={{ fontSize: 20, fontWeight: "500", flex: index === 0 ? 3 : 1, textAlign: index === 0 ? "left" : "center", padding: "8px" }}
+            sx={{
+              fontSize: 20,
+              fontWeight: "500",
+              flex: index === 0 ? 3 : 1,
+              textAlign: index === 0 ? "left" : "center",
+              padding: "8px",
+            }}
           >
             {headerInfo}
           </Typography>
         ))}
       </Stack>
 
-      <Box sx={{ maxHeight: "500px", overflowY: orderData.length > 5 ? "auto" : "hidden", px: 2 }}>
+      <Box
+        sx={{
+          maxHeight: "500px",
+          overflowY: orderData.length > 5 ? "auto" : "hidden",
+          px: 2,
+        }}
+      >
         {orderData.map((item, index) => (
           <Stack
             key={index}
@@ -313,22 +446,42 @@ const Order = () => {
             sx={{ mt: 2 }}
           >
             <Stack direction="row" alignItems="center" sx={{ flex: 3 }}>
-              <img src={item.image?.imageUrl || "/default.jpg"} alt={item.name} width={90} height={90} style={{ objectFit: "cover" }} />
+              <img
+                src={item.image?.imageUrl || "/default.jpg"}
+                alt={item.name}
+                width={90}
+                height={90}
+                style={{ objectFit: "cover" }}
+              />
               <Stack sx={{ ml: 2 }}>
-                <Typography sx={{ color: "var(--text-color)" }}>{item.name || item.productVariantBasic?.product?.name}</Typography>
-                <Typography variant="body2" sx={{ color: "var(--text-color-secondary)" }}>
-                  Màu: {item.color || item.productVariantBasic?.color?.name || "N/A"} | Size: {item.size || item.productVariantBasic?.size?.name || "N/A"}
+                <Typography sx={{ color: "var(--text-color)" }}>
+                  {item.name || item.productVariantBasic?.product?.name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "var(--text-color-secondary)" }}
+                >
+                  Màu:{" "}
+                  {item.color || item.productVariantBasic?.color?.name || "N/A"}{" "}
+                  | Size:{" "}
+                  {item.size || item.productVariantBasic?.size?.name || "N/A"}
                 </Typography>
               </Stack>
             </Stack>
             <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
-              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price)}
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(item.price)}
             </Typography>
             <Typography variant="body1" sx={{ flex: 1, textAlign: "center" }}>
               {item.quantity}
             </Typography>
             <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
-              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price * item.quantity)}
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(item.price * item.quantity)}
             </Typography>
           </Stack>
         ))}
@@ -337,14 +490,21 @@ const Order = () => {
       <Stack direction="column" sx={{ m: "30px 0 30px 50px" }}>
         <Stack direction="row" alignItems="center">
           <PlaceIcon />
-          <Typography variant="h6" sx={{ ml: 2 }}>Địa chỉ nhận hàng</Typography>
+          <Typography variant="h6" sx={{ ml: 2 }}>
+            Địa chỉ nhận hàng
+          </Typography>
         </Stack>
         <FormControl fullWidth sx={{ mt: 2, maxWidth: "500px" }}>
           <InputLabel>Chọn địa chỉ</InputLabel>
-          <Select value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)} label="Chọn địa chỉ">
+          <Select
+            value={selectedAddress}
+            onChange={(e) => setSelectedAddress(e.target.value)}
+            label="Chọn địa chỉ"
+          >
             {addresses.map((addr) => (
               <MenuItem key={addr.id} value={addr.id}>
-                {addr.streetDetail}, {addr.wardName}, {addr.districtName}, {addr.provinceName}
+                {addr.streetDetail}, {addr.wardName}, {addr.districtName},{" "}
+                {addr.provinceName}
               </MenuItem>
             ))}
           </Select>
@@ -352,52 +512,99 @@ const Order = () => {
 
         <Stack direction="row" alignItems="center" sx={{ mt: 2 }}>
           <DiscountIcon />
-          <Typography variant="h6" sx={{ ml: 2 }}>Mã giảm giá</Typography>
+          <Typography variant="h6" sx={{ ml: 2 }}>
+            Mã giảm giá
+          </Typography>
         </Stack>
-        <Stack direction="row" alignItems="center" sx={{ mt: 2, maxWidth: "500px" }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ mt: 2, maxWidth: "500px" }}
+        >
           <TextField
             label="Nhập ID mã giảm giá"
             value={promotionId}
             onChange={(e) => setPromotionId(e.target.value)}
             sx={{ mr: 2, flex: 1 }}
           />
-          <Button variant="contained" onClick={applyPromotionId} sx={{ backgroundColor: "black", color: "white" }}>
+          <Button
+            variant="contained"
+            onClick={applyPromotionId}
+            sx={{ backgroundColor: "black", color: "white" }}
+          >
             Áp dụng
           </Button>
         </Stack>
         {appliedPromotion && (
           <Typography sx={{ mt: 1, color: "green" }}>
-            Đã áp dụng mã {appliedPromotion.code} - Giảm {appliedPromotion.discountPercent}%
+            Đã áp dụng mã {appliedPromotion.code} - Giảm{" "}
+            {appliedPromotion.discountPercent}%
           </Typography>
         )}
 
         <Stack direction="row" alignItems="center" sx={{ mt: 2 }}>
           <PaymentsIcon />
-          <Typography variant="h6" sx={{ ml: 2 }}>Phương thức thanh toán</Typography>
+          <Typography variant="h6" sx={{ ml: 2 }}>
+            Phương thức thanh toán
+          </Typography>
         </Stack>
-        <RadioGroup value={selectedPaymentMethod} onChange={(e) => setSelectedPaymentMethod(e.target.value)} sx={{ m: "20px" }}>
-          <FormControlLabel value="CASH" control={<Radio color="default" />} label="Thanh toán tiền mặt (CASH)" />
-          <FormControlLabel value="VNPAY" control={<Radio color="default" />} label="Thanh toán qua VNPAY" />
+        <RadioGroup
+          value={selectedPaymentMethod}
+          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+          sx={{ m: "20px" }}
+        >
+          <FormControlLabel
+            value="CASH"
+            control={<Radio color="default" />}
+            label="Thanh toán tiền mặt (CASH)"
+          />
+          <FormControlLabel
+            value="VNPAY"
+            control={<Radio color="default" />}
+            label="Thanh toán qua VNPAY"
+          />
         </RadioGroup>
       </Stack>
 
-      <Stack direction="row" alignItems="center" justifyContent="end" sx={{ m: "50px 100px" }}>
-        <Typography variant="h6">Phí vận chuyển: </Typography>
-        <Typography variant="h5" sx={{ m: "0 50px 0 10px" }}>
-          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(shippingFee)}
-        </Typography>
-        <Typography variant="h6">Giảm giá: </Typography>
-        <Typography variant="h5" sx={{ m: "0 50px 0 10px" }}>
-          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(discountAmount)}
-        </Typography>
-        <Typography variant="h6">Tổng số tiền: </Typography>
-        <Typography variant="h5" sx={{ m: "0 50px 0 10px" }}>
-          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(finalPrice)}
-        </Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="end"
+        sx={{ m: "50px 100px", gap: 2 }}
+      >
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
+            Phí vận chuyển:
+          </Typography>
+          <Typography variant="h5" sx={{ ml: 2, mr: 4, whiteSpace: "nowrap" }}>
+            {formatLargeNumber(shippingFee)}
+          </Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
+            Giảm giá:
+          </Typography>
+          <Typography variant="h5" sx={{ ml: 2, mr: 4, whiteSpace: "nowrap" }}>
+            {formatLargeNumber(discountAmount)}
+          </Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
+            Tổng số tiền:
+          </Typography>
+          <Typography variant="h5" sx={{ ml: 2, mr: 4, whiteSpace: "nowrap" }}>
+            {formatLargeNumber(finalPrice)}
+          </Typography>
+        </Stack>
         <Button
           variant="contained"
           onClick={handleConfirmOrder}
-          sx={{ backgroundColor: "black", color: "white", p: "10px 30px" }}
+          sx={{
+            backgroundColor: "black",
+            color: "white",
+            p: "10px 30px",
+            whiteSpace: "nowrap",
+          }}
         >
           Đặt ngay
         </Button>
@@ -409,7 +616,11 @@ const Order = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
