@@ -14,6 +14,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  BarChart,
+  Bar,
 } from "recharts";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -28,7 +30,7 @@ const Admin = () => {
 
   const fetchData = async (start, end) => {
     setLoading(true);
-    const token = localStorage.getItem("accessToken"); // hoặc lấy từ context
+    const token = localStorage.getItem("accessToken");
 
     try {
       const formattedStart = start.format("YYYY-MM-DD");
@@ -37,24 +39,32 @@ const Admin = () => {
       const [dailyRes, monthlyRes] = await Promise.all([
         axios.get(
           `http://222.255.119.40:8080/adamstore/v1/revenues/daily-orders?startDate=${formattedStart}&endDate=${formattedEnd}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         ),
         axios.get(
           `http://222.255.119.40:8080/adamstore/v1/revenues/monthly?startDate=${formattedStart}&endDate=${formattedEnd}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         ),
       ]);
 
-      setDailyData(dailyRes.data.result || []);
-      setMonthlyData(monthlyRes.data.result || []);
+      const formattedDaily = dailyRes.data.result.reduce((acc, item) => {
+        const date = dayjs(item.orderDate).format("DD/MM/YYYY"); // 🔄 Định dạng lại
+        const existing = acc.find((d) => d.date === date);
+        if (existing) {
+          existing.revenue += item.totalAmount;
+        } else {
+          acc.push({ date, revenue: item.totalAmount });
+        }
+        return acc;
+      }, []);
+
+      const formattedMonthly = monthlyRes.data.result.map((item) => ({
+        date: dayjs(item.month).format("MM/YYYY"), // 🔄 Định dạng lại
+        revenue: item.totalAmount,
+      }));
+
+      setDailyData(formattedDaily);
+      setMonthlyData(formattedMonthly);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu", error);
     } finally {
@@ -117,27 +127,29 @@ const Admin = () => {
             display: "flex",
             justifyContent: "start",
             alignItems: "start",
-            gap: 4,
+            flexDirection: "column",
             marginTop: 4,
           }}>
           <Box>
             <Typography variant="h6" sx={{ textAlign: "center" }}>
               Doanh thu theo ngày
             </Typography>
-            <ResponsiveContainer width={600} height={300}>
-              <LineChart data={dailyData}>
+            <ResponsiveContainer width={1100} height={300}>
+              <BarChart data={dailyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line
-                  type="monotone"
+                <Bar
                   dataKey="revenue"
-                  stroke="#8884d8"
+                  fill="#0984e3"
                   name="Doanh thu"
+                  barSize={20}
+                  isAnimationActive={false}
+                  activeBar={false}
                 />
-              </LineChart>
+              </BarChart>
             </ResponsiveContainer>
           </Box>
 
@@ -145,20 +157,20 @@ const Admin = () => {
             <Typography variant="h6" sx={{ textAlign: "center" }}>
               Doanh thu theo tháng
             </Typography>
-            <ResponsiveContainer width={600} height={300}>
-              <LineChart data={monthlyData}>
+            <ResponsiveContainer width={800} height={300}>
+              <BarChart data={monthlyData} margin={{ left: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line
-                  type="monotone"
+                <Bar
                   dataKey="revenue"
-                  stroke="#82ca9d"
+                  fill="#82ca9d"
                   name="Doanh thu"
+                  barSize={20}
                 />
-              </LineChart>
+              </BarChart>
             </ResponsiveContainer>
           </Box>
         </Box>
