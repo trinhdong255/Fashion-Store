@@ -32,6 +32,7 @@ const MyCart = () => {
   const [loading, setLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [cartItemsWithImages, setCartItemsWithImages] = useState([]);
 
   useEffect(() => {
     if (userId) {
@@ -39,6 +40,43 @@ const MyCart = () => {
       dispatch(fetchCartItemsFromApi()).finally(() => setLoading(false));
     }
   }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (userId && cartItems.length > 0) {
+      setLoading(true);
+      const fetchImages = async () => {
+        const token = localStorage.getItem("accessToken");
+        const updatedItems = await Promise.all(
+          cartItems.map(async (item) => {
+            try {
+              const response = await axios.get(
+                `http://222.255.119.40:8080/adamstore/v1/products/${item.productVariantBasic.product.id}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+              return {
+                ...item,
+                image: response.data.result.images?.[0]?.imageUrl || "/default.jpg",
+              };
+            } catch (error) {
+              console.error(`Lỗi khi lấy hình ảnh cho sản phẩm ${item.productVariantBasic.product.id}:`, error);
+              return {
+                ...item,
+                image: "/default.jpg",
+              };
+            }
+          })
+        );
+        setCartItemsWithImages(updatedItems);
+        setLoading(false);
+      };
+      fetchImages();
+    } else {
+      setCartItemsWithImages([]);
+      setLoading(false);
+    }
+  }, [userId, cartItems]);
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -95,13 +133,13 @@ const MyCart = () => {
   };
 
   const handleProceedToShipping = () => {
-    navigate("/shipping-method", { state: { orderData: cartItems } });
+    navigate("/shipping-method", { state: { orderData: cartItemsWithImages } });
   };
 
   if (loading) return <Typography>Loading...</Typography>;
   if (!userId)
     return <Typography color="error">Vui lòng đăng nhập!</Typography>;
-  if (cartItems.length === 0)
+  if (cartItemsWithImages.length === 0)
     return <Typography>Chưa có sản phẩm nào!</Typography>;
 
   return (
@@ -139,8 +177,8 @@ const MyCart = () => {
           {/* Cart Items with Scroll Container */}
           <Box 
             sx={{ 
-              maxHeight: cartItems.length > 4 ? "400px" : "unset", 
-              overflowY: cartItems.length > 4 ? "auto" : "visible",
+              maxHeight: cartItemsWithImages.length > 4 ? "400px" : "unset", 
+              overflowY: cartItemsWithImages.length > 4 ? "auto" : "visible",
               "&::-webkit-scrollbar": {
                 width: "8px",
               },
@@ -154,7 +192,7 @@ const MyCart = () => {
             }}
           >
             <Stack spacing={0}>
-              {cartItems.map((item) => {
+              {cartItemsWithImages.map((item) => {
                 const totalPrice = item.price * item.quantity;
                 return (
                   <Stack
@@ -172,7 +210,7 @@ const MyCart = () => {
                     <Stack direction="row" alignItems="center" sx={{ flex: 3 }}>
                       <Box
                         component="img"
-                        src={item.image?.imageUrl || "/default.jpg"}
+                        src={item.image}
                         alt={item.productVariantBasic.product.name}
                         sx={{
                           width: 80,
@@ -297,7 +335,7 @@ const MyCart = () => {
                 style: "currency",
                 currency: "VND",
               }).format(
-                cartItems.reduce(
+                cartItemsWithImages.reduce(
                   (sum, item) => sum + item.price * item.quantity,
                   0
                 )
@@ -337,7 +375,7 @@ const MyCart = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteCancel} >
+          <Button onClick={handleDeleteCancel}>
             Huỷ
           </Button>
           <Button 

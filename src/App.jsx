@@ -33,7 +33,6 @@ import ProductsManagement from "./pages/Admin/shared/ProductsManagement";
 import CategoriesManagement from "./pages/Admin/shared/CategoriesManagement";
 import OrdersManagement from "./pages/Admin/shared/OrdersManagement";
 import UsersManagement from "./pages/Admin/shared/UsersManagement";
-import ChatbotManagement from "./pages/Admin/shared/ChatbotManagement";
 import BranchesManagement from "./pages/Admin/shared/BranchesManagement";
 import PromotionsManagement from "./pages/Admin/shared/PromotionsManagement";
 import PaymentHistoriesManagement from "./pages/Admin/shared/PaymentHistoriesManagement";
@@ -44,7 +43,6 @@ import SizesManagement from "./pages/Admin/shared/SizesManagement";
 import WardsManagement from "./pages/Admin/shared/WardsManagement";
 import DistrictsManagement from "./pages/Admin/shared/DistrictsManagement";
 import ProvincesManagement from "./pages/Admin/shared/ProvincesManagement";
-import ProductImagesManagement from "./pages/Admin/shared/ProductImagesManagement";
 import ProductVariantsManagement from "./pages/Admin/shared/ProductVariantsManagement";
 import VNPayCallback from "./pages/ShippingMethodPage/shared/VNPayCallback";
 import MyCart from "./pages/MyCartPage";
@@ -53,6 +51,7 @@ const App = () => {
   return (
     <ThemeProvider>
       <ScrollToTop />
+
       <Routes>
         {/* Route dependencies component Header and Footer */}
         <Route path="/" element={<MainLayout />}>
@@ -134,7 +133,6 @@ const App = () => {
             path="paymentHistoriesManagement"
             element={<PaymentHistoriesManagement />}
           />
-          <Route path="chatbotManagement" element={<ChatbotManagement />} />
         </Route>
       </Routes>
     </ThemeProvider>

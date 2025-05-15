@@ -32,6 +32,7 @@ const CartButton = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [itemToRemove, setItemToRemove] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [cartItemsWithImages, setCartItemsWithImages] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userId = useSelector(selectUserId);
@@ -51,6 +52,43 @@ const CartButton = () => {
       dispatch(fetchCartItemsFromApi()).finally(() => setLoading(false));
     }
   }, [open, userId, dispatch]);
+
+  useEffect(() => {
+    if (userId && cartItems.length > 0) {
+      setLoading(true);
+      const fetchImages = async () => {
+        const token = localStorage.getItem("accessToken");
+        const updatedItems = await Promise.all(
+          cartItems.map(async (item) => {
+            try {
+              const response = await axios.get(
+                `http://222.255.119.40:8080/adamstore/v1/products/${item.productVariantBasic.product.id}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+              return {
+                ...item,
+                image: response.data.result.images?.[0]?.imageUrl || "/default.jpg",
+              };
+            } catch (error) {
+              console.error(`Lỗi khi lấy hình ảnh cho sản phẩm ${item.productVariantBasic.product.id}:`, error);
+              return {
+                ...item,
+                image: "/default.jpg",
+              };
+            }
+          })
+        );
+        setCartItemsWithImages(updatedItems);
+        setLoading(false);
+      };
+      fetchImages();
+    } else {
+      setCartItemsWithImages([]);
+      setLoading(false);
+    }
+  }, [userId, cartItems]);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -121,7 +159,7 @@ const CartButton = () => {
             <Typography variant="h6">VUI LÒNG ĐĂNG NHẬP!</Typography>
             <SentimentDissatisfied fontSize="large" />
           </Box>
-        ) : cartItems.length === 0 ? (
+        ) : cartItemsWithImages.length === 0 ? (
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>
             <Typography variant="h6">CHƯA CÓ SẢN PHẨM NÀO!</Typography>
             <SentimentDissatisfied fontSize="large" />
@@ -129,7 +167,7 @@ const CartButton = () => {
         ) : (
           <Box sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "calc(100vh - 200px)", p: 2 }}>
             <Stack spacing={2}>
-              {cartItems.map((item, index) => {
+              {cartItemsWithImages.map((item, index) => {
                 if (!item.productVariantBasic?.product) {
                   console.error("Invalid item structure:", item);
                   return null;
@@ -143,7 +181,7 @@ const CartButton = () => {
                     sx={{ borderBottom: "1px solid #ddd", pb: 1 }}
                   >
                     <img
-                      src={item.image || "/default.jpg"}
+                      src={item.image}
                       alt={item.productVariantBasic.product.name}
                       style={{ width: 60, height: 60, objectFit: "cover" }}
                     />
@@ -174,7 +212,7 @@ const CartButton = () => {
           </Box>
         )}
 
-        {cartItems.length > 0 && (
+        {cartItemsWithImages.length > 0 && (
           <Box sx={{ flexShrink: 0, p: 2 }}>
             <Button variant="contained" sx={{ width: "100%", color: "white", backgroundColor: "black" }} onClick={handleViewCart}>
               Xem giỏ hàng

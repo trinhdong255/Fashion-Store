@@ -48,6 +48,7 @@ const Order = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const [orderData, setOrderData] = useState(location.state?.orderData || []);
+  const [orderDataWithImages, setOrderDataWithImages] = useState([]);
 
   const [isFromBuyNow, setIsFromBuyNow] = useState(() => {
     const initialOrderData = location.state?.orderData || [];
@@ -65,7 +66,7 @@ const Order = () => {
   const [shippingFee, setShippingFee] = useState(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("CASH");
   const [promotions, setPromotions] = useState([]);
-  const [promotionId, setPromotionId] = useState("");
+  const [selectedPromotionId, setSelectedPromotionId] = useState("");
   const [appliedPromotion, setAppliedPromotion] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [snackbar, setSnackbar] = useState({
@@ -136,6 +137,49 @@ const Order = () => {
     fetchAddresses();
     fetchPromotions();
   }, [dispatch, location.state?.orderData, location.pathname, isFromBuyNow]);
+
+  useEffect(() => {
+    if (orderData.length > 0) {
+      const fetchImages = async () => {
+        const token = localStorage.getItem("accessToken");
+        const updatedItems = await Promise.all(
+          orderData.map(async (item) => {
+            const productId = isFromBuyNow
+              ? item.productId
+              : item.productVariantBasic?.product?.id;
+            if (!productId) {
+              return {
+                ...item,
+                image: "/default.jpg",
+              };
+            }
+            try {
+              const response = await axios.get(
+                `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+              return {
+                ...item,
+                image: response.data.result.images?.[0]?.imageUrl || "/default.jpg",
+              };
+            } catch (error) {
+              console.error(`Lỗi khi lấy hình ảnh cho sản phẩm ${productId}:`, error);
+              return {
+                ...item,
+                image: "/default.jpg",
+              };
+            }
+          })
+        );
+        setOrderDataWithImages(updatedItems);
+      };
+      fetchImages();
+    } else {
+      setOrderDataWithImages([]);
+    }
+  }, [orderData, isFromBuyNow]);
 
   useEffect(() => {
     if (selectedAddress) {
@@ -213,24 +257,15 @@ const Order = () => {
   }, [cartItems, isFromBuyNow]);
 
   const applyPromotionId = () => {
-    if (!promotionId) {
-      setSnackbar({
-        open: true,
-        message: "Vui lòng nhập ID mã giảm giá!",
-        severity: "error",
-      });
-      return;
-    }
-
     const matchedPromotion = promotions.find(
-      (promo) => promo.id === parseInt(promotionId)
+      (promo) => promo.id === parseInt(selectedPromotionId)
     );
     if (matchedPromotion) {
       setAppliedPromotion(matchedPromotion);
       calculateDiscount(matchedPromotion);
       setSnackbar({
         open: true,
-        message: `Áp dụng mã với ID ${matchedPromotion.id} thành công!`,
+        message: `Áp dụng mã ${matchedPromotion.code} thành công!`,
         severity: "success",
       });
     } else {
@@ -238,7 +273,7 @@ const Order = () => {
       setDiscountAmount(0);
       setSnackbar({
         open: true,
-        message: "ID mã giảm giá không hợp lệ hoặc không khả dụng!",
+        message: "Mã giảm giá không hợp lệ hoặc không khả dụng!",
         severity: "error",
       });
     }
@@ -368,7 +403,7 @@ const Order = () => {
               ) -
               discountAmount +
               shippingFee,
-            orderData: orderData,
+            orderData: orderDataWithImages,
           },
         });
       }
@@ -433,11 +468,11 @@ const Order = () => {
       <Box
         sx={{
           maxHeight: "500px",
-          overflowY: orderData.length > 5 ? "auto" : "hidden",
+          overflowY: orderDataWithImages.length > 5 ? "auto" : "hidden",
           px: 2,
         }}
       >
-        {orderData.map((item, index) => (
+        {orderDataWithImages.map((item, index) => (
           <Stack
             key={index}
             direction="row"
@@ -447,8 +482,8 @@ const Order = () => {
           >
             <Stack direction="row" alignItems="center" sx={{ flex: 3 }}>
               <img
-                src={item.image?.imageUrl || "/default.jpg"}
-                alt={item.name}
+                src={item.image}
+                alt={item.name || item.productVariantBasic?.product?.name}
                 width={90}
                 height={90}
                 style={{ objectFit: "cover" }}
@@ -521,12 +556,20 @@ const Order = () => {
           alignItems="center"
           sx={{ mt: 2, maxWidth: "500px" }}
         >
-          <TextField
-            label="Nhập ID mã giảm giá"
-            value={promotionId}
-            onChange={(e) => setPromotionId(e.target.value)}
-            sx={{ mr: 2, flex: 1 }}
-          />
+          <FormControl fullWidth sx={{ mr: 2, flex: 1 }}>
+            <InputLabel>Chọn mã giảm giá</InputLabel>
+            <Select
+              value={selectedPromotionId}
+              onChange={(e) => setSelectedPromotionId(e.target.value)}
+              label="Chọn mã giảm giá"
+            >
+              {promotions.map((promo) => (
+                <MenuItem key={promo.id} value={promo.id}>
+                  {promo.description} - Giảm {promo.discountPercent}%
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <Button
             variant="contained"
             onClick={applyPromotionId}

@@ -24,7 +24,6 @@ import styles from "./style.module.css";
 import ProductTitle from "./shared/ProductTitle";
 import ProductImage from "./shared/ProductImage";
 import ProductPrice from "./shared/ProductPrice";
-import ProductBrand from "./shared/ProductBrand";
 import ProductStockKeepingUnit from "./shared/ProductStockKeepingUnit";
 import ProductColorSection from "./shared/ProductColorSection";
 import ProductSizeSelection from "./shared/ProductSizeSelection";
@@ -53,26 +52,29 @@ const ProductDetails = () => {
   });
 
   // Hàm lấy thông tin biến thể cụ thể
-  const fetchVariant = useCallback(async (colorId, sizeId) => {
-    const token = localStorage.getItem("accessToken");
-    try {
-      const res = await axios.get(
-        `http://222.255.119.40:8080/adamstore/v1/product-variants/${id}/${colorId}/${sizeId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setSelectedVariant(res.data.result);
-      setImageUrl(res.data.result.imageUrl || imageUrl); // Cập nhật ảnh nếu có
-    } catch (err) {
-      console.error("Lỗi khi lấy biến thể cụ thể:", err);
-      setSnackbar({
-        open: true,
-        message: "Lỗi khi lấy thông tin biến thể!",
-        severity: "error",
-      });
-    }
-  }, [id, imageUrl]);
+  const fetchVariant = useCallback(
+    async (colorId, sizeId) => {
+      const token = localStorage.getItem("accessToken");
+      try {
+        const res = await axios.get(
+          `http://222.255.119.40:8080/adamstore/v1/product-variants/${id}/${colorId}/${sizeId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setSelectedVariant(res.data.result);
+        setImageUrl(res.data.result.imageUrl || imageUrl); // Cập nhật ảnh nếu có
+      } catch (err) {
+        console.error("Lỗi khi lấy biến thể cụ thể:", err);
+        setSnackbar({
+          open: true,
+          message: "Lỗi khi lấy thông tin biến thể!",
+          severity: "error",
+        });
+      }
+    },
+    [id, imageUrl]
+  );
 
   // Lấy thông tin sản phẩm và biến thể khi tải trang
   useEffect(() => {
@@ -148,7 +150,9 @@ const ProductDetails = () => {
       }
     };
 
-    Promise.all([fetchProduct(), fetchVariants()]).finally(() => setLoading(false));
+    Promise.all([fetchProduct(), fetchVariants()]).finally(() =>
+      setLoading(false)
+    );
   }, [id, imageUrl]);
 
   // Khi chọn màu và kích thước, lấy thông tin biến thể cụ thể
@@ -193,24 +197,34 @@ const ProductDetails = () => {
         id: product.id,
         title: product.name,
         images: imageUrl,
-        price: selectedVariant ? selectedVariant.price : (variants[0]?.sizes[0]?.price || 0),
+        price: selectedVariant
+          ? selectedVariant.price
+          : variants[0]?.sizes[0]?.price || 0,
         minimumOrderQuantity: product.soldQuantity || 0, // Số lượng đã bán: 0
         totalReviews: product.totalReviews || 0, // Tổng số đánh giá: 0
         averageRating: product.averageRating || 0, // Điểm đánh giá trung bình: mặc định 0 vì API không cung cấp
         brand: product.brand || "Không xác định",
         sku: product.sku || "N/A",
         tags: product.category?.name || "Không xác định",
-        stock: selectedVariant ? selectedVariant.quantity : (variants[0]?.sizes[0]?.quantity || 0),
-        description: product.description || "Sản phẩm chất lượng cao, phong cách hiện đại, phù hợp với mọi lứa tuổi.",
+        stock: selectedVariant
+          ? selectedVariant.quantity
+          : variants[0]?.sizes[0]?.quantity || 0,
+        description:
+          product.description ||
+          "Sản phẩm chất lượng cao, phong cách hiện đại, phù hợp với mọi lứa tuổi.",
         productVariantId: selectedVariant?.id,
       }
     : null;
   console.log("productData:", productData);
 
-  const buttonOptionColors = variants.map((group) => group.color.name) || ["Trắng", "Đen"];
-  const buttonOptionSizes = variants
-    .find((group) => group.color.name === selectedColor)
-    ?.sizes.map((s) => s.size.name) || [];
+  const buttonOptionColors = variants.map((group) => group.color.name) || [
+    "Trắng",
+    "Đen",
+  ];
+  const buttonOptionSizes =
+    variants
+      .find((group) => group.color.name === selectedColor)
+      ?.sizes.map((s) => s.size.name) || [];
 
   return (
     <>
@@ -240,7 +254,6 @@ const ProductDetails = () => {
           <ProductTitle products={productData} loading={loading} />
           <ProductReviews products={productData} loading={loading} />
           <ProductPrice products={productData} loading={loading} />
-          <ProductBrand products={productData} loading={loading} />
           <ProductStockKeepingUnit products={productData} loading={loading} />
 
           <ProductColorSection
