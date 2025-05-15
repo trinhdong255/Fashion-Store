@@ -64,11 +64,6 @@ const DashboardLayoutWrapper = ({ children }) => {
       title: "Sản phẩm",
       icon: <Inventory />,
     },
-    // {
-    //   path: "/admin/productImagesManagement",
-    //   title: "Hình ảnh sản phẩm",
-    //   icon: <Image />,
-    // },
     {
       path: "/admin/productVariantsManagement",
       title: "Biến thể sản phẩm",
@@ -114,11 +109,16 @@ const DashboardLayoutWrapper = ({ children }) => {
       title: "Đơn hàng",
       icon: <ShoppingCartIcon />,
     },
-    // {
-    //   path: "/admin/rolesManagement",
-    //   title: "Vai trò",
-    //   icon: <People />,
-    // },
+    {
+      path: "/admin/rolesManagement",
+      title: "Vai trò",
+      icon: <People />,
+    },
+        {
+      path: "/admin/branchesManagement",
+      title: "Chi nhánh",
+      icon: <Store />,
+    },
     // {
     //   path: "/admin/permissionsManagement",
     //   title: "Quyền hạn",
@@ -134,21 +134,12 @@ const DashboardLayoutWrapper = ({ children }) => {
     //   title: "Đăng xuất",
     //   icon: <Payment />,
     // },
-    // {
-    //   path: "/admin/branchesManagement",
-    //   title: "Chi nhánh",
-    //   icon: <Store />,
-    // },
+
     {
       path: "/admin/promotionsManagement",
       title: "Khuyến mãi",
       icon: <LocalOffer />,
     },
-    // {
-    //   path: "/admin/chatbotManagement",
-    //   title: "Chatbot",
-    //   icon: <Chat />,
-    // },
   ];
 
   const drawer = (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Typography,
@@ -8,14 +8,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Grid,
+  IconButton,
 } from "@mui/material";
 import axios from "axios";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 const BranchesManagement = () => {
   const [branches, setBranches] = useState([]);
@@ -23,7 +23,6 @@ const BranchesManagement = () => {
     name: "",
     location: "",
     phone: "",
-    status: "ACTIVE",
   });
   const [editBranch, setEditBranch] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -32,10 +31,20 @@ const BranchesManagement = () => {
 
   // Lấy danh sách chi nhánh
   useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
     const fetchBranches = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/branches");
-        setBranches(response.data);
+        const response = await axios.get(
+          "http://222.255.119.40:8080/adamstore/v1/branches/admin",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { pageNo: 1, pageSize: 10 },
+          }
+        );
+        console.log("Branches:", response.data);
+        setBranches(response.data.result.items || []);
       } catch (error) {
         console.error("Error fetching branches:", error);
       }
@@ -43,35 +52,94 @@ const BranchesManagement = () => {
     fetchBranches();
   }, []);
 
+  // Tính toán rows động với useMemo
+  const rows = useMemo(() => {
+    return branches.map((branch) => ({
+      id: branch.id,
+      name: branch.name,
+      location: branch.location,
+      phone: branch.phone,
+      status: branch.status === "ACTIVE" ? "Hoạt động" : "Ngừng hoạt động",
+      onEdit: () => handleEditBranch(branch),
+      onDelete: () => handleOpenDeleteDialog(branch.id),
+      onRestoreClick: () => handleToggleStatus(branch.id),
+    }));
+  }, [branches]);
+
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
     { field: "name", headerName: "Tên", width: 150 },
     { field: "location", headerName: "Địa điểm", width: 200 },
     { field: "phone", headerName: "Số điện thoại", width: 150 },
     {
+      field: "status",
+      headerName: "Trạng thái",
+      width: 120,
+      renderCell: (params) => params.row.status,
+    },
+    {
       field: "actions",
       headerName: "Hành động",
-      width: 150,
-      renderCell: (params) => (
-        <>
-          <Button onClick={() => handleEditBranch(params.row)}>Sửa</Button>
-          <Button
-            onClick={() => handleOpenDeleteDialog(params.row.id)}
-            color="error"
-          >
-            Xóa
-          </Button>
-        </>
-      ),
+      width: 200,
+      renderCell: (params) => {
+        const { row } = params;
+        const isDisabled = row.status === "Ngừng hoạt động";
+        return (
+          <>
+            <IconButton color="primary" onClick={row.onEdit} title="Chỉnh sửa">
+              <EditIcon />
+            </IconButton>
+            {isDisabled ? (
+              <IconButton
+                color="success"
+                onClick={row.onRestoreClick}
+                title="Khôi phục"
+              >
+                <RestartAltIcon />
+              </IconButton>
+            ) : (
+              <IconButton color="error" onClick={row.onDelete} title="Xóa">
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </>
+        );
+      },
     },
   ];
 
   const handleAddBranch = async () => {
     try {
-      await axios.post("http://localhost:3000/branches", newBranch);
-      const response = await axios.get("http://localhost:3000/branches");
-      setBranches(response.data);
-      setNewBranch({ name: "", location: "", phone: "", status: "ACTIVE" });
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
+
+      await axios.post(
+        "http://222.255.119.40:8080/adamstore/v1/branches",
+        {
+          name: newBranch.name,
+          location: newBranch.location,
+          phone: newBranch.phone,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const response = await axios.get(
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { pageNo: 1, pageSize: 10 },
+        }
+      );
+      setBranches(response.data.result.items || []);
+      setNewBranch({ name: "", location: "", phone: "" });
       setOpenDialog(false);
     } catch (error) {
       console.error("Error adding branch:", error);
@@ -84,21 +152,45 @@ const BranchesManagement = () => {
       name: branch.name,
       location: branch.location,
       phone: branch.phone,
-      status: branch.status,
     });
     setOpenDialog(true);
   };
 
   const handleUpdateBranch = async () => {
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
+
       await axios.put(
-        `http://localhost:3000/branches/${editBranch.id}`,
-        newBranch
+        `http://222.255.119.40:8080/adamstore/v1/branches/${editBranch.id}`,
+        {
+          name: newBranch.name,
+          location: newBranch.location,
+          phone: newBranch.phone,
+          status: editBranch.status, // Giữ trạng thái hiện tại khi sửa
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-      const response = await axios.get("http://localhost:3000/branches");
-      setBranches(response.data);
+
+      const response = await axios.get(
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { pageNo: 1, pageSize: 10 },
+        }
+      );
+
+      setBranches(response.data.result.items || []);
       setEditBranch(null);
-      setNewBranch({ name: "", location: "", phone: "", status: "ACTIVE" });
+      setNewBranch({ name: "", location: "", phone: "" });
       setOpenDialog(false);
     } catch (error) {
       console.error("Error updating branch:", error);
@@ -112,13 +204,65 @@ const BranchesManagement = () => {
 
   const handleDeleteBranch = async () => {
     try {
-      await axios.delete(`http://localhost:3000/branches/${branchToDelete}`);
-      const response = await axios.get("http://localhost:3000/branches");
-      setBranches(response.data);
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
+
+      await axios.delete(
+        `http://222.255.119.40:8080/adamstore/v1/branches/${branchToDelete}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const response = await axios.get(
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { pageNo: 1, pageSize: 10 },
+        }
+      );
+      setBranches(response.data.result.items || []);
       setOpenDeleteDialog(false);
       setBranchToDelete(null);
     } catch (error) {
       console.error("Error deleting branch:", error);
+    }
+  };
+
+  const handleToggleStatus = async (id) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
+
+      const branch = branches.find((b) => b.id === id);
+      const isRestoring = branch.status === "INACTIVE";
+
+      await axios.patch(
+        `http://222.255.119.40:8080/adamstore/v1/branches/${id}/${
+          isRestoring ? "restore" : "deactivate"
+        }`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const response = await axios.get(
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { pageNo: 1, pageSize: 10 },
+        }
+      );
+      setBranches(response.data.result.items || []);
+    } catch (error) {
+      console.error("Error toggling branch status:", error);
     }
   };
 
@@ -141,11 +285,15 @@ const BranchesManagement = () => {
       </Grid>
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={branches}
+          rows={rows}
           columns={columns}
+          getRowId={(row) => row.id}
           pageSize={5}
           rowsPerPageOptions={[5]}
           disableSelectionOnClick
+          localeText={{
+            noRowsLabel: "Không có dữ liệu",
+          }}
         />
       </div>
 
@@ -182,19 +330,30 @@ const BranchesManagement = () => {
             fullWidth
             sx={{ mt: 2 }}
           />
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Trạng thái</InputLabel>
-            <Select
-              value={newBranch.status}
-              onChange={(e) =>
-                setNewBranch({ ...newBranch, status: e.target.value })
-              }
+          {editBranch && (
+            <TextField
               label="Trạng thái"
+              value={
+                editBranch.status === "ACTIVE" ? "Hoạt động" : "Ngừng hoạt động"
+              }
+              onChange={(e) =>
+                setNewBranch({
+                  ...newBranch,
+                  status:
+                    e.target.value === "Hoạt động" ? "ACTIVE" : "INACTIVE",
+                })
+              }
+              select
+              fullWidth
+              sx={{ mt: 2 }}
+              SelectProps={{
+                native: true,
+              }}
             >
-              <MenuItem value="ACTIVE">ACTIVE</MenuItem>
-              <MenuItem value="INACTIVE">INACTIVE</MenuItem>
-            </Select>
-          </FormControl>
+              <option value="Hoạt động">Hoạt động</option>
+              <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+            </TextField>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
@@ -214,7 +373,10 @@ const BranchesManagement = () => {
       >
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
-          <Typography>Bạn có chắc chắn muốn xóa chi nhánh này không?</Typography>
+          <Typography>
+            Bạn có chắc chắn muốn xóa chi nhánh này không? Hành động này không
+            thể hoàn tác.
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDeleteDialog(false)}>Hủy</Button>
