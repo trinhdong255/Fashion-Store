@@ -16,6 +16,11 @@ import {
   Alert,
   TextField,
   Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -69,6 +74,7 @@ const Order = () => {
   const [selectedPromotionId, setSelectedPromotionId] = useState("");
   const [appliedPromotion, setAppliedPromotion] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
+  const [openDialog, setOpenDialog] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -139,47 +145,43 @@ const Order = () => {
   }, [dispatch, location.state?.orderData, location.pathname, isFromBuyNow]);
 
   useEffect(() => {
-    if (orderData.length > 0) {
-      const fetchImages = async () => {
-        const token = localStorage.getItem("accessToken");
-        const updatedItems = await Promise.all(
-          orderData.map(async (item) => {
-            const productId = isFromBuyNow
-              ? item.productId
-              : item.productVariantBasic?.product?.id;
-            if (!productId) {
-              return {
-                ...item,
-                image: "/default.jpg",
-              };
-            }
-            try {
-              const response = await axios.get(
-                `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
-                {
-                  headers: { Authorization: `Bearer ${token}` },
-                }
-              );
-              return {
-                ...item,
-                image: response.data.result.images?.[0]?.imageUrl || "/default.jpg",
-              };
-            } catch (error) {
-              console.error(`Lỗi khi lấy hình ảnh cho sản phẩm ${productId}:`, error);
-              return {
-                ...item,
-                image: "/default.jpg",
-              };
-            }
-          })
-        );
-        setOrderDataWithImages(updatedItems);
-      };
-      fetchImages();
-    } else {
-      setOrderDataWithImages([]);
-    }
-  }, [orderData, isFromBuyNow]);
+  if (orderData.length > 0) {
+    const fetchImages = async () => {
+      const token = localStorage.getItem("accessToken");
+      const updatedItems = await Promise.all(
+        orderData.map(async (item) => {
+          const productId = isFromBuyNow ? item.productId : item.productVariantBasic?.product?.id;
+          if (!productId) {
+            return {
+              ...item,
+              image: "/default.jpg",
+            };
+          }
+          try {
+            const response = await axios.get(
+              `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            return {
+              ...item,
+              image: response.data.result.images?.[0]?.imageUrl || "/default.jpg",
+            };
+          } catch (error) {
+            console.error(`Lỗi khi lấy hình ảnh cho sản phẩm ${productId}:`, error);
+            return {
+              ...item,
+              image: "/default.jpg",
+            };
+          }
+        })
+      );
+      setOrderDataWithImages(updatedItems);
+    };
+    fetchImages();
+  } else {
+    setOrderDataWithImages([]);
+  }
+}, [orderData, isFromBuyNow]);
 
   useEffect(() => {
     if (selectedAddress) {
@@ -268,6 +270,7 @@ const Order = () => {
         message: `Áp dụng mã ${matchedPromotion.code} thành công!`,
         severity: "success",
       });
+      setOpenDialog(false);
     } else {
       setAppliedPromotion(null);
       setDiscountAmount(0);
@@ -426,6 +429,15 @@ const Order = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedPromotionId("");
+  };
+
   const totalPrice = orderData.reduce((sum, item) => {
     const price = item.price || 0;
     const quantity = item.quantity || 0;
@@ -556,27 +568,27 @@ const Order = () => {
           alignItems="center"
           sx={{ mt: 2, maxWidth: "500px" }}
         >
-          <FormControl fullWidth sx={{ mr: 2, flex: 1 }}>
-            <InputLabel>Chọn mã giảm giá</InputLabel>
-            <Select
-              value={selectedPromotionId}
-              onChange={(e) => setSelectedPromotionId(e.target.value)}
-              label="Chọn mã giảm giá"
-            >
-              {promotions.map((promo) => (
-                <MenuItem key={promo.id} value={promo.id}>
-                  {promo.description} - Giảm {promo.discountPercent}%
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button
-            variant="contained"
-            onClick={applyPromotionId}
-            sx={{ backgroundColor: "black", color: "white" }}
-          >
-            Áp dụng
-          </Button>
+          <TextField
+            label="Chọn mã giảm giá"
+            value={appliedPromotion ? appliedPromotion.code : ""}
+            InputProps={{
+              readOnly: true,
+              endAdornment: (
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  style={{ marginRight: "8px", cursor: "pointer" }}
+                  onClick={handleOpenDialog}
+                >
+                  <path d="M10 12.5L5 7.5H15L10 12.5Z" fill="#000000" />
+                </svg>
+              ),
+            }}
+            sx={{ flex: 1, mr: 2 }}
+            onClick={handleOpenDialog}
+          />
         </Stack>
         {appliedPromotion && (
           <Typography sx={{ mt: 1, color: "green" }}>
@@ -584,6 +596,85 @@ const Order = () => {
             {appliedPromotion.discountPercent}%
           </Typography>
         )}
+
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" ,textAlign: "center" }}>
+            Chọn Fashion Store Voucher
+          </DialogTitle>
+          <Typography variant="h6" sx={{ fontWeight: "bold", ml: 3 }}>
+            Mã Miễn Phí Vận Chuyển
+          </Typography>
+          <DialogContent>
+            <Stack spacing={2}>
+              {promotions.map((promo, index) => (
+                <Stack
+                  key={promo.id}
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{
+                    p: 2,
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    backgroundColor:
+                      selectedPromotionId === promo.id ? "#f5f5f5" : "white",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setSelectedPromotionId(promo.id.toString())}
+                >
+                  <Box sx={{ flexShrink: 0 }}>
+                    <img
+                      src="/src/assets/images/voucher.png"
+                      alt="Voucher Icon"
+                      width={40}
+                      height={40}
+                    />
+                  </Box>
+                  <Stack flex={1}>
+                    <Typography variant="body1">
+                      {promo.description} 
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "black" }}>
+                      HSD: {promo.endDate || "Không thời hạn"}
+                    </Typography>
+                  </Stack>
+                  <Radio
+                    checked={selectedPromotionId === promo.id.toString()}
+                    onChange={() => setSelectedPromotionId(promo.id.toString())}
+                    color="default"
+                  />
+                </Stack>
+              ))}
+            </Stack>
+          </DialogContent>
+          <Divider />
+          <DialogActions sx={{ p: 2, justifyContent: "space-between" }}>
+            <Button
+              onClick={handleCloseDialog}
+              sx={{
+                color: "black",
+                border: "1px solid #e0e0e0",
+                borderRadius: "4px",
+                px: 3,
+              }}
+            >
+              Trở lại
+            </Button>
+            <Button
+              onClick={applyPromotionId}
+              variant="contained"
+              sx={{ backgroundColor: "black", color: "white", px: 3 }}
+              disabled={!selectedPromotionId}
+            >
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Stack direction="row" alignItems="center" sx={{ mt: 2 }}>
           <PaymentsIcon />

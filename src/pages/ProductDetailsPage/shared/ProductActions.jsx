@@ -165,25 +165,38 @@ const ProductActions = ({
     }
   };
 
-  const handleBuyNow = () => {
-    if (!validateInputs()) return;
+  const handleBuyNow = async () => {
+  if (!validateInputs()) return;
 
-    const orderItem = {
-      productVariantId: selectedVariant.id,
-      image: products.images,
-      name: products.title || products.name,
-      price: products.price,
-      quantity: selectedQuantity,
-      color: selectedColor,
-      size: selectedSize,
-    };
-
-    const orderData = [orderItem];
-    dispatch(setOrderData(orderData));
-    navigate("/shipping-method", { state: { orderData } });
-    console.log("ProductActions - orderData:", orderData);
-    
+  const orderItem = {
+    productVariantId: selectedVariant.id,
+    productId: products.id, // Thêm productId để lấy hình ảnh
+    image: products.images, // Lưu tạm thời
+    name: products.title || products.name,
+    price: products.price,
+    quantity: selectedQuantity,
+    color: selectedColor,
+    size: selectedSize,
   };
+
+  const token = localStorage.getItem("accessToken");
+  try {
+    // Lấy hình ảnh từ API
+    const response = await axios.get(
+      `http://222.255.119.40:8080/adamstore/v1/products/${products.id}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    orderItem.image = response.data.result.images?.[0]?.imageUrl || "/default.jpg";
+  } catch (error) {
+    console.error("Lỗi khi lấy hình ảnh:", error);
+    orderItem.image = "/default.jpg"; // Fallback
+  }
+
+  const orderData = [orderItem];
+  dispatch(setOrderData(orderData));
+  navigate("/shipping-method", { state: { orderData, isBuyNow: true } });
+  console.log("ProductActions - orderData:", orderData);
+};
 
   if (loading) return <Skeleton variant="rectangular" width={"100%"} height={30} />;
 

@@ -1,33 +1,59 @@
 import { Container, Grid, Stack } from "@mui/material";
-
 import WallpaperRepresentative from "../../components/WallpaperRepresentative";
-
 import styles from "./index.module.css";
-
-const contents = [
-  {
-    titleAboutUs: "Câu chuyện về chúng tôi",
-    firstLineAboutUs:
-      "Mọi chuyện bắt đầu vào năm 2025 khi người sáng lập của chúng tôi, Trịnh và Min, vật lộn để tìm quần áo giá cả phải chăng, chất lượng cao và bền vững. Cả 2 chúng tôi nhận ra rằng hầu hết các thương hiệu thời trang đều tập trung vào phong cách hoặc tính bền vững—nhưng hiếm khi cả hai. Đó là lúc ý tưởng về Fashion Store ra đời: một thương hiệu kết hợp các thiết kế hợp thời trang với vật liệu thân thiện với môi trường.",
-    secondLineAboutUs:
-      "Ngày nay, Fashion Store hợp tác với các nhà sản xuất và hỗ trợ các hoạt động thương mại công bằng để mang đến thời trang bền vững, phong cách cho những người tiêu dùng trên toàn thế giới.",
-    thirdLineAboutUs:
-      "Bạn có thắc mắc gì không? Hãy cho chúng tôi biết tại địa chỉ cửa hàng Ho Chi Minh City, Viet Nam hoặc gọi cho chúng tôi theo số 125-711-811 | 125-668-886",
-  },
-  {
-    titleMissionUs: "Nhiệm vụ của chúng tôi",
-    firstLineMissionUs:
-      "Tại Fashion Store, sứ mệnh của chúng tôi rất đơn giản: định nghĩa lại thời trang bằng cách biến tính bền vững thành tiêu chuẩn mới.",
-
-    secondLineMissionUs:
-      "Đó là lý do tại sao chúng tôi tạo ra quần áo thân thiện với môi trường, được sản xuất mà không ảnh hưởng đến chất lượng hoặc phong cách.",
-
-    thirdLineMissionUs:
-      "Thông qua nguồn cung ứng có trách nhiệm, mức lương công bằng cho người lao động và bao bì không chứa nhựa, chúng tôi hướng đến mục tiêu tạo ra tác động tích cực đến cả con người và môi trường. Cùng nhau, chúng ta có thể xây dựng một tương lai nơi thời trang không chỉ đẹp mà còn tử tế với thế giới.",
-  },
-];
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const About = () => {
+  const [branches, setBranches] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.log("Không tìm thấy token", token);
+      
+      return;
+    } 
+
+    const fetchBranches = async () => {
+      try {
+        const response = await axios.get(
+          "http://222.255.119.40:8080/adamstore/v1/branches",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { pageNo: 1, pageSize: 10 },
+          }
+        );
+        console.log("Branches:", response.data);
+        setBranches(response.data.result.items || []);
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+    fetchBranches();
+  }, []);
+
+  const contents = [
+    {
+      titleAboutUs: "Câu chuyện về chúng tôi",
+      firstLineAboutUs:
+        "Mọi chuyện bắt đầu vào năm 2025 khi người sáng lập của chúng tôi, Trịnh và Min, vật lộn để tìm quần áo giá cả phải chăng, chất lượng cao và bền vững. Cả 2 chúng tôi nhận ra rằng hầu hết các thương hiệu thời trang đều tập trung vào phong cách hoặc tính bền vững—nhưng hiếm khi cả hai. Đó là lúc ý tưởng về Fashion Store ra đời: một thương hiệu kết hợp các thiết kế hợp thời trang với vật liệu thân thiện với môi trường.",
+      secondLineAboutUs:
+        "Ngày nay, Fashion Store hợp tác với các nhà sản xuất và hỗ trợ các hoạt động thương mại công bằng để mang đến thời trang bền vững, phong cách cho những người tiêu dùng trên toàn thế giới.",
+      thirdLineAboutUs:
+        "Bạn có thắc mắc gì không? Hãy liên hệ tại các chi nhánh sau:",
+    },
+    {
+      titleMissionUs: "Nhiệm vụ của chúng tôi",
+      firstLineMissionUs:
+        "Tại Fashion Store, sứ mệnh của chúng tôi rất đơn giản: định nghĩa lại thời trang bằng cách biến tính bền vững thành tiêu chuẩn mới.",
+      secondLineMissionUs:
+        "Đó là lý do tại sao chúng tôi tạo ra quần áo thân thiện với môi trường, được sản xuất mà không ảnh hưởng đến chất lượng hoặc phong cách.",
+      thirdLineMissionUs:
+        "Thông qua nguồn cung ứng có trách nhiệm, mức lương công bằng cho người lao động và bao bì không chứa nhựa, chúng tôi hướng đến mục tiêu tạo ra tác động tích cực đến cả con người và môi trường. Cùng nhau, chúng ta có thể xây dựng một tương lai nơi thời trang không chỉ đẹp mà còn tử tế với thế giới.",
+    },
+  ];
+
   return (
     <>
       <WallpaperRepresentative titleHeader="Về chúng tôi" />
@@ -43,6 +69,15 @@ const About = () => {
                 <p className={styles.content}>{content.firstLineAboutUs}</p>
                 <p className={styles.content}>{content.secondLineAboutUs}</p>
                 <p className={styles.content}>{content.thirdLineAboutUs}</p>
+                {index === 0 && branches.length > 0 && (
+                  <Stack>
+                    {branches.map((branch) => (
+                      <p key={branch.id} className={styles.content}>
+                        - {branch.name}: {branch.location} (SĐT: {branch.phone})
+                      </p>
+                    ))}
+                  </Stack>
+                )}
               </Stack>
             ))}
           </Grid>
