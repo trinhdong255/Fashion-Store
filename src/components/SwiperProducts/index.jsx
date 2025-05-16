@@ -41,6 +41,7 @@ const SwiperProducts = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
+    // Fetch categories
     const fetchCategories = axios.get(
       "http://222.255.119.40:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
       {
@@ -51,20 +52,48 @@ const SwiperProducts = () => {
       }
     );
 
-    const fetchProducts = axios.get(
-      "http://222.255.119.40:8080/adamstore/v1/products",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    // Fetch all products across all pages
+    const fetchAllProducts = async () => {
+      let pageNo = 1;
+      let allProducts = [];
+      let hasMore = true;
 
-    Promise.all([fetchCategories, fetchProducts])
-      .then(([categoriesResponse, productsResponse]) => {
+      while (hasMore) {
+        try {
+          const response = await axios.get(
+            `http://222.255.119.40:8080/adamstore/v1/products?pageNo=${pageNo}&pageSize=10`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const items = response.data.result.items || [];
+          allProducts = [...allProducts, ...items];
+
+          // Kiểm tra nếu không còn dữ liệu (items rỗng) thì dừng
+          if (items.length === 0) {
+            hasMore = false;
+          } else {
+            pageNo += 1;
+          }
+        } catch (err) {
+          console.error("Lỗi khi fetch sản phẩm ở trang", pageNo, ":", err);
+          setError(err.message || "Không thể tải sản phẩm");
+          hasMore = false;
+        }
+      }
+
+      return allProducts;
+    };
+
+    // Thực thi cả hai fetch
+    Promise.all([fetchCategories, fetchAllProducts()])
+      .then(([categoriesResponse, allProducts]) => {
         setCategories(categoriesResponse.data.result.items);
-        setProducts(productsResponse.data.result.items);
+        setProducts(allProducts);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -135,7 +164,11 @@ const SwiperProducts = () => {
               products.map((product) => (
                 <SwiperSlide key={product.id}>
                   <Card
-                    onClick={() => navigate(`/product-detail/${product.id}`)}
+                    onClick={() =>
+                      navigate(`/product-detail/${product.id}`, {
+                        state: { imageUrl: product.images?.[0]?.imageUrl },
+                      })
+                    }
                   >
                     <CardActionArea sx={{ minHeight: "100%" }}>
                       <CardMedia
@@ -148,7 +181,6 @@ const SwiperProducts = () => {
                         sx={{
                           objectFit: "cover",
                           objectPosition: "center",
-                          
                         }}
                       />
                       <CardContent sx={{ minHeight: "100%" }}>
@@ -167,19 +199,19 @@ const SwiperProducts = () => {
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                           <Typography
-                          gutterBottom
-                          variant="body2"
-                          component="div"
-                        >
-                          Đánh giá: {product.averageRating || 0}
-                        </Typography>
-                        <Typography
-                          gutterBottom
-                          variant="body2"
-                          component="div"
-                        >
-                          Đã bán: {product.soldQuantity || 0}
-                        </Typography>
+                            gutterBottom
+                            variant="body2"
+                            component="div"
+                          >
+                            Đánh giá: {product.averageRating || 0}
+                          </Typography>
+                          <Typography
+                            gutterBottom
+                            variant="body2"
+                            component="div"
+                          >
+                            Đã bán: {product.soldQuantity || 0}
+                          </Typography>
                         </Box>
                         
                         <Typography

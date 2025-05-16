@@ -63,7 +63,8 @@ const ProductDetails = () => {
           }
         );
         setSelectedVariant(res.data.result);
-        setImageUrl(res.data.result.imageUrl || imageUrl); // Cập nhật ảnh nếu có
+        // Cập nhật imageUrl nếu biến thể có hình ảnh, nếu không giữ nguyên
+        setImageUrl(res.data.result.imageUrl || imageUrl);
       } catch (err) {
         console.error("Lỗi khi lấy biến thể cụ thể:", err);
         setSnackbar({
@@ -92,8 +93,10 @@ const ProductDetails = () => {
         );
         const productData = res.data.result;
         setProduct(productData);
+        // Nếu không có passedImageUrl từ location.state, lấy từ API
         if (!imageUrl) {
-          const fallbackUrl = productData.productImages?.[0]?.imageUrl;
+          // API trả về product.images là một mảng chuỗi, không phải mảng đối tượng
+          const fallbackUrl = productData.images?.[0] || "";
           setImageUrl(fallbackUrl);
         }
       } catch (err) {
@@ -196,13 +199,13 @@ const ProductDetails = () => {
     ? {
         id: product.id,
         title: product.name,
-        images: imageUrl,
+        images: imageUrl, // imageUrl là chuỗi, không phải đối tượng
         price: selectedVariant
           ? selectedVariant.price
           : variants[0]?.sizes[0]?.price || 0,
-        minimumOrderQuantity: product.soldQuantity || 0, // Số lượng đã bán: 0
-        totalReviews: product.totalReviews || 0, // Tổng số đánh giá: 0
-        averageRating: product.averageRating || 0, // Điểm đánh giá trung bình: mặc định 0 vì API không cung cấp
+        minimumOrderQuantity: product.soldQuantity || 0,
+        totalReviews: product.totalReviews || 0,
+        averageRating: product.averageRating || 0,
         brand: product.brand || "Không xác định",
         sku: product.sku || "N/A",
         tags: product.category?.name || "Không xác định",
