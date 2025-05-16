@@ -1,105 +1,170 @@
 import React, { useState, useEffect } from "react";
+
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Typography,
   Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
-  Alert,
+  Paper,
+  IconButton,
+  DialogActions,
+  TextField,
+  DialogContent,
+  DialogTitle,
+  Dialog,
   Snackbar,
+  Alert,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
-import { useListProductsQuery } from "@/services/api/product";
+
 import {
-  useListProductVariantsQuery,
-  useUpdateProductVariantMutation,
-} from "@/services/api/productVariant";
-import { useGetMyInfoQuery } from "@/services/api/auth";
-import {
-  setVariants,
-  setLoading as setVariantLoading,
-  setError as setVariantError,
-  selectVariants,
-  selectLoading as selectVariantLoading,
-  selectError as selectVariantError,
-} from "@/store/redux/productVariant/reducer";
+  deleteProductVariant,
+  fetchProduct,
+  fetchProductVariant,
+  updateProductVariant,
+} from "./api";
 
 const ProductVariantsManagement = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const variants = useSelector(selectVariants);
-  const variantLoading = useSelector(selectVariantLoading);
-  const variantError = useSelector(selectVariantError);
-
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5);
+  const [products, setProducts] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [editVariant, setEditVariant] = useState(null);
-  const [newVariant, setNewVariant] = useState({
-    price: "",
-    quantity: "",
-  });
-  const [openDialog, setOpenDialog] = useState(false);
-  const [snackbar, setSnackbar] = useState({
+  const [variants, setVariants] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [editingVariant, setEditingVariant] = useState(null);
+  const [formValues, setFormValues] = useState({ price: "", quantity: "" });
+
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [deletingVariantId, setDeletingVariantId] = useState(null);
+
+  const [notification, setNotification] = useState({
     open: false,
     message: "",
-    severity: "success",
+    type: "success", // 'success' | 'error'
   });
 
-  const { data: userInfo, error: userError, isLoading: userLoading } = useGetMyInfoQuery();
-  const {
-    data: productsData,
-    isLoading: isFetchingProducts,
-    error: fetchProductsError,
-  } = useListProductsQuery({ pageNo: 1, pageSize: 50 });
-  const {
-    data: variantsData,
-    isLoading: isFetchingVariants,
-    error: fetchVariantsError,
-    refetch: refetchVariants,
-  } = useListProductVariantsQuery(
-    selectedProductId
-      ? { productId: selectedProductId, pageNo: page + 1, pageSize }
-      : { skip: true }
-  );
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const data = await fetchProduct();
+        setProducts(data);
+      } catch (error) {
+        console.error("Lỗi khi load sản phẩm:", error);
+      }
+    };
 
-  const [updateProductVariant] = useUpdateProductVariantMutation();
+    getProducts();
+  }, []);
 
   useEffect(() => {
-    dispatch(setVariantLoading(isFetchingVariants));
-    if (fetchVariantsError) {
-      const errorMessage = fetchVariantsError?.data?.message || "Lỗi khi tải biến thể sản phẩm";
-      dispatch(setVariantError(errorMessage));
-      setSnackbar({
-        open: true,
-        message: errorMessage,
-        severity: "error",
-      });
-    } else if (variantsData?.items) {
-      dispatch(setVariants(variantsData.items));
-      dispatch(setVariantError(null));
-    }
-  }, [variantsData, isFetchingVariants, fetchVariantsError, dispatch]);
+    const getVariants = async () => {
+      if (!selectedProductId) return;
+      setLoading(true);
+      try {
+        const data = await fetchProductVariant(selectedProductId);
+        const dataWithActions = data.map((variant) => ({
+          ...variant,
+          onEdit: handleOpenEditDialog,
+          onDelete: handleDeleteVariant,
+        }));
+        setVariants(dataWithActions);
+      } catch (error) {
+        console.error("Lỗi khi load biến thể:", error);
+        setVariants([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getVariants();
+  }, [selectedProductId]);
 
-  useEffect(() => {
-    if (fetchProductsError) {
-      setSnackbar({
+  const handleOpenEditDialog = (variant) => {
+    setEditingVariant(variant);
+    setFormValues({ price: variant.price, quantity: variant.quantity });
+    setOpenEditDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenEditDialog(false);
+    setEditingVariant(null);
+  };
+
+  const handleSaveEdit = async () => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const payload = {
+        ...editingVariant,
+        price: Number(formValues.price),
+        quantity: Number(formValues.quantity),
+        productId: editingVariant.product?.id,
+        sizeId: editingVariant.size?.id,
+        colorId: editingVariant.color?.id,
+      };
+
+      await updateProductVariant(editingVariant.id, payload, token);
+
+      // Refresh
+      const updated = await fetchProductVariant(selectedProductId);
+      const dataWithActions = updated.map((variant) => ({
+        ...variant,
+        onEdit: handleOpenEditDialog,
+        onDelete: handleDeleteVariant,
+      }));
+      setVariants(dataWithActions);
+      setNotification({
         open: true,
-        message: "Lỗi khi tải danh sách sản phẩm: " + (fetchProductsError?.data?.message || "Không xác định"),
-        severity: "error",
+        message: "Cập nhật thành công",
+        type: "success",
+      });
+      handleCloseDialog();
+    } catch (err) {
+      console.error("Lỗi cập nhật:", err);
+      setNotification({
+        open: true,
+        message: "Lỗi khi cập nhật biến thể",
+        type: "error",
       });
     }
-  }, [fetchProductsError]);
+  };
+
+  const handleDeleteVariant = (variantId) => {
+    setDeletingVariantId(variantId);
+    setOpenDeleteDialog(true);
+  };
+
+  const confirmDeleteVariant = async () => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      await deleteProductVariant(deletingVariantId, token);
+      setVariants((prev) => prev.filter((v) => v.id !== deletingVariantId));
+      setNotification({
+        open: true,
+        message: "Xóa thành công",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Lỗi khi xóa:", err);
+      setNotification({
+        open: true,
+        message: "Xóa thất bại",
+        type: "error",
+      });
+    } finally {
+      setOpenDeleteDialog(false);
+      setDeletingVariantId(null);
+    }
+  };
+
+  const handleCloseNotification = () => {
+    setNotification((prev) => ({ ...prev, open: false }));
+  };
 
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
@@ -126,89 +191,23 @@ const ProductVariantsManagement = () => {
     {
       field: "actions",
       headerName: "Hành động",
-      width: 150,
+      width: 120,
       renderCell: (params) => (
-        <Button variant="text" color="primary" onClick={() => handleEditVariant(params.row)}>
-          Sửa
-        </Button>
+        <>
+          <IconButton
+            onClick={() => params.row.onEdit(params.row)}
+            color="primary">
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => params.row.onDelete(params.row.id)}
+            color="error">
+            <DeleteIcon />
+          </IconButton>
+        </>
       ),
     },
   ];
-
-  const handleEditVariant = (variant) => {
-    setEditVariant(variant);
-    setNewVariant({
-      price: variant.price?.toString() || "",
-      quantity: variant.quantity?.toString() || "",
-    });
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setEditVariant(null);
-    setNewVariant({
-      price: "",
-      quantity: "",
-    });
-  };
-
-  const validateVariantData = (variant) => {
-    const errors = [];
-    if (!variant.price || isNaN(parseFloat(variant.price))) errors.push("Giá không hợp lệ");
-    if (!variant.quantity || isNaN(parseInt(variant.quantity))) errors.push("Số lượng không hợp lệ");
-    return errors;
-  };
-
-  const handleUpdateVariant = async () => {
-    const errors = validateVariantData(newVariant);
-    if (errors.length > 0) {
-      setSnackbar({
-        open: true,
-        message: errors.join(". "),
-        severity: "error",
-      });
-      return;
-    }
-
-    try {
-      await updateProductVariant({
-        id: editVariant.id,
-        price: parseFloat(newVariant.price),
-        quantity: parseInt(newVariant.quantity),
-      }).unwrap();
-      setSnackbar({
-        open: true,
-        message: "Cập nhật biến thể thành công!",
-        severity: "success",
-      });
-      handleCloseDialog();
-      refetchVariants();
-    } catch (error) {
-      const errorMessage = error.status === 404
-        ? "Backend không có endpoint PUT /adamstore/v1/product-variants/:id. Vui lòng liên hệ team backend!"
-        : error.status === 405
-        ? "Backend không hỗ trợ phương thức PUT. Vui lòng liên hệ team backend!"
-        : Array.isArray(error.data?.errors)
-        ? error.data.errors.join(". ")
-        : error.data?.message || "Lỗi khi cập nhật biến thể";
-      setSnackbar({
-        open: true,
-        message: errorMessage,
-        severity: "error",
-      });
-    }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  if (userLoading || isFetchingProducts) {
-    return <CircularProgress />;
-  }
-
-  const totalRows = variantsData?.totalItems || 0;
 
   return (
     <DashboardLayoutWrapper>
@@ -216,93 +215,90 @@ const ProductVariantsManagement = () => {
         Quản lý Biến thể Sản phẩm
       </Typography>
       <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Chọn sản phẩm</InputLabel>
+        <InputLabel id="select-label">Chọn sản phẩm</InputLabel>
         <Select
+          labelId="select-label"
           value={selectedProductId}
-          onChange={(e) => setSelectedProductId(e.target.value)}
           label="Chọn sản phẩm"
-        >
-          <MenuItem value="">-- Chọn sản phẩm --</MenuItem>
-          {productsData?.items?.map((product) => (
+          onChange={(e) => setSelectedProductId(e.target.value)}>
+          {products.map((product) => (
             <MenuItem key={product.id} value={product.id}>
               {product.name}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
-
-      {!selectedProductId ? (
-        <Alert severity="info">Vui lòng chọn một sản phẩm để xem biến thể.</Alert>
-      ) : fetchVariantsError ? (
-        <Alert severity="error">{fetchVariantsError?.data?.message || "Lỗi khi tải biến thể"}</Alert>
-      ) : variants.length === 0 ? (
-        <Alert severity="info">Sản phẩm này không có biến thể nào.</Alert>
-      ) : (
-        <div style={{ height: 400, width: "100%" }}>
-          <DataGrid
-            rows={variants}
-            columns={columns}
-            rowCount={totalRows}
-            paginationMode="server"
-            page={page}
-            onPageChange={(newPage) => setPage(newPage)}
-            pageSize={pageSize}
-            onPageSizeChange={(newPageSize) => {
-              setPageSize(newPageSize);
-              setPage(0);
-            }}
-            rowsPerPageOptions={[5, 10, 20]}
-            getRowId={(row) => row.id}
-            disableSelectionOnClick
-            aria-label="Bảng biến thể sản phẩm"
-            localeText={{
-              noRowsLabel: "Không có dữ liệu",
-            }}
-          />
-        </div>
-      )}
-
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Sửa biến thể</DialogTitle>
+      <Paper sx={{ height: 500, width: "100%" }}>
+        <DataGrid
+          rows={variants}
+          columns={columns}
+          loading={loading}
+          getRowId={(row) => row.id}
+          pageSizeOptions={[5, 10]}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 5, page: 0 } },
+          }}
+        />
+      </Paper>
+      <Dialog open={openEditDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Cập nhật biến thể</DialogTitle>
         <DialogContent>
           <TextField
+            margin="dense"
             label="Giá"
-            type="number"
-            value={newVariant.price}
-            onChange={(e) => setNewVariant({ ...newVariant, price: e.target.value })}
             fullWidth
-            sx={{ mt: 2 }}
-            required
+            type="number"
+            value={formValues.price}
+            onChange={(e) =>
+              setFormValues({ ...formValues, price: e.target.value })
+            }
           />
           <TextField
+            margin="dense"
             label="Số lượng"
-            type="number"
-            value={newVariant.quantity}
-            onChange={(e) => setNewVariant({ ...newVariant, quantity: e.target.value })}
             fullWidth
-            sx={{ mt: 2 }}
-            required
+            type="number"
+            value={formValues.quantity}
+            onChange={(e) =>
+              setFormValues({ ...formValues, quantity: e.target.value })
+            }
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Hủy</Button>
-          <Button onClick={handleUpdateVariant} variant="contained" color="primary">
-            Cập nhật
+          <Button onClick={handleSaveEdit} variant="contained" color="primary">
+            Lưu
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}>
+        <DialogTitle>Xác nhận xóa</DialogTitle>
+        <DialogContent>
+          <Typography>Bạn có chắc chắn muốn xóa biến thể này không?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteDialog(false)}>Hủy</Button>
+          <Button
+            onClick={confirmDeleteVariant}
+            variant="contained"
+            color="error">
+            Xóa
           </Button>
         </DialogActions>
       </Dialog>
 
       <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-      >
+        open={notification.open}
+        autoHideDuration={3000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
         <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
+          onClose={handleCloseNotification}
+          severity={notification.type}
+          sx={{ width: "100%" }}>
+          {notification.message}
         </Alert>
       </Snackbar>
     </DashboardLayoutWrapper>
