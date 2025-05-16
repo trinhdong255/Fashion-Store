@@ -1,4 +1,3 @@
-// HeaderAuthButtons.js
 import {
   Stack,
   Typography,
@@ -10,10 +9,7 @@ import {
   Divider,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-
-// import { resetStore } from "@/store";
 
 const AuthButton = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -37,10 +33,9 @@ const AuthButton = () => {
 
         if (res.ok) {
           const data = await res.json();
-          console.log(">>>data", data);
-          setUserInfo(data);
+          const storedAvatar = localStorage.getItem("userAvatar") || data.result.avatarUrl;
+          setUserInfo({ ...data.result, avatarUrl: storedAvatar });
         } else {
-          // Token sai hoặc hết hạn
           localStorage.removeItem("token");
         }
       } catch (err) {
@@ -79,6 +74,7 @@ const AuthButton = () => {
 
       if (res.ok) {
         localStorage.removeItem("token");
+        localStorage.removeItem("userAvatar");
         setUserInfo(null);
         navigate("/login");
       } else {
@@ -100,7 +96,7 @@ const AuthButton = () => {
             sx={{ cursor: "pointer" }}>
             <Avatar src={userInfo.avatarUrl} alt="" />
             <Typography sx={{ marginLeft: "5px" }}>
-              {userInfo.result.name}
+              {userInfo.name}
             </Typography>
           </Stack>
 
@@ -110,7 +106,7 @@ const AuthButton = () => {
             onClose={handleMenuClose}>
             <MenuItem
               onClick={() =>
-                navigate(`/accountInform/profile/${userInfo.result.id}`)
+                navigate(`/accountInform/profile/${userInfo.id}`)
               }>
               Thông tin tài khoản
             </MenuItem>

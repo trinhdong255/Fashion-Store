@@ -1,5 +1,4 @@
-// import { useChangePasswordMutation } from "@/services/api/changePassword";
-import { useGetMyInfoQuery } from "@/services/api/auth";
+import axios from "axios";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
@@ -27,14 +26,9 @@ const ChangePasswordInform = () => {
     message: "",
     severity: "success",
   });
-
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useGetMyInfoQuery();
-  const [changePassword, { isLoading: isChangePasswordLoading }] =
-    useChangePasswordMutation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [userError, setUserError] = useState(null);
 
   const {
     register,
@@ -64,6 +58,33 @@ const ChangePasswordInform = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  // Lấy thông tin user bằng Axios
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setIsLoading(true);
+        const accessToken = localStorage.getItem("accessToken");
+        const response = await axios.get(
+          "http://222.255.119.40:8080/adamstore/v1/auth/myInfo",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        setUser(response.data);
+      } catch (error) {
+        setUserError(
+          error.response?.data || "Lỗi khi lấy thông tin người dùng"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   useEffect(() => {
     if (userError) {
       setSnackbar({
@@ -81,30 +102,39 @@ const ChangePasswordInform = () => {
 
   const onSubmit = async (data) => {
     try {
-      await changePassword({
-        oldPassword: data.currentPassword,
-        newPassword: data.newPassword,
-        confirmPassword: data.confirmPassword,
-      }).unwrap();
+      setIsLoading(true);
+      const accessToken = localStorage.getItem("accessToken");
+      await axios.post(
+        "http://222.255.119.40:8080/adamstore/v1/auth/change-password",
+        {
+          oldPassword: data.currentPassword,
+          newPassword: data.newPassword,
+          confirmPassword: data.confirmPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       setSnackbar({
         open: true,
         message: "Đổi mật khẩu thành công!",
         severity: "success",
       });
       reset();
-      setTimeout(() => {
-        navigate("/accountInform/profile");
-      }, 2000);
     } catch (error) {
       setSnackbar({
         open: true,
-        message: error?.data?.message || "Đổi mật khẩu thất bại!",
+        message: error.response?.data?.message || "Đổi mật khẩu thất bại!",
         severity: "error",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (isUserLoading) {
+  if (isLoading) {
     return (
       <Box
         sx={{
@@ -112,7 +142,8 @@ const ChangePasswordInform = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "100%",
-        }}>
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -130,8 +161,8 @@ const ChangePasswordInform = () => {
         pt: 5,
         borderRadius: 5,
       }}
-      component="form" // Add form element
-      onSubmit={handleSubmit(onSubmit)} // Attach the onSubmit handler
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
     >
       <Box sx={{ m: "24px 0 24px 64px" }}>
         <Stack
@@ -139,7 +170,8 @@ const ChangePasswordInform = () => {
           alignItems={"center"}
           justifyContent={"flex-start"}
           sx={{ m: "40px 0" }}
-          spacing={17}>
+          spacing={17}
+        >
           <Typography variant="h6">Mật khẩu hiện tại: </Typography>
           <TextField
             variant="outlined"
@@ -147,7 +179,7 @@ const ChangePasswordInform = () => {
             size="small"
             color="default"
             type={showCurrentPassword ? "text" : "password"}
-            disabled={isChangePasswordLoading}
+            disabled={isLoading}
             {...register("currentPassword", {
               required: "Mật khẩu hiện tại không được để trống",
               minLength: {
@@ -170,7 +202,8 @@ const ChangePasswordInform = () => {
                     onMouseDown={handleMouseDownPassword}
                     onMouseUp={handleMouseUpPassword}
                     edge="end"
-                    disabled={isChangePasswordLoading}>
+                    disabled={isLoading}
+                  >
                     {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
@@ -185,7 +218,8 @@ const ChangePasswordInform = () => {
           alignItems={"center"}
           justifyContent={"flex-start"}
           sx={{ m: "40px 0" }}
-          spacing={21}>
+          spacing={21}
+        >
           <Typography variant="h6">Mật khẩu mới: </Typography>
           <TextField
             variant="outlined"
@@ -193,7 +227,7 @@ const ChangePasswordInform = () => {
             size="small"
             color="default"
             type={showNewPassword ? "text" : "password"}
-            disabled={isChangePasswordLoading}
+            disabled={isLoading}
             {...register("newPassword", {
               required: "Mật khẩu mới không được để trống",
               minLength: {
@@ -216,7 +250,8 @@ const ChangePasswordInform = () => {
                     onMouseDown={handleMouseDownPassword}
                     onMouseUp={handleMouseUpPassword}
                     edge="end"
-                    disabled={isChangePasswordLoading}>
+                    disabled={isLoading}
+                  >
                     {showNewPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
@@ -231,7 +266,8 @@ const ChangePasswordInform = () => {
           alignItems={"center"}
           justifyContent={"flex-start"}
           sx={{ m: "40px 0" }}
-          spacing={10}>
+          spacing={10}
+        >
           <Typography variant="h6">Xác nhận mật khẩu mới: </Typography>
           <TextField
             variant="outlined"
@@ -239,7 +275,7 @@ const ChangePasswordInform = () => {
             size="small"
             color="default"
             type={showConfirmPassword ? "text" : "password"}
-            disabled={isChangePasswordLoading}
+            disabled={isLoading}
             {...register("confirmPassword", {
               required: "Xác nhận mật khẩu không được để trống",
               validate: (value) =>
@@ -260,7 +296,8 @@ const ChangePasswordInform = () => {
                     onMouseDown={handleMouseDownPassword}
                     onMouseUp={handleMouseUpPassword}
                     edge="end"
-                    disabled={isChangePasswordLoading}>
+                    disabled={isLoading}
+                  >
                     {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
@@ -275,30 +312,34 @@ const ChangePasswordInform = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-        }}>
+        }}
+      >
         <Button
           variant="contained"
-          type="submit" // Change to "submit" to allow Enter key submission
-          disabled={isChangePasswordLoading}
+          type="submit"
+          disabled={isLoading}
           sx={{
             backgroundColor: "var(--footer-background-color)",
             marginBottom: 6,
             padding: "12px 24px",
             display: "flex",
             alignItems: "center",
-          }}>
-          {isChangePasswordLoading ? "Đang xử lý..." : "Lưu thay đổi"}
+          }}
+        >
+          {isLoading ? "Đang xử lý..." : "Lưu thay đổi"}
         </Button>
       </Box>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
-          sx={{ width: "100%" }}>
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

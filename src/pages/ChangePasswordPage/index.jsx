@@ -1,11 +1,11 @@
 import { Box, Container, Grid, Stack } from "@mui/material";
 
-import ProfileInform from "./shared/ProfileInform";
+import ChangePasswordInform from "./shared/ChangePasswordInform";
 
 import AccountSideBar from "@/components/AccountSideBar";
 import { useParams } from "react-router-dom";
 
-const Profile = () => {
+const ChangePassword = () => {
   const { id } = useParams();
   return (
     <Container
@@ -15,8 +15,8 @@ const Profile = () => {
         alignItems: "start",
       }}
     >
-      <Grid container spacing={2} sx={{ m: "80px 0" }} >
-        <Grid item lg={3} md={3} >
+      <Grid container spacing={2} sx={{ m: "80px 0" }}>
+        <Grid item lg={3} md={3}>
           <AccountSideBar id={id} />
         </Grid>
 
@@ -29,11 +29,11 @@ const Profile = () => {
               textAlign: "center",
             }}
           >
-            HỒ SƠ CÁ NHÂN
+            ĐỔI MẬT KHẨU
           </h2>
 
           <Stack alignItems={"center"}>
-            <ProfileInform id={id} />
+            <ChangePasswordInform id={id} />
           </Stack>
         </Grid>
       </Grid>
@@ -41,4 +41,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ChangePassword;

@@ -9,80 +9,60 @@ import {
   Select,
   MenuItem,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-const AddressInform = ({ id }) => {
+const AddressInform = () => {
+  const { id, addressId } = useParams();
+  const navigate = useNavigate();
   const [city, setCity] = useState([]);
-  const [ward, setWard] = useState("");
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [ward, setWard] = useState("");
   const [streetDetail, setStreetDetail] = useState("");
   const [phone, setPhone] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const token = localStorage.getItem("accessToken");
-
-  const handleCityChange = (event) => {
-    const CityId = event.target.value;
-    setSelectedCity(CityId);
-  };
-
-  const handleDistrictChange = (event) => {
-    const districtId = event.target.value;
-    setSelectedDistrict(districtId);
-    setWard(""); // reset ward khi đổi quận
-  };
-
-  const handleWardChange = (event) => {
-    setWard(event.target.value);
-  };
 
   useEffect(() => {
     if (!token) return;
 
     axios
-      .get(
-        "http://222.255.119.40:8080/adamstore/v1/provinces?pageNo=1&pageSize=63",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((res) => {
-        const result = res.data.result.items || [];
-        setCity(result);
+      .get("http://222.255.119.40:8080/adamstore/v1/provinces?pageNo=1&pageSize=63", {
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .catch((err) => {
-        console.error("Lỗi khi lấy danh sách quận/huyện:", err);
-      });
+      .then((res) => {
+        setCity(res.data.result.items || []);
+      })
+      .catch((err) => console.error("Lỗi khi lấy danh sách tỉnh/thành:", err));
   }, [token]);
 
-  // Gọi danh sách quận/huyện khi component mount
   useEffect(() => {
-    if (!token) return;
+    if (!selectedCity || !token) return;
 
     axios
       .get(
         `http://222.255.119.40:8080/adamstore/v1/provinces/${selectedCity}/districts?pageNo=1&pageSize=30`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       )
       .then((res) => {
-        const result = res.data.result.items || [];
-        setDistricts(result);
+        setDistricts(res.data.result.items || []);
       })
-      .catch((err) => {
-        console.error("Lỗi khi lấy danh sách quận/huyện:", err);
-      });
+      .catch((err) => console.error("Lỗi khi lấy danh sách quận/huyện:", err));
   }, [selectedCity, token]);
 
-  // Gọi danh sách phường/xã khi chọn quận/huyện
   useEffect(() => {
     if (!selectedDistrict || !token) return;
 
@@ -90,100 +70,104 @@ const AddressInform = ({ id }) => {
       .get(
         `http://222.255.119.40:8080/adamstore/v1/districts/${selectedDistrict}/wards?pageNo=1&pageSize=100`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       )
       .then((res) => {
-        const result = res.data.result.items || [];
-        console.log(">>>hadand", result);
-
-        setWards(result);
+        setWards(res.data.result.items || []);
       })
-      .catch((err) => {
-        console.error("Lỗi khi lấy danh sách phường/xã:", err);
-      });
+      .catch((err) => console.error("Lỗi khi lấy danh sách phường/xã:", err));
   }, [selectedDistrict, token]);
 
   useEffect(() => {
-    if (!token || !id) return;
+    if (!token || !addressId || addressId === "new") return;
 
     axios
-      .get(`http://222.255.119.40:8080/adamstore/v1/addresses/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      .get(`http://222.255.119.40:8080/adamstore/v1/addresses/${addressId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         const result = res.data.result;
-
-        // gán lại state theo dữ liệu trả về
         setSelectedCity(result.province.id.toString());
         setSelectedDistrict(result.district.id.toString());
         setWard(result.ward.code);
-        setStreetDetail(result.streetDetail); // cần tạo thêm state này
-        setPhone(result.phone);
+        setStreetDetail(result.streetDetail || "");
+        setPhone(result.phone || "");
       })
       .catch((err) => {
         console.error("Lỗi khi lấy địa chỉ:", err);
+        setSnackbar({
+          open: true,
+          message: "Lỗi khi lấy thông tin địa chỉ!",
+          severity: "error",
+        });
       });
-  }, [token, id]);
+  }, [token, addressId]);
 
-  const handleSubmit = () => {
-    if (
-      !selectedCity ||
-      !selectedDistrict ||
-      !ward ||
-      !streetDetail ||
-      !phone
-    ) {
-      alert("Vui lòng điền đầy đủ thông tin địa chỉ.");
+  const handleSubmit = async () => {
+    if (!selectedCity || !selectedDistrict || !ward || !streetDetail || !phone) {
+      setSnackbar({
+        open: true,
+        message: "Vui lòng điền đầy đủ thông tin địa chỉ!",
+        severity: "error",
+      });
       return;
     }
 
     const data = {
-      isDefault: true,
-      streetDetail: streetDetail,
+      streetDetail,
       wardCode: ward,
       districtId: selectedDistrict,
       provinceId: selectedCity,
-      phone: phone,
+      phone,
+      isDefault: addressId === "new" ? true : undefined, // Chỉ đặt isDefault khi thêm mới
     };
 
-    axios
-      .post("http://222.255.119.40:8080/adamstore/v1/addresses", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        console.log("Gửi địa chỉ thành công:", res.data);
-        alert("Cập nhật địa chỉ thành công!");
-      })
-      .catch((err) => {
-        console.error("Lỗi khi gửi địa chỉ:", err);
-        alert("Có lỗi xảy ra khi cập nhật địa chỉ.");
+    try {
+      if (addressId === "new") {
+        await axios.post("http://222.255.119.40:8080/adamstore/v1/addresses", data, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setSnackbar({
+          open: true,
+          message: "Thêm địa chỉ thành công!",
+          severity: "success",
+        });
+      } else {
+        await axios.put(
+          `http://222.255.119.40:8080/adamstore/v1/addresses/${addressId}`,
+          data,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setSnackbar({
+          open: true,
+          message: "Cập nhật địa chỉ thành công!",
+          severity: "success",
+        });
+      }
+      setTimeout(() => navigate(`/accountInform/address/${id}`), 1500);
+    } catch (err) {
+      console.error("Lỗi khi lưu địa chỉ:", err);
+      setSnackbar({
+        open: true,
+        message: addressId === "new" ? "Thêm địa chỉ thất bại!" : "Cập nhật địa chỉ thất bại!",
+        severity: "error",
       });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
-    <Box
-      sx={{ border: "1px solid black", width: "100%", pt: 4, borderRadius: 5 }}>
+    <Box sx={{ border: "1px solid black", width: "100%", pt: 4, borderRadius: 5 }}>
       <Box sx={{ m: "24px 0 24px 64px" }}>
-        {/* Thành phố */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={13}
-          sx={{ m: "40px 0" }}>
+        <Stack direction="row" alignItems="center" spacing={13} sx={{ m: "40px 0" }}>
           <Typography variant="h6">Tỉnh/Thành phố: </Typography>
           <FormControl sx={{ m: 1, width: "300px" }} size="small">
-            <InputLabel>Tỉnh/Thành phố:</InputLabel>
-            <Select
-              value={selectedCity}
-              onChange={handleCityChange}
-              label="Quận/Huyện">
+            <InputLabel>Tỉnh/Thành phố</InputLabel>
+            <Select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} label="Tỉnh/Thành phố">
               {city.map((c) => (
                 <MenuItem key={c.id} value={c.id}>
                   {c.name}
@@ -193,19 +177,11 @@ const AddressInform = ({ id }) => {
           </FormControl>
         </Stack>
 
-        {/* Quận/Huyện */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={17}
-          sx={{ m: "40px 0" }}>
+        <Stack direction="row" alignItems="center" spacing={17} sx={{ m: "40px 0" }}>
           <Typography variant="h6">Quận/Huyện: </Typography>
           <FormControl sx={{ m: 1, width: "300px" }} size="small">
             <InputLabel>Quận/Huyện</InputLabel>
-            <Select
-              value={selectedDistrict}
-              onChange={handleDistrictChange}
-              label="Quận/Huyện">
+            <Select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} label="Quận/Huyện">
               {districts.map((d) => (
                 <MenuItem key={d.id} value={d.id}>
                   {d.name}
@@ -215,37 +191,21 @@ const AddressInform = ({ id }) => {
           </FormControl>
         </Stack>
 
-        {/* Phường/Xã */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={19}
-          sx={{ m: "40px 0" }}>
+        <Stack direction="row" alignItems="center" spacing={19} sx={{ m: "40px 0" }}>
           <Typography variant="h6">Phường/Xã: </Typography>
           <FormControl sx={{ m: 1, width: "300px" }} size="small">
             <InputLabel>Phường/Xã</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={ward || ""} // Luôn controlled
-              label="Phường xã"
-              onChange={handleWardChange}
-              color="default">
-              {wards.map((wardItem) => (
-                <MenuItem key={wardItem.code} value={wardItem.code}>
-                  {wardItem.name}
+            <Select value={ward} onChange={(e) => setWard(e.target.value)} label="Phường/Xã">
+              {wards.map((w) => (
+                <MenuItem key={w.code} value={w.code}>
+                  {w.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Stack>
 
-        {/* Địa chỉ */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={24}
-          sx={{ m: "40px 0" }}>
+        <Stack direction="row" alignItems="center" spacing={24} sx={{ m: "40px 0" }}>
           <Typography variant="h6">Địa chỉ: </Typography>
           <TextField
             variant="outlined"
@@ -257,12 +217,8 @@ const AddressInform = ({ id }) => {
           />
         </Stack>
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={17}
-          sx={{ m: "40px 0" }}>
-          <Typography variant="h6">Số điện thoại:</Typography>
+        <Stack direction="row" alignItems="center" spacing={17} sx={{ m: "40px 0" }}>
+          <Typography variant="h6">Số điện thoại: </Typography>
           <TextField
             variant="outlined"
             label="Nhập số điện thoại"
@@ -272,21 +228,28 @@ const AddressInform = ({ id }) => {
             onChange={(e) => setPhone(e.target.value)}
           />
         </Stack>
+
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 6 }}>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "var(--footer-background-color)", padding: "12px 24px" }}
+            onClick={handleSubmit}
+          >
+            {addressId === "new" ? "Thêm địa chỉ" : "Cập nhật địa chỉ"}
+          </Button>
+        </Box>
       </Box>
 
-      {/* Nút cập nhật */}
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          sx={{
-            backgroundColor: "var(--footer-background-color)",
-            marginBottom: 6,
-            padding: "12px 24px",
-          }}>
-          Cập nhật
-        </Button>
-      </Box>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

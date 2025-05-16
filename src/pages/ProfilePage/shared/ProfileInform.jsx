@@ -14,10 +14,10 @@ import {
   Select,
   Snackbar,
   Typography,
+  Alert,
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { set } from "react-hook-form";
 import { useParams } from "react-router-dom";
 
 const ariaLabel = { "aria-label": "description" };
@@ -39,7 +39,7 @@ const ProfileInform = () => {
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // success or error
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
@@ -58,14 +58,12 @@ const ProfileInform = () => {
       })
       .then((res) => {
         const result = res.data.result;
-        console.log(result);
         setUserProfile(result);
         setAvatar(result.avatarUrl);
         setName(result.name || "");
         setGender(result.gender || "male");
         setDob(result.dob?.slice(0, 10) || "2000-01-01");
         setEmail(result.email || "");
-        // setPhone(result.phone || "");
         setSelectedDistrict(result.address);
         setLoading(false);
       })
@@ -90,7 +88,6 @@ const ProfileInform = () => {
       )
       .then((res) => {
         const result = res.data.result.items || [];
-        console.log("dia chỉ", result);
         setDistricts(result);
       })
       .catch((err) => {
@@ -119,7 +116,6 @@ const ProfileInform = () => {
       );
 
       const data = await res.json();
-      console.log("hình ảnh:", data);
       if (data.code === 200) {
         setAvatar(data.result.imageUrl);
       } else {
@@ -142,7 +138,6 @@ const ProfileInform = () => {
       phone,
       avatarUrl: avatar,
     };
-    console.log("Dữ liệu gửi lên:", updatedUser);
     try {
       const res = await axios.put(
         `http://222.255.119.40:8080/adamstore/v1/users/${id}`,
@@ -158,6 +153,7 @@ const ProfileInform = () => {
         setSnackbarMessage("Cập nhật thông tin thành công!");
         setSnackbarSeverity("success");
         setUserProfile(res.data.result);
+        localStorage.setItem("userAvatar", avatar);
         setOpenSnackbar(true);
       } else {
         setSnackbarMessage("Cập nhật thất bại: " + res.data.message);
@@ -189,7 +185,6 @@ const ProfileInform = () => {
         gap: "20px",
       }}>
       <Box sx={{ position: "relative", width: 120, height: 120 }}>
-        {/* Ảnh avatar hình tròn */}
         <Avatar
           src={avatar}
           sx={{
@@ -198,8 +193,6 @@ const ProfileInform = () => {
             border: "2px solid #ccc",
           }}
         />
-
-        {/* Nút chọn file hình camera nằm ở góc */}
         <IconButton
           component="label"
           sx={{
@@ -217,7 +210,6 @@ const ProfileInform = () => {
         </IconButton>
       </Box>
 
-      {/* Họ tên */}
       <Box sx={rowStyle}>
         <Typography sx={labelStyle}>Họ Tên:</Typography>
         <Input
@@ -228,7 +220,6 @@ const ProfileInform = () => {
         />
       </Box>
 
-      {/* Giới tính */}
       <Box sx={rowStyle}>
         <Typography sx={labelStyle}>Giới tính:</Typography>
         <RadioGroup
@@ -242,7 +233,6 @@ const ProfileInform = () => {
         </RadioGroup>
       </Box>
 
-      {/* Ngày sinh */}
       <Box sx={rowStyle}>
         <Typography sx={labelStyle}>Ngày sinh:</Typography>
         <Input
@@ -254,7 +244,6 @@ const ProfileInform = () => {
         />
       </Box>
 
-      {/* Email */}
       <Box sx={rowStyle}>
         <Typography sx={labelStyle}>Email:</Typography>
         <Input
@@ -286,23 +275,20 @@ const ProfileInform = () => {
         open={openSnackbar}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        sx={{
-          position: "fixed", // Đặt vị trí cố định để luôn ở góc phải
-          bottom: 20, // Cách dưới màn hình 20px
-          right: 20, // Cách phải màn hình 20px
-        }}
-      />
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{ position: "fixed", top: 20 }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
 
-// Style chung cho các dòng
 const rowStyle = {
   width: "100%",
   display: "flex",
@@ -311,7 +297,6 @@ const rowStyle = {
   gap: "10px",
 };
 
-// Style cho nhãn label
 const labelStyle = {
   flex: 3,
   fontWeight: "bold",

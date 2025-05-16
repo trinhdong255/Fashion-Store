@@ -3,7 +3,10 @@ import { Route, Routes } from "react-router-dom";
 
 import AccountInform from "./layouts/AccountInform";
 import Address from "./pages/AddressPage";
-// import ChangePassword from "./pages/ChangePassword";
+import AddressListForUser from "./pages/AddressPage/shared/AddressListForUser";
+
+
+import ChangePassword from "./pages/ChangePasswordPage";
 import Profile from "./pages/ProfilePage";
 
 import ScrollToTop from "@/components/ScrollToTop";
@@ -46,6 +49,7 @@ import ProvincesManagement from "./pages/Admin/shared/ProvincesManagement";
 import ProductVariantsManagement from "./pages/Admin/shared/ProductVariantsManagement";
 import VNPayCallback from "./pages/ShippingMethodPage/shared/VNPayCallback";
 import MyCart from "./pages/MyCartPage";
+import AddressInform from "./pages/AddressPage/shared/AddressInform";
 
 const App = () => {
   return (
@@ -95,7 +99,10 @@ const App = () => {
         {/* Route user */}
         <Route path="/accountInform" element={<AccountInform />}>
           <Route path="profile/:id" element={<Profile />} />
+          <Route path="changePassword/:id" element={<ChangePassword />} />
           <Route path="address/:id" element={<Address />} />
+          <Route path="addressListForUser/:id" element={<AddressListForUser />} />
+          <Route path="addressInform/:id" element={<AddressInform /> } />
         </Route>
         <Route path="/my-orders" element={<MyOrders />} />
 
