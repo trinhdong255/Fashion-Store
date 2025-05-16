@@ -1,12 +1,22 @@
-import { Typography, Box, Card, CardContent, CardMedia, Chip } from "@mui/material";
+import {
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+} from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 const ProductLists = () => {
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
   const categoryId = searchParams.get("category");
   const [products, setProducts] = useState([]);
+  const searchTerm = searchParams.get("search") || "";
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!categoryId) return;
@@ -28,6 +38,34 @@ const ProductLists = () => {
       });
   }, [categoryId]);
 
+  useEffect(() => {
+    if (!searchTerm) return;
+
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "http://222.255.119.40:8080/adamstore/v1/products/search",
+          {
+            params: {
+              pageNo: 1,
+              pageSize: 100,
+              search: `name~${searchTerm}`,
+            },
+          }
+        );
+        console.log(">>> response tim kiem", response);
+        setProducts(response.data.result.items);
+      } catch (error) {
+        console.error("Lỗi khi gọi API search:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [searchTerm]);
+
   return (
     <Box sx={{ padding: 2, backgroundColor: "#f5f5f5", minHeight: "80vh" }}>
       <Typography
@@ -37,11 +75,17 @@ const ProductLists = () => {
         color="#333"
         gutterBottom
         sx={{ paddingTop: 4 }}>
-        DANH SÁCH SẢN PHẨM
+        {searchTerm
+          ? `Kết quả tìm kiếm cho: "${searchTerm}"`
+          : " DANH SÁCH SẢN PHẨM"}
       </Typography>
       <Box
         display="grid"
-        gridTemplateColumns={{ xs: "1fr", sm: "repeat(3, 1fr)", lg: "repeat(5, 1fr)" }}
+        gridTemplateColumns={{
+          xs: "1fr",
+          sm: "repeat(3, 1fr)",
+          lg: "repeat(5, 1fr)",
+        }}
         gap={3}
         justifyContent="center"
         padding={2}
@@ -70,16 +114,32 @@ const ProductLists = () => {
                 />
               )}
               <CardContent sx={{ padding: 2 }}>
-                <Typography variant="h6" fontWeight="bold" color="#1a1a1a" gutterBottom>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#1a1a1a"
+                  gutterBottom>
                   {product.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
                   {product.description}
                 </Typography>
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
-                  <Chip label={`Đã bán: ${product.soldQuantity || 0}`} color="primary" size="small" />
-                  <Chip label={`Đánh giá: ${product.totalReviews || 0}`} color="secondary" size="small" />
-                  <Chip label={`Còn: ${product.quantity || 0}`} color="success" size="small" />
+                  <Chip
+                    label={`Đã bán: ${product.soldQuantity || 0}`}
+                    color="primary"
+                    size="small"
+                  />
+                  <Chip
+                    label={`Đánh giá: ${product.totalReviews || 0}`}
+                    color="secondary"
+                    size="small"
+                  />
+                  <Chip
+                    label={`Còn: ${product.quantity || 0}`}
+                    color="success"
+                    size="small"
+                  />
                 </Box>
                 <Typography variant="h6" color="#d32f2f" fontWeight="medium">
                   Giá: {product.price?.toLocaleString() || "Đang cập nhật"}đ

@@ -23,7 +23,7 @@ const SearchBar = () => {
 
   const debouncedSearch = debounce(() => {
     if (searchTerm.trim()) {
-      navigate(`/listProducts?search=${encodeURIComponent(searchTerm)}`);
+      navigate(`/product-lists?search=${encodeURIComponent(searchTerm)}`);
     }
   }, 300);
 
