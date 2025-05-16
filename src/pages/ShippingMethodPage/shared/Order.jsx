@@ -33,7 +33,6 @@ import {
 
 const headerInfos = ["Sản phẩm", "Đơn giá", "Số lượng", "Thành tiền"];
 
-// Hàm định dạng số lớn
 const formatLargeNumber = (number) => {
   if (number < 1000) {
     return new Intl.NumberFormat("vi-VN", {
@@ -145,76 +144,64 @@ const Order = () => {
   }, [dispatch, location.state?.orderData, location.pathname, isFromBuyNow]);
 
   useEffect(() => {
-  if (orderData.length > 0) {
-    const fetchImages = async () => {
-      const token = localStorage.getItem("accessToken");
-      const updatedItems = await Promise.all(
-        orderData.map(async (item) => {
-          const productId = isFromBuyNow ? item.productId : item.productVariantBasic?.product?.id;
-          if (!productId) {
-            return {
-              ...item,
-              image: "/default.jpg",
-            };
-          }
-          try {
-            const response = await axios.get(
-              `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            return {
-              ...item,
-              image: response.data.result.images?.[0]?.imageUrl || "/default.jpg",
-            };
-          } catch (error) {
-            console.error(`Lỗi khi lấy hình ảnh cho sản phẩm ${productId}:`, error);
-            return {
-              ...item,
-              image: "/default.jpg",
-            };
-          }
-        })
-      );
-      setOrderDataWithImages(updatedItems);
-    };
-    fetchImages();
-  } else {
-    setOrderDataWithImages([]);
-  }
-}, [orderData, isFromBuyNow]);
+    if (orderData.length > 0) {
+      const fetchImages = async () => {
+        const token = localStorage.getItem("accessToken");
+        const updatedItems = await Promise.all(
+          orderData.map(async (item) => {
+            const productId = isFromBuyNow
+              ? item.productId
+              : item.productVariantBasic?.product?.id;
+            if (!productId) {
+              return {
+                ...item,
+                image: "/default.jpg",
+              };
+            }
+            try {
+              const response = await axios.get(
+                `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+              return {
+                ...item,
+                image:
+                  response.data.result.images?.[0]?.imageUrl || "/default.jpg",
+              };
+            } catch (error) {
+              console.error(
+                `Lỗi khi lấy hình ảnh cho sản phẩm ${productId}:`,
+                error
+              );
+              return {
+                ...item,
+                image: "/default.jpg",
+              };
+            }
+          })
+        );
+        setOrderDataWithImages(updatedItems);
+      };
+      fetchImages();
+    } else {
+      setOrderDataWithImages([]);
+    }
+  }, [orderData, isFromBuyNow]);
 
   useEffect(() => {
-    if (selectedAddress) {
+    if (selectedAddress && orderData.length > 0) {
       const token = localStorage.getItem("accessToken");
-      console.log(
-        "selectedAddress changed, calculating shipping fee - orderData:",
-        orderData
-      );
 
-      let itemsForShipping = orderData;
-      if (!isFromBuyNow && cartItems.length > 1) {
-        itemsForShipping = cartItems;
-      }
-
-      const orderItems = itemsForShipping
-        .filter((item) => {
-          if (isFromBuyNow || itemsForShipping.length === 1) {
-            return item.productVariantId;
-          }
-          return item.productVariantBasic?.id;
-        })
+      const orderItems = orderData
         .map((item) => ({
-          productVariantId:
-            isFromBuyNow || itemsForShipping.length === 1
-              ? item.productVariantId
-              : item.productVariantBasic.id,
+          productVariantId: isFromBuyNow
+            ? item.productVariantId
+            : item.productVariantBasic?.id,
           quantity: item.quantity,
-        }));
-
-      console.log("Generated orderItems for shipping fee:", orderItems);
+        }))
+        .filter((item) => item.productVariantId && item.quantity > 0);
 
       if (orderItems.length === 0) {
-        console.log("No valid orderItems found.");
         setSnackbar({
           open: true,
           message:
@@ -232,7 +219,6 @@ const Order = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((res) => {
-          console.log("Shipping fee response:", res.data);
           setShippingFee(res.data.result.total || 0);
         })
         .catch((err) => {
@@ -249,8 +235,10 @@ const Order = () => {
           });
           setShippingFee(0);
         });
+    } else {
+      setShippingFee(0);
     }
-  }, [selectedAddress, orderData, cartItems, isFromBuyNow]);
+  }, [selectedAddress, orderData, isFromBuyNow]);
 
   useEffect(() => {
     if (!isFromBuyNow) {
@@ -603,7 +591,9 @@ const Order = () => {
           maxWidth="sm"
           fullWidth
         >
-          <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" ,textAlign: "center" }}>
+          <DialogTitle
+            sx={{ fontWeight: "bold", fontSize: "24px", textAlign: "center" }}
+          >
             Chọn Fashion Store Voucher
           </DialogTitle>
           <Typography variant="h6" sx={{ fontWeight: "bold", ml: 3 }}>
@@ -636,9 +626,7 @@ const Order = () => {
                     />
                   </Box>
                   <Stack flex={1}>
-                    <Typography variant="body1">
-                      {promo.description} 
-                    </Typography>
+                    <Typography variant="body1">{promo.description}</Typography>
                     <Typography variant="body2" sx={{ color: "black" }}>
                       HSD: {promo.endDate || "Không thời hạn"}
                     </Typography>
