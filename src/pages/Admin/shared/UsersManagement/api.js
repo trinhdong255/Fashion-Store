@@ -2,7 +2,7 @@ export const createUser = async (userData) => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/users",
+    "https://222.255.119.40/adamstore/v1/users",
     {
       method: "POST",
       headers: {
@@ -24,7 +24,7 @@ export const fetchUser = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/users?pageNo=1&pageSize=10",
+    "https://222.255.119.40/adamstore/v1/users?pageNo=1&pageSize=10",
     {
       headers: {
         "Content-Type": "application/json",

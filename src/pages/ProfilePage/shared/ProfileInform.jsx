@@ -79,7 +79,7 @@ const ProfileInform = () => {
 
     axios
       .get(
-        "http://222.255.119.40:8080/adamstore/v1/districts?pageNo=1&pageSize=21",
+        "https://222.255.119.40/adamstore/v1/districts?pageNo=1&pageSize=21",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,7 +105,7 @@ const ProfileInform = () => {
 
     try {
       const res = await fetch(
-        "http://222.255.119.40:8080/adamstore/v1/file/upload/image",
+        "https://222.255.119.40/adamstore/v1/file/upload/image",
         {
           method: "POST",
           headers: {

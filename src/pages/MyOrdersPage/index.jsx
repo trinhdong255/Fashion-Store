@@ -42,7 +42,7 @@ const MyOrders = () => {
     const fetchOrdersByStatus = async (status) => {
       try {
         const response = await axios.get(
-          "http://222.255.119.40:8080/adamstore/v1/orders/search",
+          "https://222.255.119.40/adamstore/v1/orders/search",
           {
             headers: { Authorization: `Bearer ${token}` },
             params: {

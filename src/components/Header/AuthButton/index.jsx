@@ -23,7 +23,7 @@ const AuthButton = () => {
     const fetchUserInfo = async () => {
       try {
         const res = await fetch(
-          "http://222.255.119.40:8080/adamstore/v1/auth/myInfo",
+          "https://222.255.119.40/adamstore/v1/auth/myInfo",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -60,7 +60,7 @@ const AuthButton = () => {
 
     try {
       const res = await fetch(
-        "http://222.255.119.40:8080/adamstore/v1/auth/logout",
+        "https://222.255.119.40/adamstore/v1/auth/logout",
         {
           method: "POST",
           headers: {

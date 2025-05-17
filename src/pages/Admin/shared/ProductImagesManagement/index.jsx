@@ -21,7 +21,7 @@ const ProductImagesManagement = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
-    fetch("http://222.255.119.40:8080/adamstore/v1/file/all?pageNo=1&pageSize=100", {
+    fetch("https://222.255.119.40/adamstore/v1/file/all?pageNo=1&pageSize=100", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +49,7 @@ const ProductImagesManagement = () => {
 
     try {
       const res = await fetch(
-        "http://222.255.119.40:8080/adamstore/v1/file/upload/image",
+        "https://222.255.119.40/adamstore/v1/file/upload/image",
         {
           method: "POST",
           headers: {

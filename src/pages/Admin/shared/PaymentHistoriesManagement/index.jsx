@@ -22,7 +22,7 @@ const PaymentHistoriesManagement = () => {
     const token = localStorage.getItem("accessToken");
     try {
       const response = await axios.get(
-        "http://222.255.119.40:8080/adamstore/v1/payment-histories/search",
+        "https://222.255.119.40/adamstore/v1/payment-histories/search",
         {
           headers: {
             Authorization: `Bearer ${token}`,

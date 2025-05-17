@@ -66,7 +66,7 @@ const ColorsManagement = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      "http://222.255.119.40:8080/adamstore/v1/colors?pageNo=1&pageSize=10",
+      "https://222.255.119.40/adamstore/v1/colors?pageNo=1&pageSize=10",
       {
         method: "GET",
         headers: {
@@ -87,7 +87,7 @@ const ColorsManagement = () => {
   const handleAddColor = () => {
     const token = localStorage.getItem("accessToken");
 
-    fetch("http://222.255.119.40:8080/adamstore/v1/colors", {
+    fetch("https://222.255.119.40/adamstore/v1/colors", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

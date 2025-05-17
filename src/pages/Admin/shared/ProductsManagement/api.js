@@ -2,7 +2,7 @@ export const fetchCategories = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
+    "https://222.255.119.40/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
     {
       headers: {
         "Content-Type": "application/json",
@@ -23,7 +23,7 @@ export const fetchSize = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/sizes?pageNo=1&pageSize=10",
+    "https://222.255.119.40/adamstore/v1/sizes?pageNo=1&pageSize=10",
     {
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export const fetchColor = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/colors?pageNo=1&pageSize=100",
+    "https://222.255.119.40/adamstore/v1/colors?pageNo=1&pageSize=100",
     {
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export const handleUpload = async (file) => {
 
   try {
     const res = await fetch(
-      "http://222.255.119.40:8080/adamstore/v1/file/upload/image",
+      "https://222.255.119.40/adamstore/v1/file/upload/image",
       {
         method: "POST",
         headers: {
@@ -99,7 +99,7 @@ export const createProduct = async (productData) => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/products",
+    "https://222.255.119.40/adamstore/v1/products",
     {
       method: "POST",
       headers: {
@@ -121,7 +121,7 @@ export const fetchProduct = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/products/admin?pageNo=1&pageSize=100",
+    "https://222.255.119.40/adamstore/v1/products/admin?pageNo=1&pageSize=100",
     {
       headers: {
         "Content-Type": "application/json",

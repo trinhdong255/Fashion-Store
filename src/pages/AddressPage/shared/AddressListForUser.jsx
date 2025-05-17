@@ -109,7 +109,7 @@ const AddressListForUser = ({ id }) => {
 
     // Fetch updated city, district, and ward lists
     axios
-      .get("http://222.255.119.40:8080/adamstore/v1/provinces?pageNo=1&pageSize=63", {
+      .get("https://222.255.119.40/adamstore/v1/provinces?pageNo=1&pageSize=63", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
