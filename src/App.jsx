@@ -102,7 +102,7 @@ const App = () => {
           <Route path="changePassword/:id" element={<ChangePassword />} />
           <Route path="address/:id" element={<Address />} />
           <Route path="addressListForUser/:id" element={<AddressListForUser />} />
-          <Route path="addressInform/:id" element={<AddressInform /> } />
+          <Route path="newAddress/:id" element={<AddressInform /> } />
         </Route>
         <Route path="/my-orders" element={<MyOrders />} />
 

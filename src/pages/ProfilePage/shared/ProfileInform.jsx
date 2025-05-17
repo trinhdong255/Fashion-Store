@@ -183,7 +183,8 @@ const ProfileInform = () => {
         alignItems: "center",
         flexWrap: "wrap",
         gap: "20px",
-      }}>
+      }}
+    >
       <Box sx={{ position: "relative", width: 120, height: 120 }}>
         <Avatar
           src={avatar}
@@ -204,7 +205,8 @@ const ProfileInform = () => {
             "&:hover": {
               backgroundColor: "#f0f0f0",
             },
-          }}>
+          }}
+        >
           <PhotoCamera fontSize="small" />
           <input type="file" hidden accept="image/*" onChange={handleUpload} />
         </IconButton>
@@ -226,10 +228,23 @@ const ProfileInform = () => {
           row
           sx={{ flex: 7 }}
           value={gender}
-          onChange={(e) => setGender(e.target.value)}>
-          <FormControlLabel value="MALE" control={<Radio />} label="Nam" />
-          <FormControlLabel value="FEMALE" control={<Radio />} label="Nữ" />
-          <FormControlLabel value="OTHER" control={<Radio />} label="Khác" />
+          onChange={(e) => setGender(e.target.value)}
+        >
+          <FormControlLabel
+            value="MALE"
+            control={<Radio color="default" />}
+            label="Nam"
+          />
+          <FormControlLabel
+            value="FEMALE"
+            control={<Radio color="default" />}
+            label="Nữ"
+          />
+          <FormControlLabel
+            value="OTHER"
+            control={<Radio color="default" />}
+            label="Khác"
+          />
         </RadioGroup>
       </Box>
 
@@ -258,7 +273,8 @@ const ProfileInform = () => {
           display: "flex",
           justifyContent: "center",
           marginTop: 2,
-        }}>
+        }}
+      >
         <Button
           variant="contained"
           sx={{
@@ -267,7 +283,8 @@ const ProfileInform = () => {
             padding: "12px 24px",
           }}
           onClick={handleUpdateUser}
-          style={{ padding: "10px 20px", fontWeight: "bold" }}>
+          style={{ padding: "10px 20px", fontWeight: "bold" }}
+        >
           Lưu thay đổi
         </Button>
       </Box>
@@ -276,7 +293,8 @@ const ProfileInform = () => {
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ position: "fixed", top: 20 }}>
+        sx={{ position: "fixed", top: 20 }}
+      >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbarSeverity}
