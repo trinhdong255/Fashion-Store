@@ -5,7 +5,7 @@ export const fetchPromotion = async () => {
     "https://222.255.119.40/adamstore/v1/promotions?pageNo=1&pageSize=10",
     {
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -27,7 +27,7 @@ export const createPromotion = async (promotionData) => {
     {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(promotionData),
@@ -48,7 +48,7 @@ export const deletePromotion = async (promotionId, token) => {
       {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
@@ -74,7 +74,7 @@ export const restorePromotion = async (promotionId, token) => {
       {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
@@ -95,7 +95,7 @@ export async function updatePromotion(promotionId, payload, token) {
     {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),

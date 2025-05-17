@@ -5,7 +5,7 @@ export const fetchOrder = async () => {
     "https://222.255.119.40/adamstore/v1/orders?pageNo=1&pageSize=10",
     {
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -25,7 +25,7 @@ export const fetchOrder = async () => {
 //       {
 //         method: "DELETE",
 //         headers: {
-//           "Content-Type": "application/json",
+//          // "Content-Type": "application/json",
 //           Authorization: `Bearer ${token}`,
 //         },
 //       }

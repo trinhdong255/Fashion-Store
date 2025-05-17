@@ -21,13 +21,16 @@ const ProductImagesManagement = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
-    fetch("https://222.255.119.40/adamstore/v1/file/all?pageNo=1&pageSize=100", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Gửi token ở đây
-      },
-    })
+    fetch(
+      "https://222.255.119.40/adamstore/v1/file/all?pageNo=1&pageSize=100",
+      {
+        method: "GET",
+        headers: {
+          // "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Gửi token ở đây
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         console.log("DATA FETCHED:", data);

@@ -1,17 +1,14 @@
 export const createUser = async (userData) => {
   const token = localStorage.getItem("accessToken");
 
-  const response = await fetch(
-    "https://222.255.119.40/adamstore/v1/users",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(userData),
-    }
-  );
+  const response = await fetch("https://222.255.119.40/adamstore/v1/users", {
+    method: "POST",
+    headers: {
+      // "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(userData),
+  });
 
   if (!response.ok) {
     throw new Error("Tạo user thất bại");
@@ -27,7 +24,7 @@ export const fetchUser = async () => {
     "https://222.255.119.40/adamstore/v1/users?pageNo=1&pageSize=10",
     {
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -49,7 +46,7 @@ export const updateUser = async (id, userData) => {
     {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(userData),
@@ -72,7 +69,7 @@ export const deleteUser = async (userId, token) => {
     {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -92,7 +89,7 @@ export const restoreUser = async (userId, token) => {
       {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }

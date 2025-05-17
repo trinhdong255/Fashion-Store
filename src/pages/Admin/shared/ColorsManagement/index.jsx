@@ -65,16 +65,13 @@ const ColorsManagement = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
-    fetch(
-      "https://222.255.119.40/adamstore/v1/colors?pageNo=1&pageSize=10",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Gửi token ở đây
-        },
-      }
-    )
+    fetch("https://222.255.119.40/adamstore/v1/colors?pageNo=1&pageSize=10", {
+      method: "GET",
+      headers: {
+        // "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Gửi token ở đây
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         setColors(data.result.items);
@@ -90,7 +87,7 @@ const ColorsManagement = () => {
     fetch("https://222.255.119.40/adamstore/v1/colors", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ name: newColor }),
@@ -118,7 +115,7 @@ const ColorsManagement = () => {
     fetch(`http://222.255.119.40:8080/adamstore/v1/colors/${editingColorId}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ name: editingColorName }),
@@ -211,14 +208,12 @@ const ColorsManagement = () => {
         <>
           <IconButton
             onClick={() => handleEdit(params.row.id, params.row.name)}
-            color="primary"
-          >
+            color="primary">
             <EditIcon />
           </IconButton>
           <IconButton
             onClick={() => handleOpenDeleteModal(params.row.id)}
-            color="error"
-          >
+            color="error">
             <DeleteIcon />
           </IconButton>
         </>
@@ -236,15 +231,13 @@ const ColorsManagement = () => {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "20px",
-        }}
-      >
+        }}>
         <Typography variant="h5" gutterBottom>
           Quản lý màu sắc
         </Typography>
         <Button
           sx={{ backgroundColor: "#0984e3", color: "#fff" }}
-          onClick={() => setOpenModal(true)}
-        >
+          onClick={() => setOpenModal(true)}>
           Thêm màu sắc
         </Button>
       </Box>
@@ -274,16 +267,14 @@ const ColorsManagement = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 backgroundColor: "#fff",
                 padding: 4,
                 borderRadius: 2,
                 minWidth: 500,
-              }}
-            >
+              }}>
               <Typography variant="h6" gutterBottom>
                 Thêm màu sắc
               </Typography>
@@ -323,16 +314,14 @@ const ColorsManagement = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 backgroundColor: "#fff",
                 padding: 4,
                 borderRadius: 2,
                 minWidth: 500,
-              }}
-            >
+              }}>
               <Typography variant="h6" gutterBottom>
                 Sửa màu sắc
               </Typography>
@@ -354,8 +343,7 @@ const ColorsManagement = () => {
                 </Button>
                 <Button
                   onClick={() => setEditModalOpen(false)}
-                  variant="outlined"
-                >
+                  variant="outlined">
                   Hủy
                 </Button>
               </Box>
@@ -376,8 +364,7 @@ const ColorsManagement = () => {
             <Button
               onClick={handleConfirmDelete}
               color="error"
-              variant="contained"
-            >
+              variant="contained">
               Xóa
             </Button>
           </DialogActions>
@@ -387,8 +374,7 @@ const ColorsManagement = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert severity={snackbar.severity} variant="filled">
           {snackbar.message}
         </Alert>
