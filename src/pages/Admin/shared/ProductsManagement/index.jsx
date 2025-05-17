@@ -16,6 +16,7 @@ import {
   MenuItem,
   Select,
   Snackbar,
+  TextareaAutosize,
   TextField,
   Typography,
 } from "@mui/material";
@@ -304,13 +305,15 @@ const ProductsManagement = () => {
           alignItems: "center",
           gap: "20px",
           marginBottom: 4,
-        }}>
+        }}
+      >
         <FormControl fullWidth>
           <InputLabel>Danh mục</InputLabel>
           <Select
             label="Danh mục"
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}>
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
             <MenuItem value="">Tất cả</MenuItem>
             {categories.map((cat) => (
               <MenuItem key={cat.id} value={cat.name}>
@@ -325,7 +328,8 @@ const ProductsManagement = () => {
           <Select
             label="Trạng thái"
             value={status}
-            onChange={(e) => setStatus(e.target.value)}>
+            onChange={(e) => setStatus(e.target.value)}
+          >
             <MenuItem value="">Tất cả</MenuItem>
             <MenuItem value="ACTIVE">Hoạt động</MenuItem>
             <MenuItem value="INACTIVE">Ngưng hoạt động</MenuItem>
@@ -336,7 +340,8 @@ const ProductsManagement = () => {
           variant="contained"
           color="primary"
           sx={{ width: "400px" }}
-          onClick={() => setOpenModalAdd(true)}>
+          onClick={() => setOpenModalAdd(true)}
+        >
           Thêm sản phẩm
         </Button>
       </Box>
@@ -364,9 +369,11 @@ const ProductsManagement = () => {
             error={!!errors.productName}
             helperText={errors.productName}
           />
-          <TextField
-            label="Mô tả"
-            fullWidth
+          <TextareaAutosize
+            aria-label="minimum height"
+            maxRows={4}
+            placeholder="Mô tả"
+            style={{ width: "100%", marginTop: "10px" }}
             margin="dense"
             value={productForm.description}
             onChange={(e) =>
@@ -408,7 +415,8 @@ const ProductsManagement = () => {
             <Select
               value={selectedCategoryId}
               onChange={(e) => setSelectedCategoryId(e.target.value)}
-              label="Danh mục">
+              label="Danh mục"
+            >
               {categories.map((cat) => (
                 <MenuItem key={cat.id} value={cat.id}>
                   {cat.name}
@@ -428,7 +436,8 @@ const ProductsManagement = () => {
               multiple
               value={selectedSizeId}
               onChange={(e) => setSelectedSizeId(e.target.value)}
-              label="Kích thước">
+              label="Kích thước"
+            >
               {sizes.map((size) => (
                 <MenuItem key={size.id} value={size.id}>
                   {size.name}
@@ -448,7 +457,8 @@ const ProductsManagement = () => {
               multiple
               value={selectedColorId}
               onChange={(e) => setSelectedColorId(e.target.value)}
-              label="Màu sắc">
+              label="Màu sắc"
+            >
               {colors.map((color) => (
                 <MenuItem key={color.id} value={color.id}>
                   {color.name}
@@ -510,9 +520,11 @@ const ProductsManagement = () => {
               setSelectedProduct((prev) => ({ ...prev, name: e.target.value }))
             }
           />
-          <TextField
-            label="Mô tả"
-            fullWidth
+          <TextareaAutosize
+            aria-label="minimum height"
+            maxRows={4}
+            placeholder="Mô tả"
+            style={{ width: "100%", marginTop: "10px" }}
             margin="dense"
             value={selectedProduct?.description}
             onChange={(e) =>
@@ -560,7 +572,8 @@ const ProductsManagement = () => {
                   category: e.target.value,
                 }))
               }
-              renderValue={(selected) => selected?.name || "Không có danh mục"}>
+              renderValue={(selected) => selected?.name || "Không có danh mục"}
+            >
               {categories.map((cat) => (
                 <MenuItem key={cat.id} value={cat}>
                   {cat.name}
@@ -590,7 +603,8 @@ const ProductsManagement = () => {
                     return size ? size?.name : "";
                   })
                   .join(", ")
-              }>
+              }
+            >
               {sizes.map((size) => (
                 <MenuItem key={size.id} value={size.id}>
                   {size.name}
@@ -616,7 +630,8 @@ const ProductsManagement = () => {
                 selected
                   .map((id) => colors.find((c) => c.id === id)?.name)
                   .join(", ")
-              }>
+              }
+            >
               {colors.map((color) => (
                 <MenuItem key={color?.id} value={color?.id}>
                   {color?.name}
@@ -652,7 +667,8 @@ const ProductsManagement = () => {
                       position: "absolute",
                       top: -10,
                       right: -20,
-                    }}>
+                    }}
+                  >
                     <DeleteIcon
                       sx={{
                         backgroundColor: "#fff",
@@ -678,7 +694,8 @@ const ProductsManagement = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
         <Alert severity={snackbar.severity} variant="filled">
           {snackbar.message}
         </Alert>

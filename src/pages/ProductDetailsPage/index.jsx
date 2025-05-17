@@ -299,7 +299,10 @@ const ProductDetails = () => {
         <Typography variant="h5" gutterBottom>
           Mô tả sản phẩm
         </Typography>
-        <Typography variant="body1" sx={{ color: "text.secondary" }}>
+        <Typography
+          variant="body1"
+          sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}
+        >
           {productData?.description || "Không có mô tả cho sản phẩm này."}
         </Typography>
       </Container>
