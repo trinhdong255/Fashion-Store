@@ -31,7 +31,7 @@ const NavMenu = () => {
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Gửi token ở đây
         },
       }
@@ -60,7 +60,9 @@ const NavMenu = () => {
       <Button component={Link} to="/contact" sx={buttonStyle}>
         Liên hệ
       </Button>
-      <Button component={Link} to="/about" sx={buttonStyle}>Về chúng tôi</Button>
+      <Button component={Link} to="/about" sx={buttonStyle}>
+        Về chúng tôi
+      </Button>
 
       <Menu
         anchorEl={categoryMenuAnchorEl}

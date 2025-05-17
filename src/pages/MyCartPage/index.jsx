@@ -17,8 +17,7 @@ const CheckMyCart = () => {
             <Typography
               variant="h4"
               fontWeight="bold"
-              sx={{ color: "text.primary" }}
-            >
+              sx={{ color: "text.primary" }}>
               GIỎ HÀNG CỦA BẠN
             </Typography>
           </Stack>

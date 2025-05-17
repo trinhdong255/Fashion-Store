@@ -46,7 +46,7 @@ const SwiperProducts = () => {
       "https://222.255.119.40/adamstore/v1/categories?pageNo=1&pageSize=10",
       {
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
@@ -64,7 +64,7 @@ const SwiperProducts = () => {
             `http://222.255.119.40:8080/adamstore/v1/products?pageNo=${pageNo}&pageSize=10`,
             {
               headers: {
-                "Content-Type": "application/json",
+                // "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }
@@ -150,8 +150,7 @@ const SwiperProducts = () => {
               "--swiper-navigation-color": "var(--text-color)",
               minHeight: 500,
               marginBottom: "20px",
-            }}
-          >
+            }}>
             {isLoading ? (
               <SwiperSlide>
                 <Typography>Đang tải sản phẩm...</Typography>
@@ -168,8 +167,7 @@ const SwiperProducts = () => {
                       navigate(`/product-detail/${product.id}`, {
                         state: { imageUrl: product.images?.[0]?.imageUrl },
                       })
-                    }
-                  >
+                    }>
                     <CardActionArea sx={{ minHeight: "100%" }}>
                       <CardMedia
                         component="img"
@@ -193,27 +191,29 @@ const SwiperProducts = () => {
                           }}
                           gutterBottom
                           variant="h6"
-                          component="div"
-                        >
+                          component="div">
                           {product.name}
                         </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                          }}>
                           <Typography
                             gutterBottom
                             variant="body2"
-                            component="div"
-                          >
+                            component="div">
                             Đánh giá: {product.averageRating || 0}
                           </Typography>
                           <Typography
                             gutterBottom
                             variant="body2"
-                            component="div"
-                          >
+                            component="div">
                             Đã bán: {product.soldQuantity || 0}
                           </Typography>
                         </Box>
-                        
+
                         <Typography
                           gutterBottom
                           variant="body1"
@@ -222,15 +222,13 @@ const SwiperProducts = () => {
                             display: "flex",
                             flexDirection: "row",
                             alignItems: "center",
-                          }}
-                        >
+                          }}>
                           <Typography
                             variant="body2"
                             sx={{
                               color: "text.primary",
                               fontSize: "1.2rem",
-                            }}
-                          >
+                            }}>
                             {product.price?.toLocaleString("vi-VN")} VNĐ
                           </Typography>
                         </Typography>
@@ -253,8 +251,7 @@ const SwiperProducts = () => {
                   marginBottom: "100px",
                   padding: "12px 24px",
                 }}
-                onClick={handleClick}
-              >
+                onClick={handleClick}>
                 XEM THÊM
               </Button>
             </Stack>

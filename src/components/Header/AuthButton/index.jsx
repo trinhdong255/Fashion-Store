@@ -33,7 +33,8 @@ const AuthButton = () => {
 
         if (res.ok) {
           const data = await res.json();
-          const storedAvatar = localStorage.getItem("userAvatar") || data.result.avatarUrl;
+          const storedAvatar =
+            localStorage.getItem("userAvatar") || data.result.avatarUrl;
           setUserInfo({ ...data.result, avatarUrl: storedAvatar });
         } else {
           localStorage.removeItem("token");
@@ -64,7 +65,7 @@ const AuthButton = () => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
           },
           body: JSON.stringify({
             accessToken: token,
@@ -95,9 +96,7 @@ const AuthButton = () => {
             onClick={handleMenuOpen}
             sx={{ cursor: "pointer" }}>
             <Avatar src={userInfo.avatarUrl} alt="" />
-            <Typography sx={{ marginLeft: "5px" }}>
-              {userInfo.name}
-            </Typography>
+            <Typography sx={{ marginLeft: "5px" }}>{userInfo.name}</Typography>
           </Stack>
 
           <Menu
@@ -105,9 +104,7 @@ const AuthButton = () => {
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}>
             <MenuItem
-              onClick={() =>
-                navigate(`/accountInform/profile/${userInfo.id}`)
-              }>
+              onClick={() => navigate(`/accountInform/profile/${userInfo.id}`)}>
               Thông tin tài khoản
             </MenuItem>
             <MenuItem onClick={() => navigate("/my-orders")}>

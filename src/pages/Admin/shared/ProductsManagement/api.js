@@ -5,7 +5,7 @@ export const fetchCategories = async () => {
     "https://222.255.119.40/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
     {
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -26,7 +26,7 @@ export const fetchSize = async () => {
     "https://222.255.119.40/adamstore/v1/sizes?pageNo=1&pageSize=10",
     {
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -47,7 +47,7 @@ export const fetchColor = async () => {
     "https://222.255.119.40/adamstore/v1/colors?pageNo=1&pageSize=100",
     {
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -98,17 +98,14 @@ export const handleUpload = async (file) => {
 export const createProduct = async (productData) => {
   const token = localStorage.getItem("accessToken");
 
-  const response = await fetch(
-    "https://222.255.119.40/adamstore/v1/products",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(productData),
-    }
-  );
+  const response = await fetch("https://222.255.119.40/adamstore/v1/products", {
+    method: "POST",
+    headers: {
+      // "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(productData),
+  });
 
   if (!response.ok) {
     throw new Error("Thêm sản phẩm thất bại");
@@ -124,7 +121,7 @@ export const fetchProduct = async () => {
     "https://222.255.119.40/adamstore/v1/products/admin?pageNo=1&pageSize=100",
     {
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -194,7 +191,7 @@ export const deleteProduct = async (productId, token) => {
       {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
@@ -220,7 +217,7 @@ export const restoreProduct = async (productId, token) => {
       {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
@@ -241,7 +238,7 @@ export async function updateProduct(productId, payload, token) {
     {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),

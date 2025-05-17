@@ -93,8 +93,7 @@ const BranchesManagement = () => {
               <IconButton
                 color="success"
                 onClick={row.onRestoreClick}
-                title="Khôi phục"
-              >
+                title="Khôi phục">
                 <RestartAltIcon />
               </IconButton>
             ) : (
@@ -126,7 +125,7 @@ const BranchesManagement = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
           },
         }
       );
@@ -175,7 +174,7 @@ const BranchesManagement = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
           },
         }
       );
@@ -277,8 +276,7 @@ const BranchesManagement = () => {
           <Button
             variant="contained"
             onClick={() => setOpenDialog(true)}
-            fullWidth
-          >
+            fullWidth>
             Thêm chi nhánh
           </Button>
         </Grid>
@@ -348,8 +346,7 @@ const BranchesManagement = () => {
               sx={{ mt: 2 }}
               SelectProps={{
                 native: true,
-              }}
-            >
+              }}>
               <option value="Hoạt động">Hoạt động</option>
               <option value="Ngừng hoạt động">Ngừng hoạt động</option>
             </TextField>
@@ -359,8 +356,7 @@ const BranchesManagement = () => {
           <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
           <Button
             onClick={editBranch ? handleUpdateBranch : handleAddBranch}
-            variant="contained"
-          >
+            variant="contained">
             {editBranch ? "Cập nhật" : "Thêm"}
           </Button>
         </DialogActions>
@@ -369,8 +365,7 @@ const BranchesManagement = () => {
       {/* Dialog xác nhận xóa */}
       <Dialog
         open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
+        onClose={() => setOpenDeleteDialog(false)}>
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
           <Typography>
@@ -383,8 +378,7 @@ const BranchesManagement = () => {
           <Button
             onClick={handleDeleteBranch}
             color="error"
-            variant="contained"
-          >
+            variant="contained">
             Xóa
           </Button>
         </DialogActions>

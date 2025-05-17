@@ -44,7 +44,7 @@ const Home = () => {
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Gửi token ở đây
         },
       }
@@ -74,7 +74,6 @@ const Home = () => {
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
-  
 
   return (
     <>
@@ -142,10 +141,8 @@ const Home = () => {
       </Container>
 
       <Container maxWidth="lg">
-
-      <SwiperProducts />
+        <SwiperProducts />
       </Container>
-
     </>
   );
 };
