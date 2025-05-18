@@ -37,7 +37,7 @@ const BranchesManagement = () => {
     const fetchBranches = async () => {
       try {
         const response = await axios.get(
-          "https://222.255.119.40/adamstore/v1/branches/admin",
+          "http://222.255.119.40:8080/adamstore/v1/branches/admin",
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { pageNo: 1, pageSize: 10 },
@@ -116,7 +116,7 @@ const BranchesManagement = () => {
       }
 
       await axios.post(
-        "https://222.255.119.40/adamstore/v1/branches",
+        "http://222.255.119.40:8080/adamstore/v1/branches",
         {
           name: newBranch.name,
           location: newBranch.location,
@@ -131,7 +131,7 @@ const BranchesManagement = () => {
       );
 
       const response = await axios.get(
-        "https://222.255.119.40/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },
@@ -180,7 +180,7 @@ const BranchesManagement = () => {
       );
 
       const response = await axios.get(
-        "https://222.255.119.40/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },
@@ -217,7 +217,7 @@ const BranchesManagement = () => {
       );
 
       const response = await axios.get(
-        "https://222.255.119.40/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },
@@ -253,7 +253,7 @@ const BranchesManagement = () => {
       );
 
       const response = await axios.get(
-        "https://222.255.119.40/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },

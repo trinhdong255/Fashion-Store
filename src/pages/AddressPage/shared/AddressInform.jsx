@@ -42,7 +42,7 @@ const AddressInform = () => {
 
     axios
       .get(
-        "https://222.255.119.40/adamstore/v1/provinces?pageNo=1&pageSize=63",
+        "http://222.255.119.40:8080/adamstore/v1/provinces?pageNo=1&pageSize=63",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -106,7 +106,7 @@ const AddressInform = () => {
 
     try {
       await axios.post(
-        "https://222.255.119.40/adamstore/v1/addresses",
+        "http://222.255.119.40:8080/adamstore/v1/addresses",
         data,
         {
           headers: { Authorization: `Bearer ${token}` },

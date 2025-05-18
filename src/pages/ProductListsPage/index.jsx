@@ -45,7 +45,7 @@ const ProductLists = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "https://222.255.119.40/adamstore/v1/products/search",
+          "http://222.255.119.40:8080/adamstore/v1/products/search",
           {
             params: {
               pageNo: 1,
