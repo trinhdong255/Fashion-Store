@@ -74,6 +74,59 @@ const Home = () => {
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+  // Xử lý callback VNPAY nếu có
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const responseCode = queryParams.get("vnp_ResponseCode");
+    const orderId = queryParams.get("vnp_TxnRef");
+    const token = localStorage.getItem("accessToken");
+    if (responseCode === "00" && orderId) {
+      fetch("http://222.255.119.40:8080/adamstore/v1/orders/vn-pay-callback", {
+        method: "POST",
+        headers: {
+          // "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          responseCode: responseCode,
+          orderId: Number(orderId),
+        }),
+      })
+        .then(async (res) => {
+          const text = await res.text(); // lấy raw text
+          console.log("↩️ Response status:", res.status);
+          console.log("↩️ Response text:", text);
+
+          try {
+            const json = JSON.parse(text);
+            console.log("✅ Parsed JSON:", json);
+            setSnackbar({
+              open: true,
+              message: "Thanh toán thành công!",
+              severity: "success",
+            });
+          } catch (error) {
+            console.error("❌ Không parse được JSON:", error);
+            setSnackbar({
+              open: true,
+              message: "Lỗi phản hồi từ server khi xác nhận thanh toán.",
+              severity: "error",
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("❌ Lỗi callback thanh toán:", error);
+          setSnackbar({
+            open: true,
+            message: "Lỗi không thể kết nối callback.",
+            severity: "error",
+          });
+        });
+
+      // Xoá query params để tránh xử lý lại nếu reload
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, [location.search]);
 
   return (
     <>
