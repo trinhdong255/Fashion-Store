@@ -2,7 +2,7 @@ export const fetchPromotion = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/promotions?pageNo=1&pageSize=10",
+    "http://localhost:8080/adamstore/v1/promotions?pageNo=1&pageSize=10",
     {
       headers: {
         // "Content-Type": "application/json",
@@ -23,7 +23,7 @@ export const createPromotion = async (promotionData) => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/promotions",
+    "http://localhost:8080/adamstore/v1/promotions",
     {
       method: "POST",
       headers: {

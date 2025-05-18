@@ -139,7 +139,7 @@ const ProductActions = ({
       } else {
         // Thêm mới nếu sản phẩm chưa tồn tại
         await axios.post(
-          "http://222.255.119.40:8080/adamstore/v1/cart-items",
+          "http://localhost:8080/adamstore/v1/cart-items",
           {
             productVariantId: cartItem.productVariantId,
             quantity: cartItem.quantity,

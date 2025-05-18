@@ -56,7 +56,7 @@ const CategoriesManagement = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      "http://222.255.119.40:8080/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
+      "http://localhost:8080/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
       {
         method: "GET",
         headers: {
@@ -88,7 +88,7 @@ const CategoriesManagement = () => {
 
     const token = localStorage.getItem("accessToken");
 
-    fetch("http://222.255.119.40:8080/adamstore/v1/categories", {
+    fetch("http://localhost:8080/adamstore/v1/categories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

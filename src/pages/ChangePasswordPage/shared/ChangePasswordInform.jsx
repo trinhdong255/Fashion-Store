@@ -65,7 +65,7 @@ const ChangePasswordInform = () => {
         setIsLoading(true);
         const accessToken = localStorage.getItem("accessToken");
         const response = await axios.get(
-          "http://222.255.119.40:8080/adamstore/v1/auth/myInfo",
+          "http://localhost:8080/adamstore/v1/auth/myInfo",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -105,7 +105,7 @@ const ChangePasswordInform = () => {
       setIsLoading(true);
       const accessToken = localStorage.getItem("accessToken");
       await axios.post(
-        "http://222.255.119.40:8080/adamstore/v1/auth/change-password",
+        "http://localhost:8080/adamstore/v1/auth/change-password",
         {
           oldPassword: data.currentPassword,
           newPassword: data.newPassword,

@@ -2,7 +2,7 @@ export const fetchOrder = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/orders?pageNo=1&pageSize=10",
+    "http://localhost:8080/adamstore/v1/orders?pageNo=1&pageSize=10",
     {
       headers: {
         // "Content-Type": "application/json",
