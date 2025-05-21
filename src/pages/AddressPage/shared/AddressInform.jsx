@@ -58,7 +58,7 @@ const AddressInform = () => {
 
     axios
       .get(
-        `http://222.255.119.40:8080/adamstore/v1/provinces/${selectedCity}/districts?pageNo=1&pageSize=30`,
+        `http://localhost:8080/adamstore/v1/provinces/${selectedCity}/districts?pageNo=1&pageSize=30`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -74,7 +74,7 @@ const AddressInform = () => {
 
     axios
       .get(
-        `http://222.255.119.40:8080/adamstore/v1/districts/${selectedDistrict}/wards?pageNo=1&pageSize=100`,
+        `http://localhost:8080/adamstore/v1/districts/${selectedDistrict}/wards?pageNo=1&pageSize=100`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

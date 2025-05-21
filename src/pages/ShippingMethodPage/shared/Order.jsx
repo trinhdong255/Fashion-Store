@@ -160,7 +160,7 @@ const Order = () => {
             }
             try {
               const response = await axios.get(
-                `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+                `http://localhost:8080/adamstore/v1/products/${productId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
               );
               return {
@@ -367,7 +367,7 @@ const Order = () => {
 
       if (selectedPaymentMethod === "VNPAY") {
         const paymentResponse = await axios.get(
-          `http://222.255.119.40:8080/adamstore/v1/orders/${orderId}/vn-pay`,
+          `http://localhost:8080/adamstore/v1/orders/${orderId}/vn-pay`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const paymentUrl = paymentResponse.data.result.paymentUrl;

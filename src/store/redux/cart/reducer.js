@@ -152,7 +152,7 @@ export const clearCartItemsFromApi = () => async (dispatch, getState) => {
     // Xóa từng mục
     for (const item of cartItems) {
       await axios.delete(
-        `http://222.255.119.40:8080/adamstore/v1/cart-items/${item.id}`,
+        `http://localhost:8080/adamstore/v1/cart-items/${item.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
     }
@@ -182,7 +182,7 @@ export const updateCartItemQuantity = (id, newQuantity) => async (dispatch, getS
 
   try {
     await axios.put(
-      `http://222.255.119.40:8080/adamstore/v1/cart-items/${id}`,
+      `http://localhost:8080/adamstore/v1/cart-items/${id}`,
       { quantity: newQuantity },
       { headers: { Authorization: `Bearer ${token}` } }
     );

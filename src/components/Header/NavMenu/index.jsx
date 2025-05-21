@@ -31,7 +31,7 @@ const NavMenu = () => {
       {
         method: "GET",
         headers: {
-          // "Content-Type": "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Gửi token ở đây
         },
       }

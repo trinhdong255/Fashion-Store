@@ -5,7 +5,7 @@ export const fetchOrder = async () => {
     "http://localhost:8080/adamstore/v1/orders?pageNo=1&pageSize=10",
     {
       headers: {
-        // "Content-Type": "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -21,7 +21,7 @@ export const fetchOrder = async () => {
 // export const deleteOrder = async (productId, token) => {
 //   try {
 //     const res = await fetch(
-//       `http://222.255.119.40:8080/adamstore/v1/ordersId/${productId}`,
+//       `http://localhost:8080/adamstore/v1/ordersId/${productId}`,
 //       {
 //         method: "DELETE",
 //         headers: {

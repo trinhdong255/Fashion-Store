@@ -125,7 +125,7 @@ const BranchesManagement = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            // "Content-Type": "application/json",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -164,7 +164,7 @@ const BranchesManagement = () => {
       }
 
       await axios.put(
-        `http://222.255.119.40:8080/adamstore/v1/branches/${editBranch.id}`,
+        `http://localhost:8080/adamstore/v1/branches/${editBranch.id}`,
         {
           name: newBranch.name,
           location: newBranch.location,
@@ -174,7 +174,7 @@ const BranchesManagement = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            // "Content-Type": "application/json",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -210,7 +210,7 @@ const BranchesManagement = () => {
       }
 
       await axios.delete(
-        `http://222.255.119.40:8080/adamstore/v1/branches/${branchToDelete}`,
+        `http://localhost:8080/adamstore/v1/branches/${branchToDelete}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -243,7 +243,7 @@ const BranchesManagement = () => {
       const isRestoring = branch.status === "INACTIVE";
 
       await axios.patch(
-        `http://222.255.119.40:8080/adamstore/v1/branches/${id}/${
+        `http://localhost:8080/adamstore/v1/branches/${id}/${
           isRestoring ? "restore" : "deactivate"
         }`,
         {},

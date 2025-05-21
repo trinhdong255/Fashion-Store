@@ -44,7 +44,7 @@ const Home = () => {
       {
         method: "GET",
         headers: {
-          // "Content-Type": "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Gửi token ở đây
         },
       }
@@ -81,10 +81,10 @@ const Home = () => {
     const orderId = queryParams.get("vnp_TxnRef");
     const token = localStorage.getItem("accessToken");
     if (responseCode === "00" && orderId) {
-      fetch("http://222.255.119.40:8080/adamstore/v1/orders/vn-pay-callback", {
+      fetch("http://localhost:8080/adamstore/v1/orders/vn-pay-callback", {
         method: "POST",
         headers: {
-          // "Content-Type": "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({

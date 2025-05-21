@@ -51,7 +51,7 @@ const ProfileInform = () => {
     if (!id || !token) return;
 
     axios
-      .get(`http://222.255.119.40:8080/adamstore/v1/users/${id}`, {
+      .get(`http://localhost:8080/adamstore/v1/users/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -140,7 +140,7 @@ const ProfileInform = () => {
     };
     try {
       const res = await axios.put(
-        `http://222.255.119.40:8080/adamstore/v1/users/${id}`,
+        `http://localhost:8080/adamstore/v1/users/${id}`,
         updatedUser,
         {
           headers: {

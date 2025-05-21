@@ -5,7 +5,7 @@ export const fetchPromotion = async () => {
     "http://localhost:8080/adamstore/v1/promotions?pageNo=1&pageSize=10",
     {
       headers: {
-        // "Content-Type": "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
@@ -27,7 +27,7 @@ export const createPromotion = async (promotionData) => {
     {
       method: "POST",
       headers: {
-        // "Content-Type": "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(promotionData),
@@ -44,11 +44,11 @@ export const createPromotion = async (promotionData) => {
 export const deletePromotion = async (promotionId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/promotions/${promotionId}`,
+      `http://localhost:8080/adamstore/v1/promotions/${promotionId}`,
       {
         method: "DELETE",
         headers: {
-          // "Content-Type": "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
@@ -70,11 +70,11 @@ export const deletePromotion = async (promotionId, token) => {
 export const restorePromotion = async (promotionId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/promotions/${promotionId}/restore`,
+      `http://localhost:8080/adamstore/v1/promotions/${promotionId}/restore`,
       {
         method: "PATCH",
         headers: {
-          // "Content-Type": "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
@@ -91,11 +91,11 @@ export const restorePromotion = async (promotionId, token) => {
 
 export async function updatePromotion(promotionId, payload, token) {
   const response = await fetch(
-    `http://222.255.119.40:8080/adamstore/v1/promotions/${promotionId}`,
+    `http://localhost:8080/adamstore/v1/promotions/${promotionId}`,
     {
       method: "PUT",
       headers: {
-        // "Content-Type": "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),

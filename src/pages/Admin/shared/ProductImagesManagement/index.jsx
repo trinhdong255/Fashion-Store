@@ -75,7 +75,7 @@ const ProductImagesManagement = () => {
     const token = localStorage.getItem("accessToken");
     try {
       const res = await fetch(
-        `http://222.255.119.40:8080/adamstore/v1/file/delete/${id}`,
+        `http://localhost:8080/adamstore/v1/file/delete/${id}`,
         {
           method: "DELETE",
           headers: {
