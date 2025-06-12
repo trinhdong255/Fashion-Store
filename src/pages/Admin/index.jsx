@@ -38,11 +38,11 @@ const Admin = () => {
 
       const [dailyRes, monthlyRes] = await Promise.all([
         axios.get(
-          `http://localhost:8080/adamstore/v1/revenues/daily-orders?startDate=${formattedStart}&endDate=${formattedEnd}`,
+          `http://222.255.119.40:8080/adamstore/v1/revenues/daily-orders?startDate=${formattedStart}&endDate=${formattedEnd}`,
           { headers: { Authorization: `Bearer ${token}` } }
         ),
         axios.get(
-          `http://localhost:8080/adamstore/v1/revenues/monthly?startDate=${formattedStart}&endDate=${formattedEnd}`,
+          `http://222.255.119.40:8080/adamstore/v1/revenues/monthly?startDate=${formattedStart}&endDate=${formattedEnd}`,
           { headers: { Authorization: `Bearer ${token}` } }
         ),
       ]);

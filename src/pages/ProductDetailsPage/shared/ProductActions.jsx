@@ -127,7 +127,7 @@ const ProductActions = ({
         // Cập nhật số lượng nếu sản phẩm đã tồn tại
         const newQuantity = existingItem.quantity + selectedQuantity;
         await axios.put(
-          `http://localhost:8080/adamstore/v1/cart-items/${existingItem.id}`,
+          `http://222.255.119.40:8080/adamstore/v1/cart-items/${existingItem.id}`,
           { quantity: newQuantity },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -139,7 +139,7 @@ const ProductActions = ({
       } else {
         // Thêm mới nếu sản phẩm chưa tồn tại
         await axios.post(
-          "http://localhost:8080/adamstore/v1/cart-items",
+          "http://222.255.119.40:8080/adamstore/v1/cart-items",
           {
             productVariantId: cartItem.productVariantId,
             quantity: cartItem.quantity,
@@ -183,7 +183,7 @@ const ProductActions = ({
   try {
     // Lấy hình ảnh từ API
     const response = await axios.get(
-      `http://localhost:8080/adamstore/v1/products/${products.id}`,
+      `http://222.255.119.40:8080/adamstore/v1/products/${products.id}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     orderItem.image = response.data.result.images?.[0]?.imageUrl || "/default.jpg";

@@ -37,7 +37,7 @@ const BranchesManagement = () => {
     const fetchBranches = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8080/adamstore/v1/branches/admin",
+          "http://222.255.119.40:8080/adamstore/v1/branches/admin",
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { pageNo: 1, pageSize: 10 },
@@ -116,7 +116,7 @@ const BranchesManagement = () => {
       }
 
       await axios.post(
-        "http://localhost:8080/adamstore/v1/branches",
+        "http://222.255.119.40:8080/adamstore/v1/branches",
         {
           name: newBranch.name,
           location: newBranch.location,
@@ -131,7 +131,7 @@ const BranchesManagement = () => {
       );
 
       const response = await axios.get(
-        "http://localhost:8080/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },
@@ -164,7 +164,7 @@ const BranchesManagement = () => {
       }
 
       await axios.put(
-        `http://localhost:8080/adamstore/v1/branches/${editBranch.id}`,
+        `http://222.255.119.40:8080/adamstore/v1/branches/${editBranch.id}`,
         {
           name: newBranch.name,
           location: newBranch.location,
@@ -180,7 +180,7 @@ const BranchesManagement = () => {
       );
 
       const response = await axios.get(
-        "http://localhost:8080/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },
@@ -210,14 +210,14 @@ const BranchesManagement = () => {
       }
 
       await axios.delete(
-        `http://localhost:8080/adamstore/v1/branches/${branchToDelete}`,
+        `http://222.255.119.40:8080/adamstore/v1/branches/${branchToDelete}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       const response = await axios.get(
-        "http://localhost:8080/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },
@@ -243,7 +243,7 @@ const BranchesManagement = () => {
       const isRestoring = branch.status === "INACTIVE";
 
       await axios.patch(
-        `http://localhost:8080/adamstore/v1/branches/${id}/${
+        `http://222.255.119.40:8080/adamstore/v1/branches/${id}/${
           isRestoring ? "restore" : "deactivate"
         }`,
         {},
@@ -253,7 +253,7 @@ const BranchesManagement = () => {
       );
 
       const response = await axios.get(
-        "http://localhost:8080/adamstore/v1/branches/admin",
+        "http://222.255.119.40:8080/adamstore/v1/branches/admin",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { pageNo: 1, pageSize: 10 },

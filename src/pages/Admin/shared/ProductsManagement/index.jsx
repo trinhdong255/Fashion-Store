@@ -198,7 +198,7 @@ const ProductsManagement = () => {
     try {
       // Gọi API xóa ảnh
       const response = await axios.delete(
-        `http://localhost:8080/adamstore/v1/file/delete/${imageId}`,
+        `http://222.255.119.40:8080/adamstore/v1/file/delete/${imageId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

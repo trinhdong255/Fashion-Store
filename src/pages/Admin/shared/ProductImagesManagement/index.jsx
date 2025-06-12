@@ -22,7 +22,7 @@ const ProductImagesManagement = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      "http://localhost:8080/adamstore/v1/file/all?pageNo=1&pageSize=100",
+      "http://222.255.119.40:8080/adamstore/v1/file/all?pageNo=1&pageSize=100",
       {
         method: "GET",
         headers: {
@@ -52,7 +52,7 @@ const ProductImagesManagement = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:8080/adamstore/v1/file/upload/image",
+        "http://222.255.119.40:8080/adamstore/v1/file/upload/image",
         {
           method: "POST",
           headers: {
@@ -75,7 +75,7 @@ const ProductImagesManagement = () => {
     const token = localStorage.getItem("accessToken");
     try {
       const res = await fetch(
-        `http://localhost:8080/adamstore/v1/file/delete/${id}`,
+        `http://222.255.119.40:8080/adamstore/v1/file/delete/${id}`,
         {
           method: "DELETE",
           headers: {

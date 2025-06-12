@@ -43,7 +43,7 @@ const SwiperProducts = () => {
 
     // Fetch categories
     const fetchCategories = axios.get(
-      "http://localhost:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
+      "http://222.255.119.40:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
       {
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +61,7 @@ const SwiperProducts = () => {
       while (hasMore) {
         try {
           const response = await axios.get(
-            `http://localhost:8080/adamstore/v1/products?pageNo=${pageNo}&pageSize=10`,
+            `http://222.255.119.40:8080/adamstore/v1/products?pageNo=${pageNo}&pageSize=10`,
             {
               headers: {
                 "Content-Type": "application/json",

@@ -24,7 +24,7 @@ const ProductLists = () => {
     const token = localStorage.getItem("accessToken");
     axios
       .get(
-        `http://localhost:8080/adamstore/v1/categories/${categoryId}/products`,
+        `http://222.255.119.40:8080/adamstore/v1/categories/${categoryId}/products`,
         {
           params: { pageNo: 1, pageSize: 10 },
           headers: { Authorization: `Bearer ${token}` },
@@ -45,7 +45,7 @@ const ProductLists = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "http://localhost:8080/adamstore/v1/products/search",
+          "http://222.255.119.40:8080/adamstore/v1/products/search",
           {
             params: {
               pageNo: 1,

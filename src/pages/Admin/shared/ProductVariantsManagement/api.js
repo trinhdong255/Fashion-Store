@@ -2,7 +2,7 @@ export const fetchProduct = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://localhost:8080/adamstore/v1/products/admin?pageNo=1&pageSize=100",
+    "http://222.255.119.40:8080/adamstore/v1/products/admin?pageNo=1&pageSize=100",
     {
       headers: {
         "Content-Type": "application/json",
@@ -23,7 +23,7 @@ export const fetchProductVariant = async (productId) => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    `http://localhost:8080/adamstore/v1/products/${productId}/product-variants/admin?pageNo=1&pageSize=100`,
+    `http://222.255.119.40:8080/adamstore/v1/products/${productId}/product-variants/admin?pageNo=1&pageSize=100`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export const fetchProductVariant = async (productId) => {
 
 export async function updateProductVariant(productId, payload, token) {
   const response = await fetch(
-    `http://localhost:8080/adamstore/v1/product-variants/${productId}`,
+    `http://222.255.119.40:8080/adamstore/v1/product-variants/${productId}`,
     {
       method: "PUT",
       headers: {
@@ -64,7 +64,7 @@ export async function updateProductVariant(productId, payload, token) {
 export const deleteProductVariant = async (productId, token) => {
   try {
     const res = await fetch(
-      `http://localhost:8080/adamstore/v1/product-variants/${productId}`,
+      `http://222.255.119.40:8080/adamstore/v1/product-variants/${productId}`,
       {
         method: "DELETE",
         headers: {

@@ -95,7 +95,7 @@ const Order = () => {
     const fetchAddresses = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/adamstore/v1/users/addresses?pageNo=1&pageSize=10",
+          "http://222.255.119.40:8080/adamstore/v1/users/addresses?pageNo=1&pageSize=10",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const addressList = res.data.result.items;
@@ -123,7 +123,7 @@ const Order = () => {
     const fetchPromotions = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/adamstore/v1/users/promotions/available?pageNo=1&pageSize=10&sortBy=discountPercent-desc",
+          "http://222.255.119.40:8080/adamstore/v1/users/promotions/available?pageNo=1&pageSize=10&sortBy=discountPercent-desc",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const promotionList = res.data.result.items;
@@ -160,7 +160,7 @@ const Order = () => {
             }
             try {
               const response = await axios.get(
-                `http://localhost:8080/adamstore/v1/products/${productId}`,
+                `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
               );
               return {
@@ -214,7 +214,7 @@ const Order = () => {
 
       axios
         .post(
-          "http://localhost:8080/adamstore/v1/shipping/calculate-fee",
+          "http://222.255.119.40:8080/adamstore/v1/shipping/calculate-fee",
           { addressId: selectedAddress, orderItems },
           { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -353,7 +353,7 @@ const Order = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/adamstore/v1/orders",
+        "http://222.255.119.40:8080/adamstore/v1/orders",
         {
           addressId: selectedAddress,
           orderItems,
@@ -367,7 +367,7 @@ const Order = () => {
 
       if (selectedPaymentMethod === "VNPAY") {
         const paymentResponse = await axios.get(
-          `http://localhost:8080/adamstore/v1/orders/${orderId}/vn-pay`,
+          `http://222.255.119.40:8080/adamstore/v1/orders/${orderId}/vn-pay`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const paymentUrl = paymentResponse.data.result.paymentUrl;

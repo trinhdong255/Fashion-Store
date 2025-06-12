@@ -35,7 +35,7 @@ export const fetchUserInfo = () => async (dispatch) => {
     }
 
     const response = await axios.get(
-      "http://localhost:8080/adamstore/v1/auth/myInfo",
+      "http://222.255.119.40:8080/adamstore/v1/auth/myInfo",
       {
         headers: { Authorization: `Bearer ${token}` },
       }
