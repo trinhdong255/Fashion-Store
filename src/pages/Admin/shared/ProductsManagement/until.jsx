@@ -1,6 +1,5 @@
-// eslint-disable-next-line import/order
+/* eslint-disable react/prop-types */
 import { IconButton } from "@mui/material";
-// eslint-disable-next-line import/order
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -140,21 +139,24 @@ export const columns = [
           <IconButton
             color="primary"
             onClick={() => params.row.onEdit(params.row)}
-            title="Chỉnh sửa">
+            title="Chỉnh sửa"
+          >
             <EditIcon />
           </IconButton>
           {isDisabled ? (
             <IconButton
               color="success"
               onClick={() => row.onRestoreClick(row.id, row.name)} // Gọi function khôi phục
-              title="Khôi phục">
+              title="Khôi phục"
+            >
               <RestartAltIcon />
             </IconButton>
           ) : (
             <IconButton
               color="error"
               onClick={() => row.onDelete(row.id)}
-              title="Xóa">
+              title="Xóa"
+            >
               <DeleteIcon />
             </IconButton>
           )}

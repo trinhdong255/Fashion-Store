@@ -17,29 +17,3 @@ export const fetchOrder = async () => {
   const data = await response.json();
   return data.result.items;
 };
-
-// export const deleteOrder = async (productId, token) => {
-//   try {
-//     const res = await fetch(
-//       `${import.meta.env.VITE_API_URL}/v1/ordersId/${productId}`,
-//       {
-//         method: "DELETE",
-//         headers: {
-//          // "Content-Type": "application/json",
-//           Authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
-
-//     // Nếu có lỗi từ server, parse lỗi từ response
-//     if (!res.ok) {
-//       const errorData = await res.json().catch(() => null); // tránh lỗi nếu không phải JSON
-//       const message = errorData?.message || "Lỗi không xác định từ máy chủ";
-//       throw new Error(message);
-//     }
-
-//     return true;
-//   } catch (err) {
-//     throw new Error(err.message || "Lỗi kết nối khi xóa sản phẩm");
-//   }
-// };

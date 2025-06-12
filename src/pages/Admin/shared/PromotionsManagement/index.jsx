@@ -1,5 +1,5 @@
 /* eslint-disable import/no-duplicates */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Typography,
@@ -213,21 +213,24 @@ const PromotionsManagement = () => {
             <IconButton
               color="primary"
               onClick={() => params.row.onEdit(params.row)}
-              title="Chỉnh sửa">
+              title="Chỉnh sửa"
+            >
               <EditIcon />
             </IconButton>
             {isDisabled ? (
               <IconButton
                 color="success"
                 onClick={() => row.onRestoreClick(row.id, row.name)} // Gọi function khôi phục
-                title="Khôi phục">
+                title="Khôi phục"
+              >
                 <RestartAltIcon />
               </IconButton>
             ) : (
               <IconButton
                 color="error"
                 onClick={() => row.onDelete(row.id)}
-                title="Xóa">
+                title="Xóa"
+              >
                 <DeleteIcon />
               </IconButton>
             )}
@@ -244,7 +247,8 @@ const PromotionsManagement = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-        }}>
+        }}
+      >
         <Typography variant="h5" gutterBottom>
           Quản lý khuyến mãi
         </Typography>
@@ -252,7 +256,8 @@ const PromotionsManagement = () => {
           <Button
             variant="contained"
             onClick={() => setOpenDialog(true)}
-            fullWidth>
+            fullWidth
+          >
             Thêm khuyến mãi
           </Button>
         </Box>
@@ -340,7 +345,8 @@ const PromotionsManagement = () => {
       {/* Dialog xác nhận xóa */}
       <Dialog
         open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}>
+        onClose={() => setOpenDeleteDialog(false)}
+      >
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
           <Typography>
@@ -358,11 +364,13 @@ const PromotionsManagement = () => {
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
-        onClose={handleCloseSnackbar}>
+        onClose={handleCloseSnackbar}
+      >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
-          sx={{ width: "100%" }}>
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

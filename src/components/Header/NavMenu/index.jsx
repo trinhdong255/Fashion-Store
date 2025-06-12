@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const NavMenu = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [categoryMenuAnchorEl, setCategoryMenuAnchorEl] = useState(null);
   const [categories, setCategories] = useState([]);
   const openCategoryMenu = Boolean(categoryMenuAnchorEl);
@@ -61,7 +60,8 @@ const NavMenu = () => {
       <Menu
         anchorEl={categoryMenuAnchorEl}
         open={openCategoryMenu}
-        onClose={handleMenuClose}>
+        onClose={handleMenuClose}
+      >
         {categories.map((category) => (
           <MenuItem
             key={category.id}
@@ -77,7 +77,8 @@ const NavMenu = () => {
                 fontWeight: "bold",
                 color: "#fff",
               },
-            }}>
+            }}
+          >
             {category.name}
           </MenuItem>
         ))}

@@ -76,7 +76,8 @@ const Footer = () => {
           paddingTop: 40,
           paddingBottom: 16,
           borderTop: "1px solid #575655",
-        }}>
+        }}
+      >
         Copyright @2025 by Fashion Store. All Rights Reserved.
       </span>
     </Stack>

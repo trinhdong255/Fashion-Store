@@ -19,7 +19,8 @@ const Header = () => {
             fontSize: 30,
             fontWeight: "bold",
             textTransform: "uppercase",
-          }}>
+          }}
+        >
           FASHION STORE
         </Link>
         <NavMenu />

@@ -107,5 +107,5 @@ export async function updatePromotion(promotionId, payload, token) {
     throw new Error(errorText || "Lỗi khi cập nhật sản phẩm");
   }
 
-  return await response.json(); 
+  return await response.json();
 }

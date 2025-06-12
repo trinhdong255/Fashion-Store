@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-// layouts/DashboardLayout/index.jsx
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -22,12 +21,9 @@ import CategoryIcon from "@mui/icons-material/Category";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useTheme } from "/src/context/ThemeProvider";
 import {
-  Chat,
   Height,
-  Image,
   Inventory,
   LocalOffer,
-  Lock,
   Palette,
   Payment,
   People,
@@ -114,26 +110,17 @@ const DashboardLayoutWrapper = ({ children }) => {
       title: "Vai trò",
       icon: <People />,
     },
-        {
+    {
       path: "/admin/branchesManagement",
       title: "Chi nhánh",
       icon: <Store />,
     },
-    // {
-    //   path: "/admin/permissionsManagement",
-    //   title: "Quyền hạn",
-    //   icon: <Lock />,
-    // },
+
     {
       path: "/admin/paymentHistoriesManagement",
       title: "Lịch sử Thanh toán",
       icon: <Payment />,
     },
-    // {
-    //   path: "/admin/paymentHistoriesManagement",
-    //   title: "Đăng xuất",
-    //   icon: <Payment />,
-    // },
 
     {
       path: "/admin/promotionsManagement",
@@ -150,7 +137,8 @@ const DashboardLayoutWrapper = ({ children }) => {
           <Link
             to={item.path}
             key={item.path}
-            style={{ textDecoration: "none", color: "inherit" }}>
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
             <ListItem
               sx={{
                 "&:hover": {
@@ -162,7 +150,8 @@ const DashboardLayoutWrapper = ({ children }) => {
                       ? "#616161"
                       : "#e0e0e0"
                     : "transparent",
-              }}>
+              }}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText
                 primary={item.title}
@@ -183,7 +172,8 @@ const DashboardLayoutWrapper = ({ children }) => {
           backgroundColor: "#0984e3",
           color: "#fff",
         }}
-        onClick={handleLogout}>
+        onClick={handleLogout}
+      >
         Đăng xuất
       </Button>
     </div>
@@ -197,14 +187,16 @@ const DashboardLayoutWrapper = ({ children }) => {
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: mode === "dark" ? "#333333" : undefined,
           color: mode === "dark" ? "#ffffff" : undefined,
-        }}>
+        }}
+      >
         <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}>
+            sx={{ mr: 2, display: { sm: "none" } }}
+          >
             <Menu />
           </IconButton>
           <Typography
@@ -214,7 +206,8 @@ const DashboardLayoutWrapper = ({ children }) => {
             sx={{
               flexGrow: 1,
               color: mode === "dark" ? "#ffffff" : undefined,
-            }}>
+            }}
+          >
             Admin Dashboard
           </Typography>
           <Switch
@@ -236,7 +229,8 @@ const DashboardLayoutWrapper = ({ children }) => {
       </AppBar>
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      >
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -251,7 +245,8 @@ const DashboardLayoutWrapper = ({ children }) => {
               width: drawerWidth,
               backgroundColor: mode === "dark" ? "#212121" : undefined,
             },
-          }}>
+          }}
+        >
           {drawer}
         </Drawer>
         <Drawer
@@ -264,7 +259,8 @@ const DashboardLayoutWrapper = ({ children }) => {
               backgroundColor: mode === "dark" ? "#212121" : undefined,
             },
           }}
-          open>
+          open
+        >
           {drawer}
         </Drawer>
       </Box>
@@ -275,7 +271,8 @@ const DashboardLayoutWrapper = ({ children }) => {
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           backgroundColor: mode === "dark" ? "#000000" : undefined,
-        }}>
+        }}
+      >
         <Toolbar />
         {children}
       </Box>

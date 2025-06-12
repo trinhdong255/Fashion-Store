@@ -43,19 +43,15 @@ const initialFormState = {
 const ProductsManagement = () => {
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-
   const [status, setStatus] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-
   const [productToRestore, setProductToRestore] = useState(null);
-
   const { products, refetch } = useProducts();
   const filteredProducts = useFilteredProducts(
     products,
     selectedCategory,
     status
   );
-
   const [productForm, setProductForm] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);

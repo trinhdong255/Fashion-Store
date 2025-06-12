@@ -11,9 +11,9 @@ const About = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       console.log("Không tìm thấy token", token);
-      
+
       return;
-    } 
+    }
 
     const fetchBranches = async () => {
       try {

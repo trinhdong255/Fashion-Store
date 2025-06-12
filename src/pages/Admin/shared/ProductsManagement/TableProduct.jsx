@@ -1,6 +1,4 @@
-/* eslint-disable import/order */
 /* eslint-disable react/prop-types */
-
 import Paper from "@mui/material/Paper";
 import { columns, customLocaleText } from "./until";
 import { DataGrid } from "@mui/x-data-grid";

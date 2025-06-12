@@ -94,7 +94,8 @@ const AuthButton = () => {
             direction="row"
             alignItems="center"
             onClick={handleMenuOpen}
-            sx={{ cursor: "pointer" }}>
+            sx={{ cursor: "pointer" }}
+          >
             <Avatar src={userInfo.avatarUrl} alt="" />
             <Typography sx={{ marginLeft: "5px" }}>{userInfo.name}</Typography>
           </Stack>
@@ -102,9 +103,11 @@ const AuthButton = () => {
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
-            onClose={handleMenuClose}>
+            onClose={handleMenuClose}
+          >
             <MenuItem
-              onClick={() => navigate(`/accountInform/profile/${userInfo.id}`)}>
+              onClick={() => navigate(`/accountInform/profile/${userInfo.id}`)}
+            >
               Thông tin tài khoản
             </MenuItem>
             <MenuItem onClick={() => navigate("/my-orders")}>
@@ -119,7 +122,8 @@ const AuthButton = () => {
           direction={"row"}
           spacing={2}
           display={"flex"}
-          alignItems={"center"}>
+          alignItems={"center"}
+        >
           <Button
             variant="outlined"
             sx={{
@@ -133,7 +137,8 @@ const AuthButton = () => {
               },
             }}
             component={Link}
-            to="/login">
+            to="/login"
+          >
             Đăng nhập
           </Button>
 
@@ -150,7 +155,8 @@ const AuthButton = () => {
               },
             }}
             component={Link}
-            to="/register">
+            to="/register"
+          >
             Đăng ký
           </Button>
         </Stack>

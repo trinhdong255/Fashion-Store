@@ -49,7 +49,9 @@ const AddressListForUser = ({ id }) => {
   const fetchAddresses = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/v1/users/addresses?pageNo=1&pageSize=10`,
+        `${
+          import.meta.env.VITE_API_URL
+        }/v1/users/addresses?pageNo=1&pageSize=10`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -100,7 +102,9 @@ const AddressListForUser = ({ id }) => {
   const handleEdit = (address) => {
     setEditAddress(address);
     setSelectedCity(address.province.id ? address.province.id.toString() : "");
-    setSelectedDistrict(address.district.id ? address.district.id.toString() : "");
+    setSelectedDistrict(
+      address.district.id ? address.district.id.toString() : ""
+    );
     setWard(address.ward.code || "");
     setStreetDetail(address.streetDetail || "");
     setPhone(address.phone || "");
@@ -109,14 +113,23 @@ const AddressListForUser = ({ id }) => {
 
     // Fetch updated city, district, and ward lists
     axios
-      .get(`${import.meta.env.VITE_API_URL}/v1/provinces?pageNo=1&pageSize=63`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get(
+        `${import.meta.env.VITE_API_URL}/v1/provinces?pageNo=1&pageSize=63`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
       .then((res) => {
         const cities = res.data.result.items || [];
         setCity(cities);
-        if (address.province.id && !cities.some((c) => c.id === address.province.id)) {
-          console.warn("Province ID not found in fetched data:", address.province.id);
+        if (
+          address.province.id &&
+          !cities.some((c) => c.id === address.province.id)
+        ) {
+          console.warn(
+            "Province ID not found in fetched data:",
+            address.province.id
+          );
         }
       })
       .catch((err) => console.error("Lỗi khi lấy danh sách tỉnh/thành:", err));
@@ -124,7 +137,9 @@ const AddressListForUser = ({ id }) => {
     if (address.province.id) {
       axios
         .get(
-          `${import.meta.env.VITE_API_URL}/v1/provinces/${address.province.id}/districts?pageNo=1&pageSize=30`,
+          `${import.meta.env.VITE_API_URL}/v1/provinces/${
+            address.province.id
+          }/districts?pageNo=1&pageSize=30`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -132,17 +147,27 @@ const AddressListForUser = ({ id }) => {
         .then((res) => {
           const districtsList = res.data.result.items || [];
           setDistricts(districtsList);
-          if (address.district.id && !districtsList.some((d) => d.id === address.district.id)) {
-            console.warn("District ID not found in fetched data:", address.district.id);
+          if (
+            address.district.id &&
+            !districtsList.some((d) => d.id === address.district.id)
+          ) {
+            console.warn(
+              "District ID not found in fetched data:",
+              address.district.id
+            );
           }
         })
-        .catch((err) => console.error("Lỗi khi lấy danh sách quận/huyện:", err));
+        .catch((err) =>
+          console.error("Lỗi khi lấy danh sách quận/huyện:", err)
+        );
     }
 
     if (address.district.id) {
       axios
         .get(
-          `${import.meta.env.VITE_API_URL}/v1/districts/${address.district.id}/wards?pageNo=1&pageSize=100`,
+          `${import.meta.env.VITE_API_URL}/v1/districts/${
+            address.district.id
+          }/wards?pageNo=1&pageSize=100`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -150,8 +175,14 @@ const AddressListForUser = ({ id }) => {
         .then((res) => {
           const wardsList = res.data.result.items || [];
           setWards(wardsList);
-          if (address.ward.code && !wardsList.some((w) => w.code === address.ward.code)) {
-            console.warn("Ward code not found in fetched data:", address.ward.code);
+          if (
+            address.ward.code &&
+            !wardsList.some((w) => w.code === address.ward.code)
+          ) {
+            console.warn(
+              "Ward code not found in fetched data:",
+              address.ward.code
+            );
           }
         })
         .catch((err) => console.error("Lỗi khi lấy danh sách phường/xã:", err));
@@ -159,7 +190,13 @@ const AddressListForUser = ({ id }) => {
   };
 
   const handleUpdate = async () => {
-    if (!selectedCity || !selectedDistrict || !ward || !streetDetail || !phone) {
+    if (
+      !selectedCity ||
+      !selectedDistrict ||
+      !ward ||
+      !streetDetail ||
+      !phone
+    ) {
       setSnackbar({
         open: true,
         message: "Vui lòng điền đầy đủ thông tin địa chỉ!",
@@ -191,10 +228,14 @@ const AddressListForUser = ({ id }) => {
       setEditDialogOpen(false);
       fetchAddresses();
     } catch (err) {
-      console.error("Lỗi khi cập nhật địa chỉ:", err.response?.data || err.message);
+      console.error(
+        "Lỗi khi cập nhật địa chỉ:",
+        err.response?.data || err.message
+      );
       setSnackbar({
         open: true,
-        message: "Cập nhật địa chỉ thất bại! Kiểm tra console để biết chi tiết.",
+        message:
+          "Cập nhật địa chỉ thất bại! Kiểm tra console để biết chi tiết.",
         severity: "error",
       });
     }

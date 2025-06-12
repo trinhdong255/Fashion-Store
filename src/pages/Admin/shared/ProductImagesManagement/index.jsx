@@ -17,20 +17,16 @@ const ProductImagesManagement = () => {
   const [images, setImages] = useState([]);
 
   // Hàm fetch danh sách ảnh
-
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
-    fetch(
-      `${import.meta.env.VITE_API_URL}/v1/file/all?pageNo=1&pageSize=100`,
-      {
-        method: "GET",
-        headers: {
-          // "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Gửi token ở đây
-        },
-      }
-    )
+    fetch(`${import.meta.env.VITE_API_URL}/v1/file/all?pageNo=1&pageSize=100`, {
+      method: "GET",
+      headers: {
+        // "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Gửi token ở đây
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         console.log("DATA FETCHED:", data);
@@ -101,7 +97,8 @@ const ProductImagesManagement = () => {
           gap: 2,
           justifyContent: "space-between",
           alignItems: "center",
-        }}>
+        }}
+      >
         <Typography variant="h5" gutterBottom>
           Quản lý Hình ảnh Sản phẩm
         </Typography>

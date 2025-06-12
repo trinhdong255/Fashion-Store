@@ -10,7 +10,7 @@ const customTheme = (outerTheme) =>
       MuiTextField: {
         styleOverrides: {
           root: {
-            "--TextField-brandBorderColor": "#E0E3E7", // Default for all TextFields
+            "--TextField-brandBorderColor": "#E0E3E7", 
             "--TextField-brandBorderHoverColor": "var(--border-color)",
             "--TextField-brandBorderFocusedColor": "black",
             "& label.Mui-focused": {

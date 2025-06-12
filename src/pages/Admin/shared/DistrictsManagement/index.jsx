@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Typography,
@@ -97,7 +97,8 @@ const DistrictsManagement = () => {
           labelId="province-select-label"
           value={selectedProvince}
           label="Chọn tỉnh/thành phố"
-          onChange={handleProvinceChange}>
+          onChange={handleProvinceChange}
+        >
           <MenuItem value="">Tất cả</MenuItem>
           {provinces.map((province) => (
             <MenuItem key={province.id} value={province.id}>

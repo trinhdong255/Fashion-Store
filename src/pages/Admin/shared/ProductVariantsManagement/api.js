@@ -23,7 +23,9 @@ export const fetchProductVariant = async (productId) => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/v1/products/${productId}/product-variants/admin?pageNo=1&pageSize=100`,
+    `${
+      import.meta.env.VITE_API_URL
+    }/v1/products/${productId}/product-variants/admin?pageNo=1&pageSize=100`,
     {
       headers: {
         "Content-Type": "application/json",

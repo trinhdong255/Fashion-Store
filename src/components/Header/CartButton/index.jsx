@@ -24,7 +24,7 @@ import { useState, useEffect, Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { selectUserId, selectUser } from "@/store/redux/user/reducer";
+import { selectUserId } from "@/store/redux/user/reducer";
 import {
   removeFromCart,
   fetchCartItemsFromApi,
@@ -39,7 +39,6 @@ const CartButton = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userId = useSelector(selectUserId);
-  const user = useSelector(selectUser);
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const cartTotalQuantity = useSelector(
     (state) => state.cart?.cartTotalQuantity || 0

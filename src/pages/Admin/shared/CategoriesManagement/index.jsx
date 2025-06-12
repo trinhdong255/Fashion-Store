@@ -10,12 +10,6 @@ import {
   DialogTitle,
   IconButton,
   Snackbar,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -56,7 +50,9 @@ const CategoriesManagement = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      `${import.meta.env.VITE_API_URL}/v1/categories/admin?pageNo=1&pageSize=10`,
+      `${
+        import.meta.env.VITE_API_URL
+      }/v1/categories/admin?pageNo=1&pageSize=10`,
       {
         method: "GET",
         headers: {
@@ -260,21 +256,24 @@ const CategoriesManagement = () => {
             <IconButton
               color="primary"
               onClick={() => params.row.onEdit(params.row)}
-              title="Chỉnh sửa">
+              title="Chỉnh sửa"
+            >
               <EditIcon />
             </IconButton>
             {isDisabled ? (
               <IconButton
                 color="success"
                 onClick={() => row.onRestoreClick(row.id, row.name)} // Gọi function khôi phục
-                title="Khôi phục">
+                title="Khôi phục"
+              >
                 <RestartAltIcon />
               </IconButton>
             ) : (
               <IconButton
                 color="error"
                 onClick={() => row.onDelete(row.id)}
-                title="Xóa">
+                title="Xóa"
+              >
                 <DeleteIcon />
               </IconButton>
             )}
@@ -292,13 +291,15 @@ const CategoriesManagement = () => {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "20px",
-        }}>
+        }}
+      >
         <Typography variant="h5" gutterBottom>
           Quản lý danh mục
         </Typography>
         <Button
           sx={{ backgroundColor: "#0984e3", color: "#fff" }}
-          onClick={() => setOpenModal(true)}>
+          onClick={() => setOpenModal(true)}
+        >
           Thêm danh mục
         </Button>
       </Box>
@@ -330,18 +331,21 @@ const CategoriesManagement = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-            }}>
+            }}
+          >
             <Box
               sx={{
                 backgroundColor: "#fff",
                 padding: 4,
                 borderRadius: 2,
                 minWidth: 500,
-              }}>
+              }}
+            >
               <Typography
                 variant="h6"
                 sx={{ textAlign: "center" }}
-                gutterBottom>
+                gutterBottom
+              >
                 Thêm danh mục
               </Typography>
               <div style={{ marginBottom: "16px" }}>
@@ -412,14 +416,16 @@ const CategoriesManagement = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-            }}>
+            }}
+          >
             <Box
               sx={{
                 backgroundColor: "#fff",
                 padding: 4,
                 borderRadius: 2,
                 minWidth: 500,
-              }}>
+              }}
+            >
               <Typography variant="h6" gutterBottom>
                 Sửa danh mục
               </Typography>
@@ -453,7 +459,8 @@ const CategoriesManagement = () => {
                 </Button>
                 <Button
                   onClick={() => setEditModalOpen(false)}
-                  variant="outlined">
+                  variant="outlined"
+                >
                   Hủy
                 </Button>
               </Box>
@@ -472,7 +479,8 @@ const CategoriesManagement = () => {
             <Button
               onClick={handleConfirmDelete}
               color="error"
-              variant="contained">
+              variant="contained"
+            >
               Xóa
             </Button>
           </DialogActions>
@@ -482,7 +490,8 @@ const CategoriesManagement = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
         <Alert severity={snackbar.severity} variant="filled">
           {snackbar.message}
         </Alert>
