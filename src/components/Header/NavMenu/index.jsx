@@ -20,14 +20,14 @@ const NavMenu = () => {
 
   const handleMenuClose = () => {
     setCategoryMenuAnchorEl(null);
-  }; //http://222.255.119.40:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
+  };
 
   // Gọi API khi component được mount
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      "http://222.255.119.40:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
+      `${import.meta.env.VITE_API_URL}/v1/categories?pageNo=1&pageSize=10`,
       {
         method: "GET",
         headers: {

@@ -51,7 +51,7 @@ const ProfileInform = () => {
     if (!id || !token) return;
 
     axios
-      .get(`http://222.255.119.40:8080/adamstore/v1/users/${id}`, {
+      .get(`${import.meta.env.VITE_API_URL}/v1/users/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -79,7 +79,7 @@ const ProfileInform = () => {
 
     axios
       .get(
-        "http://222.255.119.40:8080/adamstore/v1/districts?pageNo=1&pageSize=21",
+        `${import.meta.env.VITE_API_URL}/v1/districts?pageNo=1&pageSize=21`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,7 +105,7 @@ const ProfileInform = () => {
 
     try {
       const res = await fetch(
-        "http://222.255.119.40:8080/adamstore/v1/file/upload/image",
+        `${import.meta.env.VITE_API_URL}/v1/file/upload/image`,
         {
           method: "POST",
           headers: {
@@ -140,7 +140,7 @@ const ProfileInform = () => {
     };
     try {
       const res = await axios.put(
-        `http://222.255.119.40:8080/adamstore/v1/users/${id}`,
+        `${import.meta.env.VITE_API_URL}/v1/users/${id}`,
         updatedUser,
         {
           headers: {

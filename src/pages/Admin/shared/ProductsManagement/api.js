@@ -2,7 +2,7 @@ export const fetchCategories = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/categories/admin?pageNo=1&pageSize=10",
+    `${import.meta.env.VITE_API_URL}/v1/categories/admin?pageNo=1&pageSize=10`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -23,7 +23,7 @@ export const fetchSize = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/sizes?pageNo=1&pageSize=10",
+    `${import.meta.env.VITE_API_URL}/v1/sizes?pageNo=1&pageSize=10`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export const fetchColor = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/colors?pageNo=1&pageSize=100",
+    `${import.meta.env.VITE_API_URL}/v1/colors?pageNo=1&pageSize=100`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export const handleUpload = async (file) => {
 
   try {
     const res = await fetch(
-      "http://222.255.119.40:8080/adamstore/v1/file/upload/image",
+      `${import.meta.env.VITE_API_URL}/v1/file/upload/image`,
       {
         method: "POST",
         headers: {
@@ -98,7 +98,7 @@ export const handleUpload = async (file) => {
 export const createProduct = async (productData) => {
   const token = localStorage.getItem("accessToken");
 
-  const response = await fetch("http://222.255.119.40:8080/adamstore/v1/products", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/products`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export const fetchProduct = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/products/admin?pageNo=1&pageSize=100",
+    `${import.meta.env.VITE_API_URL}/v1/products/admin?pageNo=1&pageSize=100`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export const fetchProduct = async () => {
 export const fetchProductID = async (productId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+      `${import.meta.env.VITE_API_URL}/v1/products/${productId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -187,7 +187,7 @@ export const fetchProductID = async (productId, token) => {
 export const deleteProduct = async (productId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+      `${import.meta.env.VITE_API_URL}/v1/products/${productId}`,
       {
         method: "DELETE",
         headers: {
@@ -213,7 +213,7 @@ export const deleteProduct = async (productId, token) => {
 export const restoreProduct = async (productId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/products/${productId}/restore`,
+      `${import.meta.env.VITE_API_URL}/v1/products/${productId}/restore`,
       {
         method: "PATCH",
         headers: {
@@ -234,7 +234,7 @@ export const restoreProduct = async (productId, token) => {
 
 export async function updateProduct(productId, payload, token) {
   const response = await fetch(
-    `http://222.255.119.40:8080/adamstore/v1/products/${productId}`,
+    `${import.meta.env.VITE_API_URL}/v1/products/${productId}`,
     {
       method: "PUT",
       headers: {

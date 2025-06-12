@@ -49,7 +49,7 @@ const AddressListForUser = ({ id }) => {
   const fetchAddresses = async () => {
     try {
       const res = await axios.get(
-        `http://222.255.119.40:8080/adamstore/v1/users/addresses?pageNo=1&pageSize=10`,
+        `${import.meta.env.VITE_API_URL}/v1/users/addresses?pageNo=1&pageSize=10`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -77,7 +77,7 @@ const AddressListForUser = ({ id }) => {
   const handleDelete = async (addressId) => {
     try {
       await axios.patch(
-        `http://222.255.119.40:8080/adamstore/v1/addresses/${addressId}/hide`,
+        `${import.meta.env.VITE_API_URL}/v1/addresses/${addressId}/hide`,
         { invisible: true },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -109,7 +109,7 @@ const AddressListForUser = ({ id }) => {
 
     // Fetch updated city, district, and ward lists
     axios
-      .get("http://222.255.119.40:8080/adamstore/v1/provinces?pageNo=1&pageSize=63", {
+      .get(`${import.meta.env.VITE_API_URL}/v1/provinces?pageNo=1&pageSize=63`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -124,7 +124,7 @@ const AddressListForUser = ({ id }) => {
     if (address.province.id) {
       axios
         .get(
-          `http://222.255.119.40:8080/adamstore/v1/provinces/${address.province.id}/districts?pageNo=1&pageSize=30`,
+          `${import.meta.env.VITE_API_URL}/v1/provinces/${address.province.id}/districts?pageNo=1&pageSize=30`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -142,7 +142,7 @@ const AddressListForUser = ({ id }) => {
     if (address.district.id) {
       axios
         .get(
-          `http://222.255.119.40:8080/adamstore/v1/districts/${address.district.id}/wards?pageNo=1&pageSize=100`,
+          `${import.meta.env.VITE_API_URL}/v1/districts/${address.district.id}/wards?pageNo=1&pageSize=100`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -179,7 +179,7 @@ const AddressListForUser = ({ id }) => {
 
     try {
       await axios.put(
-        `http://222.255.119.40:8080/adamstore/v1/addresses/${editAddress.id}`,
+        `${import.meta.env.VITE_API_URL}/v1/addresses/${editAddress.id}`,
         data,
         { headers: { Authorization: `Bearer ${token}` } }
       );

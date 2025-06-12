@@ -18,7 +18,7 @@ const About = () => {
     const fetchBranches = async () => {
       try {
         const response = await axios.get(
-          "http://222.255.119.40:8080/adamstore/v1/branches",
+          `${import.meta.env.VITE_API_URL}/v1/branches`,
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { pageNo: 1, pageSize: 10 },

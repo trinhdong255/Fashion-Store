@@ -39,7 +39,7 @@ const OrderConfirmation = () => {
 
     const token = localStorage.getItem("accessToken");
     axios
-      .get(`http://222.255.119.40:8080/adamstore/v1/orders/${orderId}`, {
+      .get(`${import.meta.env.VITE_API_URL}/v1/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

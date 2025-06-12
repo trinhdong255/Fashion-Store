@@ -40,7 +40,7 @@ const Home = () => {
     const token = localStorage.getItem("accessToken");
 
     fetch(
-      "http://222.255.119.40:8080/adamstore/v1/categories?pageNo=1&pageSize=10",
+      `${import.meta.env.VITE_API_URL}/v1/categories?pageNo=1&pageSize=10`,
       {
         method: "GET",
         headers: {
@@ -81,7 +81,7 @@ const Home = () => {
     const orderId = queryParams.get("vnp_TxnRef");
     const token = localStorage.getItem("accessToken");
     if (responseCode === "00" && orderId) {
-      fetch("http://222.255.119.40:8080/adamstore/v1/orders/vn-pay-callback", {
+      fetch(`${import.meta.env.VITE_API_URL}/v1/orders/vn-pay-callback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

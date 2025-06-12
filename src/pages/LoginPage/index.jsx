@@ -58,7 +58,7 @@ const Login = () => {
   const handleLogin = async (data) => {
     try {
       const response = await axios.post(
-        "http://222.255.119.40:8080/adamstore/v1/auth/login",
+        `${import.meta.env.VITE_API_URL}/v1/auth/login`,
         data
       );
 

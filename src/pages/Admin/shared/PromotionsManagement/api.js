@@ -2,7 +2,7 @@ export const fetchPromotion = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/promotions?pageNo=1&pageSize=10",
+    `${import.meta.env.VITE_API_URL}/v1/promotions?pageNo=1&pageSize=10`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -23,7 +23,7 @@ export const createPromotion = async (promotionData) => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/promotions",
+    `${import.meta.env.VITE_API_URL}/v1/promotions`,
     {
       method: "POST",
       headers: {
@@ -44,7 +44,7 @@ export const createPromotion = async (promotionData) => {
 export const deletePromotion = async (promotionId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/promotions/${promotionId}`,
+      `${import.meta.env.VITE_API_URL}/v1/promotions/${promotionId}`,
       {
         method: "DELETE",
         headers: {
@@ -70,7 +70,7 @@ export const deletePromotion = async (promotionId, token) => {
 export const restorePromotion = async (promotionId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/promotions/${promotionId}/restore`,
+      `${import.meta.env.VITE_API_URL}/v1/promotions/${promotionId}/restore`,
       {
         method: "PATCH",
         headers: {
@@ -91,7 +91,7 @@ export const restorePromotion = async (promotionId, token) => {
 
 export async function updatePromotion(promotionId, payload, token) {
   const response = await fetch(
-    `http://222.255.119.40:8080/adamstore/v1/promotions/${promotionId}`,
+    `${import.meta.env.VITE_API_URL}/v1/promotions/${promotionId}`,
     {
       method: "PUT",
       headers: {

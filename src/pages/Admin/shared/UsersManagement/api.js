@@ -1,7 +1,7 @@
 export const createUser = async (userData) => {
   const token = localStorage.getItem("accessToken");
 
-  const response = await fetch("http://222.255.119.40:8080/adamstore/v1/users", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/users`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +21,7 @@ export const fetchUser = async () => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    "http://222.255.119.40:8080/adamstore/v1/users?pageNo=1&pageSize=10",
+    `${import.meta.env.VITE_API_URL}/v1/users?pageNo=1&pageSize=10`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export const updateUser = async (id, userData) => {
   const token = localStorage.getItem("accessToken");
 
   const response = await fetch(
-    `http://222.255.119.40:8080/adamstore/v1/users/${id}`,
+    `${import.meta.env.VITE_API_URL}/v1/users/${id}`,
     {
       method: "PUT",
       headers: {
@@ -65,7 +65,7 @@ export const updateUser = async (id, userData) => {
 
 export const deleteUser = async (userId, token) => {
   const response = await fetch(
-    `http://222.255.119.40:8080/adamstore/v1/users/${userId}`,
+    `${import.meta.env.VITE_API_URL}/v1/users/${userId}`,
     {
       method: "DELETE",
       headers: {
@@ -85,7 +85,7 @@ export const deleteUser = async (userId, token) => {
 export const restoreUser = async (userId, token) => {
   try {
     const res = await fetch(
-      `http://222.255.119.40:8080/adamstore/v1/users/${userId}/restore`,
+      `${import.meta.env.VITE_API_URL}/v1/users/${userId}/restore`,
       {
         method: "PATCH",
         headers: {

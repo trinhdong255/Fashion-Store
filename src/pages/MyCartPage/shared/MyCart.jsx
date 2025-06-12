@@ -50,7 +50,7 @@ const MyCart = () => {
           cartItems.map(async (item) => {
             try {
               const response = await axios.get(
-                `http://222.255.119.40:8080/adamstore/v1/products/${item.productVariantBasic.product.id}`,
+                `${import.meta.env.VITE_API_URL}/v1/products/${item.productVariantBasic.product.id}`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
                 }
@@ -83,7 +83,7 @@ const MyCart = () => {
     const token = localStorage.getItem("accessToken");
     try {
       await axios.put(
-        `http://222.255.119.40:8080/adamstore/v1/cart-items/${itemId}`,
+        `${import.meta.env.VITE_API_URL}/v1/cart-items/${itemId}`,
         { quantity: newQuantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -101,7 +101,7 @@ const MyCart = () => {
     const token = localStorage.getItem("accessToken");
     try {
       await axios.delete(
-        `http://222.255.119.40:8080/adamstore/v1/cart-items/${itemId}`,
+        `${import.meta.env.VITE_API_URL}/v1/cart-items/${itemId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       dispatch(removeFromCart({ id: itemId }));
