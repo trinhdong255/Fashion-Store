@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -196,12 +196,14 @@ const ProductVariantsManagement = () => {
         <>
           <IconButton
             onClick={() => params.row.onEdit(params.row)}
-            color="primary">
+            color="primary"
+          >
             <EditIcon />
           </IconButton>
           <IconButton
             onClick={() => params.row.onDelete(params.row.id)}
-            color="error">
+            color="error"
+          >
             <DeleteIcon />
           </IconButton>
         </>
@@ -220,7 +222,8 @@ const ProductVariantsManagement = () => {
           labelId="select-label"
           value={selectedProductId}
           label="Chọn sản phẩm"
-          onChange={(e) => setSelectedProductId(e.target.value)}>
+          onChange={(e) => setSelectedProductId(e.target.value)}
+        >
           {products.map((product) => (
             <MenuItem key={product.id} value={product.id}>
               {product.name}
@@ -273,7 +276,8 @@ const ProductVariantsManagement = () => {
       </Dialog>
       <Dialog
         open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}>
+        onClose={() => setOpenDeleteDialog(false)}
+      >
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
           <Typography>Bạn có chắc chắn muốn xóa biến thể này không?</Typography>
@@ -283,7 +287,8 @@ const ProductVariantsManagement = () => {
           <Button
             onClick={confirmDeleteVariant}
             variant="contained"
-            color="error">
+            color="error"
+          >
             Xóa
           </Button>
         </DialogActions>
@@ -293,11 +298,13 @@ const ProductVariantsManagement = () => {
         open={notification.open}
         autoHideDuration={3000}
         onClose={handleCloseNotification}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
         <Alert
           onClose={handleCloseNotification}
           severity={notification.type}
-          sx={{ width: "100%" }}>
+          sx={{ width: "100%" }}
+        >
           {notification.message}
         </Alert>
       </Snackbar>

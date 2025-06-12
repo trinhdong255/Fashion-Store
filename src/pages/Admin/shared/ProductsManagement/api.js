@@ -250,5 +250,5 @@ export async function updateProduct(productId, payload, token) {
     throw new Error(errorText || "Lỗi khi cập nhật sản phẩm");
   }
 
-  return await response.json(); // <- Quan trọng! http://222.255.119.40:8080
+  return await response.json(); 
 }

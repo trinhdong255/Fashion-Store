@@ -1,14 +1,9 @@
-import { Fragment } from "react";
 import { Route, Routes } from "react-router-dom";
-
 import AccountInform from "./layouts/AccountInform";
 import Address from "./pages/AddressPage";
 import AddressListForUser from "./pages/AddressPage/shared/AddressListForUser";
-
-
 import ChangePassword from "./pages/ChangePasswordPage";
 import Profile from "./pages/ProfilePage";
-
 import ScrollToTop from "@/components/ScrollToTop";
 import LoginLayout from "@/layouts/LoginLayout";
 import MainLayout from "@/layouts/MainLayout";
@@ -30,7 +25,6 @@ import ResetPassword from "./pages/ResetPasswordPage";
 import ForgotPasswordVerify from "./pages/ForgotPassword/shared/ForgotPasswordVerify";
 import AdminLayout from "./layouts/AdminLayout";
 import Admin from "./pages/Admin";
-
 import ThemeProvider from "./context/ThemeProvider";
 import ProductsManagement from "./pages/Admin/shared/ProductsManagement";
 import CategoriesManagement from "./pages/Admin/shared/CategoriesManagement";
@@ -40,7 +34,6 @@ import BranchesManagement from "./pages/Admin/shared/BranchesManagement";
 import PromotionsManagement from "./pages/Admin/shared/PromotionsManagement";
 import PaymentHistoriesManagement from "./pages/Admin/shared/PaymentHistoriesManagement";
 import RolesManagement from "./pages/Admin/shared/RolesManagement";
-import PermissionsManagement from "./pages/Admin/shared/PermissionsManagement";
 import ColorsManagement from "./pages/Admin/shared/ColorsManagement";
 import SizesManagement from "./pages/Admin/shared/SizesManagement";
 import WardsManagement from "./pages/Admin/shared/WardsManagement";
@@ -65,7 +58,6 @@ const App = () => {
           <Route path="about" element={<About />} />
         </Route>
 
-
         {/* Route Login */}
         <Route path="/login" element={<LoginLayout />}>
           <Route index element={<Login />} />
@@ -77,11 +69,9 @@ const App = () => {
           <Route path="resetPassword" element={<ResetPassword />} />
         </Route>
 
-
         {/* Route SignUp and VerifyAccount */}
         <Route path="/register" element={<Register />} />
         <Route path="/verifyAccount" element={<VerifyAccount />} />
-
 
         {/* Route List Products */}
         <Route path="/product-lists" element={<ProductListsLayout />}>
@@ -95,17 +85,18 @@ const App = () => {
         {/* Route cart */}
         <Route path="/my-cart" element={<MyCart />} />
 
-
         {/* Route user */}
         <Route path="/accountInform" element={<AccountInform />}>
           <Route path="profile/:id" element={<Profile />} />
           <Route path="changePassword/:id" element={<ChangePassword />} />
           <Route path="address/:id" element={<Address />} />
-          <Route path="addressListForUser/:id" element={<AddressListForUser />} />
-          <Route path="newAddress/:id" element={<AddressInform /> } />
+          <Route
+            path="addressListForUser/:id"
+            element={<AddressListForUser />}
+          />
+          <Route path="newAddress/:id" element={<AddressInform />} />
         </Route>
         <Route path="/my-orders" element={<MyOrders />} />
-
 
         {/* Route admin */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -132,10 +123,6 @@ const App = () => {
             element={<PromotionsManagement />}
           />
           <Route path="rolesManagement" element={<RolesManagement />} />
-          <Route
-            path="permissionsManagement"
-            element={<PermissionsManagement />}
-          />
           <Route
             path="paymentHistoriesManagement"
             element={<PaymentHistoriesManagement />}

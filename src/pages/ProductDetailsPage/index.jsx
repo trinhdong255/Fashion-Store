@@ -1,18 +1,6 @@
-import {
-  Box,
-  Container,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  Snackbar,
-  Alert,
-  Stack,
-} from "@mui/material";
+import { Box, Container, Typography, Snackbar, Alert } from "@mui/material";
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 
 import Header from "../../components/Header";
@@ -34,7 +22,6 @@ import ProductReviews from "./shared/ProductReviews";
 const ProductDetails = () => {
   const { id } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const passedImageUrl = location.state?.imageUrl || null;
 
   const [product, setProduct] = useState(null);
@@ -57,7 +44,9 @@ const ProductDetails = () => {
       const token = localStorage.getItem("accessToken");
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/v1/product-variants/${id}/${colorId}/${sizeId}`,
+          `${
+            import.meta.env.VITE_API_URL
+          }/v1/product-variants/${id}/${colorId}/${sizeId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

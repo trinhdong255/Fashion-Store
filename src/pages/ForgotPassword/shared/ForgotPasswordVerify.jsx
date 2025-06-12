@@ -2,8 +2,6 @@ import {
   Alert,
   Button,
   CircularProgress,
-  createTheme,
-  Grid,
   IconButton,
   InputAdornment,
   Snackbar,
@@ -126,12 +124,14 @@ const ForgotPasswordVerify = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "right", horizontal: "right" }}>
+        anchorOrigin={{ vertical: "right", horizontal: "right" }}
+      >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: "100%", p: "10px 20px" }}>
+          sx={{ width: "100%", p: "10px 20px" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -144,21 +144,24 @@ const ForgotPasswordVerify = () => {
             height: 400,
             borderRadius: 4,
             boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
-          }}>
+          }}
+        >
           <div>
             <h2
               style={{
                 textAlign: "center",
                 margin: "46px 0 20px 0",
                 fontWeight: "inherit",
-              }}>
+              }}
+            >
               XÁC THỰC TÀI KHOẢN
             </h2>
 
             <Stack
               sx={{ padding: "0px 36px" }}
               component={"form"}
-              onSubmit={handleSubmit(onSubmit)}>
+              onSubmit={handleSubmit(onSubmit)}
+            >
               {/* Hiển thị email dưới dạng text */}
               <Stack sx={{ mb: 2 }}>
                 <Typography variant="body1">
@@ -200,7 +203,8 @@ const ForgotPasswordVerify = () => {
                             onMouseDown={handleMouseDownOtp}
                             onMouseUp={handleMouseUpOtp}
                             edge="end"
-                            disabled={isLoading}>
+                            disabled={isLoading}
+                          >
                             {showOtp ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
@@ -228,7 +232,8 @@ const ForgotPasswordVerify = () => {
                   },
                 }}
                 type="submit"
-                disabled={isLoading}>
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <CircularProgress size={34} color="inherit" />
                 ) : (
@@ -240,12 +245,14 @@ const ForgotPasswordVerify = () => {
                 open={snackbar.open}
                 autoHideDuration={3000}
                 onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "right", horizontal: "right" }}>
+                anchorOrigin={{ vertical: "right", horizontal: "right" }}
+              >
                 <Alert
                   onClose={handleCloseSnackbar}
                   severity={snackbar.severity}
                   variant="filled"
-                  sx={{ width: "100%", p: "10px 20px" }}>
+                  sx={{ width: "100%", p: "10px 20px" }}
+                >
                   {snackbar.message}
                 </Alert>
               </Snackbar>

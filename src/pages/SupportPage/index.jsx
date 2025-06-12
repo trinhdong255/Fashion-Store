@@ -13,7 +13,7 @@ import {
 import { SimpleTreeView, TreeItem } from "@mui/x-tree-view";
 
 import WallpaperRepresentative from "../../components/WallpaperRepresentative";
-import  "./index.css";
+import "./index.css";
 
 const Support = () => {
   const outerTheme = useTheme();

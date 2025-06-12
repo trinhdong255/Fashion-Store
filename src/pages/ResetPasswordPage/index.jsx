@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   CircularProgress,
-  Grid,
   IconButton,
   InputAdornment,
   Snackbar,
@@ -12,13 +11,11 @@ import {
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import customTheme from "@/components/CustemTheme";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { useResetPasswordMutation } from "@/services/api/auth";
-import { setUser } from "@/store/redux/user/reducer";
 import styles from "./index.module.css";
 
 const ResetPassword = () => {
@@ -27,7 +24,6 @@ const ResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const location = useLocation();
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
   const [snackbar, setSnackbar] = useState({
@@ -109,12 +105,6 @@ const ResetPassword = () => {
       }).unwrap();
 
       if (response) {
-        // const userData = {
-        //   forgotPasswordToken: response.forgotPasswordToken,
-        //   newPassword: response.newPassword,
-        //   confirmPassword: response.confirmPassword,
-        // };
-        // dispatch(setUser(userData));
         navigate("/login", {
           state: {
             message: "Đặt lại mật khẩu thành công !",
@@ -134,12 +124,14 @@ const ResetPassword = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "right", horizontal: "right" }}>
+        anchorOrigin={{ vertical: "right", horizontal: "right" }}
+      >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: "100%", p: "10px 20px" }}>
+          sx={{ width: "100%", p: "10px 20px" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -152,21 +144,24 @@ const ResetPassword = () => {
             height: 450,
             borderRadius: 4,
             boxShadow: "0px 4px 30px 5px rgba(0, 0, 0, 0.3)",
-          }}>
+          }}
+        >
           <div>
             <h2
               style={{
                 textAlign: "center",
                 margin: "46px 0 20px 0",
                 fontWeight: "inherit",
-              }}>
+              }}
+            >
               ĐẶT LẠI MẬT KHẨU
             </h2>
 
             <Stack
               sx={{ padding: "0px 36px" }}
               component={"form"}
-              onSubmit={handleSubmit(onSubmit)}>
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <Stack className={styles.formLabelInput}>
                 <ThemeProvider theme={customTheme(outerTheme)}>
                   <TextField
@@ -196,7 +191,8 @@ const ResetPassword = () => {
                             onMouseDown={handleMouseDownNewPassword}
                             onMouseUp={handleMouseUpNewPassword}
                             edge="end"
-                            disabled={isLoading}>
+                            disabled={isLoading}
+                          >
                             {showNewPassword ? (
                               <VisibilityOff />
                             ) : (
@@ -243,7 +239,8 @@ const ResetPassword = () => {
                             onMouseDown={handleMouseDownConfirmPassword}
                             onMouseUp={handleMouseUpConfirmPassword}
                             edge="end"
-                            disabled={isLoading}>
+                            disabled={isLoading}
+                          >
                             {showConfirmPassword ? (
                               <VisibilityOff />
                             ) : (
@@ -276,7 +273,8 @@ const ResetPassword = () => {
                   },
                 }}
                 type="submit"
-                disabled={isLoading}>
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <CircularProgress size={34} color="inherit" />
                 ) : (
@@ -288,12 +286,14 @@ const ResetPassword = () => {
                 open={snackbar.open}
                 autoHideDuration={3000}
                 onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "right", horizontal: "right" }}>
+                anchorOrigin={{ vertical: "right", horizontal: "right" }}
+              >
                 <Alert
                   onClose={handleCloseSnackbar}
                   severity={snackbar.severity}
                   variant="filled"
-                  sx={{ width: "100%", p: "10px 20px" }}>
+                  sx={{ width: "100%", p: "10px 20px" }}
+                >
                   {snackbar.message}
                 </Alert>
               </Snackbar>

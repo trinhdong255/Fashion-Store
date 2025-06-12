@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Typography, Button, TextField, Grid, Box } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Typography, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
@@ -59,14 +59,6 @@ const PaymentHistoriesManagement = () => {
 
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
-    // {
-    //   field: "order",
-    //   headerName: "Đơn hàng",
-    //   width: 150,
-    //   valueGetter: (params) => params.row.order?.id || "",
-    //   disableColumnMenu: true,
-    //   sortable: false,
-    // },
     {
       field: "paymentMethod",
       headerName: "Phương thức thanh toán",
@@ -139,7 +131,8 @@ const PaymentHistoriesManagement = () => {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 4,
-        }}>
+        }}
+      >
         <Typography variant="h5" gutterBottom>
           Quản lý Lịch sử Thanh toán
         </Typography>
@@ -152,7 +145,8 @@ const PaymentHistoriesManagement = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 gap: 4,
-              }}>
+              }}
+            >
               <Box>
                 <DateTimePicker
                   label="Từ ngày"

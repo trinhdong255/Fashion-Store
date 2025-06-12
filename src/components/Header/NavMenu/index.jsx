@@ -1,12 +1,6 @@
-import ContactsIcon from "@mui/icons-material/Contacts";
-import HelpIcon from "@mui/icons-material/Help";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import InfoIcon from "@mui/icons-material/Info";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Menu, MenuItem, Button, Box } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 
 const NavMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);

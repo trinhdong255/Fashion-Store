@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Typography, Stack, Rating } from "@mui/material";
 import { useEffect, useState } from "react";
 

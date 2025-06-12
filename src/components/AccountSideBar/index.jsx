@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const AccountSideBar = ({ id }) => {
   const location = useLocation();

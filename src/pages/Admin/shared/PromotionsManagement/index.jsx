@@ -1,7 +1,6 @@
 /* eslint-disable import/no-duplicates */
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-// eslint-disable-next-line import/order
 import {
   Typography,
   Button,

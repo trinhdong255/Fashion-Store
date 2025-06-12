@@ -1,5 +1,4 @@
-/* eslint-disable import/order */
-/* eslint-disable import/no-duplicates */
+
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -14,6 +13,7 @@ import {
   Box,
   Snackbar,
   Alert,
+  IconButton,
 } from "@mui/material";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
 import {
@@ -26,7 +26,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import { IconButton } from "@mui/material";
 
 const paginationModel = { page: 0, pageSize: 5 };
 const UsersManagement = () => {

@@ -25,7 +25,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { selectUserId, selectUser } from "@/store/redux/user/reducer";
-import { removeFromCart, fetchCartItemsFromApi, clearCartItemsFromApi } from "@/store/redux/cart/reducer";
+import {
+  removeFromCart,
+  fetchCartItemsFromApi,
+} from "@/store/redux/cart/reducer";
 
 const CartButton = () => {
   const [open, setOpen] = useState(false);
@@ -38,7 +41,9 @@ const CartButton = () => {
   const userId = useSelector(selectUserId);
   const user = useSelector(selectUser);
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
-  const cartTotalQuantity = useSelector((state) => state.cart?.cartTotalQuantity || 0);
+  const cartTotalQuantity = useSelector(
+    (state) => state.cart?.cartTotalQuantity || 0
+  );
 
   useEffect(() => {
     if (userId) {
@@ -62,17 +67,23 @@ const CartButton = () => {
           cartItems.map(async (item) => {
             try {
               const response = await axios.get(
-                `${import.meta.env.VITE_API_URL}/v1/products/${item.productVariantBasic.product.id}`,
+                `${import.meta.env.VITE_API_URL}/v1/products/${
+                  item.productVariantBasic.product.id
+                }`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
                 }
               );
               return {
                 ...item,
-                image: response.data.result.images?.[0]?.imageUrl || "/default.jpg",
+                image:
+                  response.data.result.images?.[0]?.imageUrl || "/default.jpg",
               };
             } catch (error) {
-              console.error(`Lỗi khi lấy hình ảnh cho sản phẩm ${item.productVariantBasic.product.id}:`, error);
+              console.error(
+                `Lỗi khi lấy hình ảnh cho sản phẩm ${item.productVariantBasic.product.id}:`,
+                error
+              );
               return {
                 ...item,
                 image: "/default.jpg",
@@ -116,7 +127,10 @@ const CartButton = () => {
         await dispatch(fetchCartItemsFromApi());
         console.log("Xóa sản phẩm thành công, ID:", itemToRemove.id);
       } catch (error) {
-        console.error("Lỗi khi xóa sản phẩm:", error.response?.data || error.message);
+        console.error(
+          "Lỗi khi xóa sản phẩm:",
+          error.response?.data || error.message
+        );
       }
     }
     handleCloseDialog();
@@ -155,17 +169,40 @@ const CartButton = () => {
             <Typography sx={{ mt: 1 }}>Đang tải giỏ hàng...</Typography>
           </Box>
         ) : !userId ? (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              flexGrow: 1,
+            }}
+          >
             <Typography variant="h6">VUI LÒNG ĐĂNG NHẬP!</Typography>
             <SentimentDissatisfied fontSize="large" />
           </Box>
         ) : cartItemsWithImages.length === 0 ? (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              flexGrow: 1,
+            }}
+          >
             <Typography variant="h6">CHƯA CÓ SẢN PHẨM NÀO!</Typography>
             <SentimentDissatisfied fontSize="large" />
           </Box>
         ) : (
-          <Box sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "calc(100vh - 200px)", p: 2 }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflowY: "auto",
+              maxHeight: "calc(100vh - 200px)",
+              p: 2,
+            }}
+          >
             <Stack spacing={2}>
               {cartItemsWithImages.map((item, index) => {
                 if (!item.productVariantBasic?.product) {
@@ -190,19 +227,26 @@ const CartButton = () => {
                         {item.productVariantBasic.product.name}
                       </Typography>
                       <Typography variant="body2">
-                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price)}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.price)}
                       </Typography>
                       <Typography variant="body2">
                         Màu sắc: {item.productVariantBasic.color?.name || "N/A"}
                       </Typography>
                       <Typography variant="body2">
-                        Kích thước: {item.productVariantBasic.size?.name || "N/A"}
+                        Kích thước:{" "}
+                        {item.productVariantBasic.size?.name || "N/A"}
                       </Typography>
                       <Typography variant="body2">
                         Số lượng: {item.quantity}
                       </Typography>
                     </Stack>
-                    <IconButton onClick={() => handleOpenDialog(item)} sx={{ color: "black" }}>
+                    <IconButton
+                      onClick={() => handleOpenDialog(item)}
+                      sx={{ color: "black" }}
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Stack>
@@ -214,7 +258,11 @@ const CartButton = () => {
 
         {cartItemsWithImages.length > 0 && (
           <Box sx={{ flexShrink: 0, p: 2 }}>
-            <Button variant="contained" sx={{ width: "100%", color: "white", backgroundColor: "black" }} onClick={handleViewCart}>
+            <Button
+              variant="contained"
+              sx={{ width: "100%", color: "white", backgroundColor: "black" }}
+              onClick={handleViewCart}
+            >
               Xem giỏ hàng
             </Button>
           </Box>
@@ -225,7 +273,9 @@ const CartButton = () => {
           <DialogContent>
             <Typography>
               Bạn có chắc chắn muốn xóa sản phẩm{" "}
-              <strong>{itemToRemove?.productVariantBasic?.product?.name || "N/A"}</strong>{" "}
+              <strong>
+                {itemToRemove?.productVariantBasic?.product?.name || "N/A"}
+              </strong>{" "}
               khỏi giỏ hàng?
             </Typography>
           </DialogContent>
@@ -244,9 +294,17 @@ const CartButton = () => {
 
   return (
     <Fragment>
-      <IconButton sx={{ mr: 2 }} aria-label="shopping-cart" onClick={toggleDrawer(true)}>
+      <IconButton
+        sx={{ mr: 2 }}
+        aria-label="shopping-cart"
+        onClick={toggleDrawer(true)}
+      >
         <ShoppingCartOutlinedIcon fontSize="large" />
-        <CartBadge badgeContent={cartTotalQuantity} color="primary" overlap="circular" />
+        <CartBadge
+          badgeContent={cartTotalQuantity}
+          color="primary"
+          overlap="circular"
+        />
       </IconButton>
       <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
         {DrawerList()}

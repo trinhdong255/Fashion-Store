@@ -3,15 +3,11 @@ import {
   Avatar,
   Box,
   Button,
-  FormControl,
   FormControlLabel,
   IconButton,
   Input,
-  InputLabel,
-  MenuItem,
   Radio,
   RadioGroup,
-  Select,
   Snackbar,
   Typography,
   Alert,
@@ -26,8 +22,6 @@ const ProfileInform = () => {
   const { id } = useParams();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const [images, setImages] = useState([]);
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");

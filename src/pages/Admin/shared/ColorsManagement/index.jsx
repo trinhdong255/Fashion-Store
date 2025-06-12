@@ -3,11 +3,6 @@ import {
   Typography,
   Button,
   Box,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   IconButton,
   Dialog,
   DialogTitle,
@@ -23,18 +18,6 @@ import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
 import { DataGrid } from "@mui/x-data-grid";
 
 const paginationModel = { page: 0, pageSize: 5 };
-const colorMap = {
-  cam: "#FFA500", // orange
-  vàng: "#FFFF00", // yellow
-  đen: "#000000", // black
-  trắng: "#FFFFFF", // white
-  đỏ: "#d63031",
-  xanh: "#0984e3",
-  nâu: "#e17055",
-  hồng: "#e84393",
-  tím: "#6c5ce7",
-  lục: "#00b894",
-};
 
 const ColorsManagement = () => {
   const [colors, setColors] = useState([]);
@@ -180,26 +163,6 @@ const ColorsManagement = () => {
       sortable: false,
     },
     {
-      field: "colorBox",
-      headerName: "Màu sắc",
-      disableColumnMenu: true,
-      flex: 1,
-      renderCell: (params) => (
-        <Box
-          sx={{
-            width: 30,
-            height: 30,
-            backgroundColor:
-              colorMap[params.row.name.toLowerCase().trim()] || "#ccc",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-          }}
-        />
-      ),
-      sortable: false,
-      filterable: false,
-    },
-    {
       field: "actions",
       headerName: "Hành động",
       disableColumnMenu: true,
@@ -208,12 +171,14 @@ const ColorsManagement = () => {
         <>
           <IconButton
             onClick={() => handleEdit(params.row.id, params.row.name)}
-            color="primary">
+            color="primary"
+          >
             <EditIcon />
           </IconButton>
           <IconButton
             onClick={() => handleOpenDeleteModal(params.row.id)}
-            color="error">
+            color="error"
+          >
             <DeleteIcon />
           </IconButton>
         </>
@@ -231,13 +196,15 @@ const ColorsManagement = () => {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "20px",
-        }}>
+        }}
+      >
         <Typography variant="h5" gutterBottom>
           Quản lý màu sắc
         </Typography>
         <Button
           sx={{ backgroundColor: "#0984e3", color: "#fff" }}
-          onClick={() => setOpenModal(true)}>
+          onClick={() => setOpenModal(true)}
+        >
           Thêm màu sắc
         </Button>
       </Box>
@@ -267,14 +234,16 @@ const ColorsManagement = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-            }}>
+            }}
+          >
             <Box
               sx={{
                 backgroundColor: "#fff",
                 padding: 4,
                 borderRadius: 2,
                 minWidth: 500,
-              }}>
+              }}
+            >
               <Typography variant="h6" gutterBottom>
                 Thêm màu sắc
               </Typography>
@@ -314,14 +283,16 @@ const ColorsManagement = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-            }}>
+            }}
+          >
             <Box
               sx={{
                 backgroundColor: "#fff",
                 padding: 4,
                 borderRadius: 2,
                 minWidth: 500,
-              }}>
+              }}
+            >
               <Typography variant="h6" gutterBottom>
                 Sửa màu sắc
               </Typography>
@@ -343,7 +314,8 @@ const ColorsManagement = () => {
                 </Button>
                 <Button
                   onClick={() => setEditModalOpen(false)}
-                  variant="outlined">
+                  variant="outlined"
+                >
                   Hủy
                 </Button>
               </Box>
@@ -364,7 +336,8 @@ const ColorsManagement = () => {
             <Button
               onClick={handleConfirmDelete}
               color="error"
-              variant="contained">
+              variant="contained"
+            >
               Xóa
             </Button>
           </DialogActions>
@@ -374,7 +347,8 @@ const ColorsManagement = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
         <Alert severity={snackbar.severity} variant="filled">
           {snackbar.message}
         </Alert>

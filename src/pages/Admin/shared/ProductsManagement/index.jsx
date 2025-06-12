@@ -1,5 +1,5 @@
 /* eslint-disable import/order */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";
 import TableProduct from "./TableProduct";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -48,7 +48,6 @@ const ProductsManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const [productToRestore, setProductToRestore] = useState(null);
-  const [productToRestoreName, setProductToRestoreName] = useState("");
 
   const { products, refetch } = useProducts();
   const filteredProducts = useFilteredProducts(

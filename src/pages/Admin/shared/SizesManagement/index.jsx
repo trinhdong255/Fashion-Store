@@ -1,4 +1,3 @@
-import React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
 import DashboardLayoutWrapper from "@/layouts/DashboardLayout";

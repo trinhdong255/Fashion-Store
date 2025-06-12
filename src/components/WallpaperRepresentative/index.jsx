@@ -1,5 +1,5 @@
+/* eslint-disable react/prop-types */
 import { Stack } from "@mui/material";
-import PropTypes from "prop-types";
 
 const WallpaperRepresentative = ({ titleHeader, searchSupport }) => {
   return (
@@ -33,12 +33,6 @@ const WallpaperRepresentative = ({ titleHeader, searchSupport }) => {
       </Stack>
     </Stack>
   );
-};
-
-// Checking datatype is correct or not
-WallpaperRepresentative.propTypes = {
-  titleHeader: PropTypes.string.isRequired,
-  searchSupport: PropTypes.element,
 };
 
 export default WallpaperRepresentative;

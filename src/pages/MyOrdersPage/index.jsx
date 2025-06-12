@@ -6,7 +6,6 @@ import {
   Typography,
   Button,
   Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -17,7 +16,6 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -27,7 +25,6 @@ const MyOrders = () => {
   const [value, setValue] = useState("PENDING");
   const [orders, setOrders] = useState({});
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -113,7 +110,8 @@ const MyOrders = () => {
             mb: 4,
             "& .MuiTab-root": { fontSize: 16, fontWeight: 500, color: "#333" },
             "& .MuiTabs-indicator": { backgroundColor: "#000" },
-          }}>
+          }}
+        >
           <Tab value="PENDING" label="Chờ thanh toán" />
           <Tab value="PROCESSING" label="Đang xử lý" />
           <Tab value="SHIPPED" label="Đang giao hàng" />
@@ -127,11 +125,13 @@ const MyOrders = () => {
               open={!!error}
               autoHideDuration={6000}
               onClose={handleCloseError}
-              anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
               <Alert
                 onClose={handleCloseError}
                 severity="error"
-                sx={{ width: "100%" }}>
+                sx={{ width: "100%" }}
+              >
                 {error}
               </Alert>
             </Snackbar>
@@ -141,7 +141,8 @@ const MyOrders = () => {
               variant="h6"
               textAlign="center"
               color="text.secondary"
-              sx={{ py: 4 }}>
+              sx={{ py: 4 }}
+            >
               Không có đơn hàng nào.
             </Typography>
           ) : (
@@ -169,7 +170,8 @@ const MyOrders = () => {
                       key={order.id}
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
-                      }}>
+                      }}
+                    >
                       <TableCell>{order.id}</TableCell>
                       <TableCell>{order.orderStatus}</TableCell>
                       <TableCell>
@@ -184,7 +186,8 @@ const MyOrders = () => {
                               color: "#fff",
                               "&:hover": { backgroundColor: "#333" },
                             }}
-                            onClick={() => handleRetryPayment(order.id)}>
+                            onClick={() => handleRetryPayment(order.id)}
+                          >
                             Thanh toán lại
                           </Button>
                         )}

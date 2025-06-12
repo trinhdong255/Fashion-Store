@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
 
@@ -76,28 +76,6 @@ const OrdersManagement = () => {
         return formattedValue;
       },
     },
-
-    // {
-    //   field: "actions",
-    //   headerName: "Hành động",
-    //   width: 160,
-    //   renderCell: (params) => (
-    //     <>
-    //       <IconButton
-    //         color="primary"
-    //         onClick={() => params.row.onEdit(params.row)}
-    //         title="Chỉnh sửa">
-    //         <EditIcon />
-    //       </IconButton>
-    //       <IconButton
-    //         color="error"
-    //         onClick={() => row.onDelete(row.id)}
-    //         title="Xóa">
-    //         <DeleteIcon />
-    //       </IconButton>
-    //     </>
-    //   ),
-    // },
   ];
 
   useEffect(() => {

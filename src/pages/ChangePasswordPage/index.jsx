@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Stack } from "@mui/material";
+import { Container, Grid, Stack } from "@mui/material";
 
 import ChangePasswordInform from "./shared/ChangePasswordInform";
 

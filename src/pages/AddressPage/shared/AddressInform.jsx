@@ -15,7 +15,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import axios from "axios";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const AddressInform = () => {
@@ -58,7 +58,9 @@ const AddressInform = () => {
 
     axios
       .get(
-        `${import.meta.env.VITE_API_URL}/v1/provinces/${selectedCity}/districts?pageNo=1&pageSize=30`,
+        `${
+          import.meta.env.VITE_API_URL
+        }/v1/provinces/${selectedCity}/districts?pageNo=1&pageSize=30`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -74,7 +76,9 @@ const AddressInform = () => {
 
     axios
       .get(
-        `${import.meta.env.VITE_API_URL}/v1/districts/${selectedDistrict}/wards?pageNo=1&pageSize=100`,
+        `${
+          import.meta.env.VITE_API_URL
+        }/v1/districts/${selectedDistrict}/wards?pageNo=1&pageSize=100`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -86,7 +90,13 @@ const AddressInform = () => {
   }, [selectedDistrict, token]);
 
   const handleSubmit = async () => {
-    if (!selectedCity || !selectedDistrict || !ward || !streetDetail || !phone) {
+    if (
+      !selectedCity ||
+      !selectedDistrict ||
+      !ward ||
+      !streetDetail ||
+      !phone
+    ) {
       setSnackbar({
         open: true,
         message: "Vui lòng điền đầy đủ thông tin địa chỉ!",
@@ -105,13 +115,9 @@ const AddressInform = () => {
     };
 
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/v1/addresses`,
-        data,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.post(`${import.meta.env.VITE_API_URL}/v1/addresses`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setSnackbar({
         open: true,
         message: "Thêm địa chỉ thành công!",
@@ -145,11 +151,20 @@ const AddressInform = () => {
         }}
       >
         <Box sx={{ m: "24px 0 24px 64px" }}>
-          <Stack direction="row" alignItems="center" spacing={13} sx={{ m: "40px 0" }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={13}
+            sx={{ m: "40px 0" }}
+          >
             <Typography variant="h6">Tỉnh/Thành phố: </Typography>
             <FormControl sx={{ m: 1, width: "300px" }} size="small">
               <InputLabel>Tỉnh/Thành phố</InputLabel>
-              <Select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} label="Tỉnh/Thành phố">
+              <Select
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                label="Tỉnh/Thành phố"
+              >
                 {city.map((c) => (
                   <MenuItem key={c.id} value={c.id}>
                     {c.name}
@@ -159,11 +174,20 @@ const AddressInform = () => {
             </FormControl>
           </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={17} sx={{ m: "40px 0" }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={17}
+            sx={{ m: "40px 0" }}
+          >
             <Typography variant="h6">Quận/Huyện: </Typography>
             <FormControl sx={{ m: 1, width: "300px" }} size="small">
               <InputLabel>Quận/Huyện</InputLabel>
-              <Select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} label="Quận/Huyện">
+              <Select
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                label="Quận/Huyện"
+              >
                 {districts.map((d) => (
                   <MenuItem key={d.id} value={d.id}>
                     {d.name}
@@ -173,11 +197,20 @@ const AddressInform = () => {
             </FormControl>
           </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={19} sx={{ m: "40px 0" }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={19}
+            sx={{ m: "40px 0" }}
+          >
             <Typography variant="h6">Phường/Xã: </Typography>
             <FormControl sx={{ m: 1, width: "300px" }} size="small">
               <InputLabel>Phường/Xã</InputLabel>
-              <Select value={ward} onChange={(e) => setWard(e.target.value)} label="Phường/Xã">
+              <Select
+                value={ward}
+                onChange={(e) => setWard(e.target.value)}
+                label="Phường/Xã"
+              >
                 {wards.map((w) => (
                   <MenuItem key={w.code} value={w.code}>
                     {w.name}
@@ -187,7 +220,12 @@ const AddressInform = () => {
             </FormControl>
           </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={24} sx={{ m: "40px 0" }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={24}
+            sx={{ m: "40px 0" }}
+          >
             <Typography variant="h6">Địa chỉ: </Typography>
             <TextField
               variant="outlined"
@@ -199,7 +237,12 @@ const AddressInform = () => {
             />
           </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={17} sx={{ m: "40px 0" }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={17}
+            sx={{ m: "40px 0" }}
+          >
             <Typography variant="h6">Số điện thoại: </Typography>
             <TextField
               variant="outlined"
@@ -211,10 +254,21 @@ const AddressInform = () => {
             />
           </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={17} sx={{ m: "40px 0" }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={17}
+            sx={{ m: "40px 0" }}
+          >
             <Typography variant="h6">Đặt làm mặc định: </Typography>
             <FormControlLabel
-              control={<Checkbox color="default" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />}
+              control={
+                <Checkbox
+                  color="default"
+                  checked={isDefault}
+                  onChange={(e) => setIsDefault(e.target.checked)}
+                />
+              }
               label=""
             />
           </Stack>
@@ -222,7 +276,10 @@ const AddressInform = () => {
           <Box sx={{ display: "flex", justifyContent: "center", mb: 6 }}>
             <Button
               variant="contained"
-              sx={{ backgroundColor: "var(--footer-background-color)", padding: "12px 24px" }}
+              sx={{
+                backgroundColor: "var(--footer-background-color)",
+                padding: "12px 24px",
+              }}
               onClick={handleSubmit}
             >
               Thêm địa chỉ
@@ -236,7 +293,11 @@ const AddressInform = () => {
           onClose={handleCloseSnackbar}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbar.severity}
+            sx={{ width: "100%" }}
+          >
             {snackbar.message}
           </Alert>
         </Snackbar>

@@ -4,7 +4,6 @@ import PlaceIcon from "@mui/icons-material/Place";
 import {
   Button,
   Container,
-  createTheme,
   Grid,
   hexToRgb,
   Stack,
@@ -12,7 +11,6 @@ import {
   ThemeProvider,
   useTheme,
 } from "@mui/material";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 
 import WallpaperRepresentative from "../../components/WallpaperRepresentative";
 import customTheme from "@/components/CustemTheme";
